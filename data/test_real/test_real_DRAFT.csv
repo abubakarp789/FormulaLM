@@ -1,0 +1,81 @@
+id,sheet_id,category,difficulty,request,reference_formula,expected_value,expected_type,notes
+real_001,sales_retail_store,aggregation,1,total revenue across all receipts,=SUM(F2:F115),51636.87,number,DRAFT - casual synonym: 'revenue' -> Net Amount
+real_002,sales_retail_store,aggregation,1,biggest sale?,=MAX(F2:F115),919.63,number,DRAFT - terse/vague: 'biggest sale' -> MAX Net Amount
+real_003,sales_retail_store,aggregation,1,avg qty per receipt,=AVERAGE(E2:E115),13.271929824561404,number,"DRAFT - abbreviations: avg, qty"
+real_004,sales_retail_store,aggregation,2,gap between the highest and lowest net amt,=MAX(F2:F115)-MIN(F2:F115),890.49,number,DRAFT - casual phrasing + abbr 'amt'
+real_005,sales_retail_store,conditional_aggregation,1,how much did the Suncroft branch make in total?,"=SUMIF(C2:C115,""Suncroft"",F2:F115)",10004.82,number,DRAFT - natural business wording
+real_006,sales_retail_store,conditional_aggregation,1,how many receipts came from Brinport?,"=COUNTIF(C2:C115,""Brinport"")",23,number,DRAFT - casual count
+real_007,sales_retail_store,conditional_aggregation,2,count sales with net amt over 500,"=COUNTIF(F2:F115,"">500"")",50,number,DRAFT - terse + abbr
+real_008,sales_retail_store,conditional_aggregation,2,avg net amount for Larkspur,"=AVERAGEIF(C2:C115,""Larkspur"",F2:F115)",474.4591304347826,number,DRAFT - terse averageif
+real_009,sales_retail_store,conditional_aggregation,3,total net amt at Suncroft for bulk orders (qty >= 15),"=SUMIFS(F2:F115,C2:C115,""Suncroft"",E2:E115,"">=15"")",4361.219999999999,number,DRAFT - casual phrasing 'bulk orders'
+real_010,sales_retail_store,logic,1,for row 2 mark Big if qty > 10 else Small,"=IF(E2>10,""Big"",""Small"")",Small,text,DRAFT - terse IF
+real_011,sales_retail_store,logic,2,row 24 item name might be empty - show 'Unknown Item' if blank otherwise keep it,"=IF(D24="""",""Unknown Item"",D24)",Unknown Item,text,DRAFT - blank cell fallback on actual blank row 24
+real_012,sales_retail_store,lookup,2,grab the net amount for receipt RC-1005 using xlookup,"=XLOOKUP(""RC-1005"",A2:A115,F2:F115)",597.17,number,DRAFT - casual lookup
+real_013,sales_retail_store,text,1,how many chars in row 2's item name?,=LEN(D2),12,number,DRAFT - abbreviation 'chars'
+real_014,sales_retail_store,text,2,combine branch and item name on row 3 like 'Branch: Item' using concat,"=CONCAT(C3,"": "",D3)",Suncroft: Foldable Stand,text,DRAFT - natural formatting hint
+real_015,sales_retail_store,date,3,how many receipts were after 2025-12-31?,"=COUNTIF(B2:B115,"">""&DATE(2025,12,31))",45,number,DRAFT - date cutoff count
+real_016,sales_retail_store,math_and_composition,3,"what share of total net amount is from Suncroft? round to 4 dec, 0 on error","=IFERROR(ROUND(SUMIF(C2:C115,""Suncroft"",F2:F115)/SUM(F2:F115),4),0)",0.1938,number,DRAFT - multi-function share + abbr 'dec'
+real_017,hr_employee_roster,aggregation,1,total payroll (annual salary),=SUM(G2:G144),12437924.59,number,DRAFT - business synonym 'payroll'
+real_018,hr_employee_roster,aggregation,1,how many employees actually have a salary filled in?,=COUNT(G2:G144),137,number,DRAFT - blank-aware COUNT
+real_019,hr_employee_roster,aggregation,1,lowest salary in the company,=MIN(G2:G144),39917.03,number,DRAFT - casual MIN
+real_020,hr_employee_roster,conditional_aggregation,1,headcount in Engineering,"=COUNTIF(C2:C144,""Engineering"")",34,number,DRAFT - HR jargon 'headcount'
+real_021,hr_employee_roster,conditional_aggregation,2,how many folks aren't in Support?,"=COUNTIF(C2:C144,""<>Support"")",115,number,DRAFT - casual contraction + <>
+real_022,hr_employee_roster,conditional_aggregation,2,count people in Finance who work out of Veldor,"=COUNTIFS(C2:C144,""Finance"",D2:D144,""Veldor"")",8,number,DRAFT - two-category COUNTIFS
+real_023,hr_employee_roster,conditional_aggregation,3,avg salary in Engineering for vets with 5+ yrs service,"=AVERAGEIFS(G2:G144,C2:C144,""Engineering"",F2:F144,"">=5"")",100142.11466666665,number,"DRAFT - slang 'vets', abbr 'yrs'"
+real_024,hr_employee_roster,logic,2,row 2: check if in Engineering AND at least 5 yrs service (TRUE/FALSE),"=AND(C2=""Engineering"",F2>=5)",TRUE,boolean,DRAFT - boolean AND
+real_025,hr_employee_roster,logic,3,"tier row 5 salary with IFS: >=100000 Senior, >=70000 Mid, else Junior","=IFS(G5>=100000,""Senior"",G5>=70000,""Mid"",TRUE,""Junior"")",Mid,text,DRAFT - 3-tier IFS
+real_026,hr_employee_roster,lookup,2,pull dept for EMP-1004 with vlookup,"=VLOOKUP(""EMP-1004"",A2:G144,3,FALSE)",Finance,text,DRAFT - abbr 'dept'
+real_027,hr_employee_roster,lookup,3,"vlookup salary for EMP-9999, return 'Not on roster' if missing","=IFERROR(VLOOKUP(""EMP-9999"",A2:G144,7,FALSE),""Not on roster"")",Not on roster,text,DRAFT - missing key IFERROR+VLOOKUP
+real_028,hr_employee_roster,text,1,make row 2 full name ALL CAPS,=UPPER(B2),NOLAN PALK,text,DRAFT - casual UPPER
+real_029,hr_employee_roster,text,1,first 3 letters of row 2 employee id,"=LEFT(A2,3)",EMP,text,DRAFT - casual LEFT
+real_030,hr_employee_roster,date,1,what yr was row 2 hired?,=YEAR(E2),2021,number,DRAFT - abbr 'yr'
+real_031,hr_employee_roster,date,3,how many Finance hires joined after 2022-06-30?,"=COUNTIFS(C2:C144,""Finance"",E2:E144,"">""&DATE(2022,6,30))",17,number,DRAFT - COUNTIFS + DATE
+real_032,hr_employee_roster,math_and_composition,2,round the avg annual salary to 2 decimal places,"=ROUND(AVERAGE(G2:G144),2)",90787.77,number,DRAFT - ROUND + AVERAGE
+real_033,inventory_stock_movements,aggregation,1,total units moved overall,=SUM(F2:F106),10361.0,number,DRAFT - simple SUM
+real_034,inventory_stock_movements,aggregation,2,add up units moved and valuation totals together,=SUM(F2:F106)+SUM(G2:G106),518564.13999999996,number,DRAFT - two-column SUM
+real_035,inventory_stock_movements,conditional_aggregation,1,total units for Outbound moves,"=SUMIF(D2:D106,""Outbound"",F2:F106)",2686.0,number,DRAFT - casual SUMIF
+real_036,inventory_stock_movements,conditional_aggregation,2,count all moves in zones starting with 'Zone',"=COUNTIF(E2:E106,""Zone*"")",81,number,DRAFT - wildcard COUNTIF
+real_037,inventory_stock_movements,conditional_aggregation,2,sum of valuations bigger than 5000,"=SUMIF(G2:G106,"">5000"")",390970.96,number,DRAFT - numeric SUMIF
+real_038,inventory_stock_movements,conditional_aggregation,3,total valuation of Outbound movements in Zone A,"=SUMIFS(G2:G106,D2:D106,""Outbound"",E2:E106,""Zone A"")",58629.53,number,DRAFT - two-category SUMIFS
+real_039,inventory_stock_movements,logic,1,on row 3 say 'Out' if movement type is Outbound otherwise 'Other',"=IF(D3=""Outbound"",""Out"",""Other"")",Out,text,DRAFT - casual IF on category
+real_040,inventory_stock_movements,logic,2,row 6: TRUE if zone is Cold Bay or Zone A,"=OR(E6=""Cold Bay"",E6=""Zone A"")",TRUE,boolean,DRAFT - boolean OR
+real_041,inventory_stock_movements,logic,2,for row 2 flag 'Rush' if Zone is Zone C and units > 100 else 'Normal',"=IF(AND(E2=""Zone C"",F2>100),""Rush"",""Normal"")",Rush,text,DRAFT - IF + AND
+real_042,inventory_stock_movements,lookup,2,use index match to find part name for MOV-1004,"=INDEX(C2:C106,MATCH(""MOV-1004"",A2:A106,0))",Rubber Gasket,text,DRAFT - INDEX+MATCH
+real_043,inventory_stock_movements,lookup,2,"xlookup valuation for MOV-9999, say 'Missing' if not there","=XLOOKUP(""MOV-9999"",A2:A106,G2:G106,""Missing"")",Missing,text,DRAFT - XLOOKUP with not-found fallback
+real_044,inventory_stock_movements,text,1,last 4 chars of move id in row 2,"=RIGHT(A2,4)",1001,text,DRAFT - RIGHT
+real_045,inventory_stock_movements,text,2,"join part names in rows 2 to 5 separated by ', ' ignoring blanks","=TEXTJOIN("", "",TRUE,C2:C5)","Nylon Washer, Valve Collar, Seal Ring, Rubber Gasket",text,DRAFT - TEXTJOIN
+real_046,inventory_stock_movements,date,1,month number of move date in row 4,=MONTH(B4),1,number,DRAFT - MONTH
+real_047,inventory_stock_movements,date,3,total Outbound units moved on or after 2025-10-01,"=SUMIFS(F2:F106,D2:D106,""Outbound"",B2:B106,"">=""&DATE(2025,10,1))",1062.0,number,DRAFT - SUMIFS + DATE
+real_048,inventory_stock_movements,math_and_composition,2,valuation per unit on row 2 (return 0 if error),"=IFERROR(G2/F2,0)",20.663299492385786,number,DRAFT - safe unit cost ratio
+real_049,grades_course_scores,aggregation,1,class average final score,=AVERAGE(G2:G108),66.97514563106796,number,DRAFT - natural education phrasing
+real_050,grades_course_scores,aggregation,1,top score in the class,=MAX(G2:G108),99.99,number,DRAFT - vague/casual: 'top score' -> MAX Final Score
+real_051,grades_course_scores,conditional_aggregation,1,avg final score for Math,"=AVERAGEIF(C2:C108,""Math"",G2:G108)",59.2491304347826,number,DRAFT - terse AVERAGEIF
+real_052,grades_course_scores,conditional_aggregation,2,how many students scored 80 or better?,"=COUNTIF(G2:G108,"">=80"")",32,number,DRAFT - casual numeric COUNTIF
+real_053,grades_course_scores,conditional_aggregation,2,avg of final scores strictly above 70,"=AVERAGEIF(G2:G108,"">70"")",85.95553191489361,number,DRAFT - numeric AVERAGEIF
+real_054,grades_course_scores,conditional_aggregation,2,how many Math students are in Sec A?,"=COUNTIFS(C2:C108,""Math"",D2:D108,""Sec A"")",7,number,DRAFT - natural COUNTIFS
+real_055,grades_course_scores,logic,2,row 4 final score might be blank - return 'Pending' if empty else the score,"=IF(G4="""",""Pending"",G4)",Pending,text,DRAFT - actual blank cell row 4
+real_056,grades_course_scores,logic,2,for row 5 show 'STEM' if subject is Math or Physics else 'Other',"=IF(OR(C5=""Math"",C5=""Physics""),""STEM"",""Other"")",Other,text,DRAFT - IF + OR
+real_057,grades_course_scores,lookup,1,get the 5th student's name from the data using INDEX,"=INDEX(B2:B108,5)",Nira Quill,text,DRAFT - simple INDEX
+real_058,grades_course_scores,lookup,2,which row position in the student id data is STU-1005?,"=MATCH(""STU-1005"",A2:A108,0)",5,number,DRAFT - MATCH position
+real_059,grades_course_scores,text,1,lowercase the subject on row 2,=LOWER(C2),math,text,DRAFT - LOWER
+real_060,grades_course_scores,text,1,proper case row 3 student name,=PROPER(B3),Soren Rask,text,DRAFT - PROPER
+real_061,grades_course_scores,text,1,trim extra spaces from row 2 student name,=TRIM(B2),Rina Rask,text,DRAFT - TRIM
+real_062,grades_course_scores,text,2,format row 2 final score as 2-decimal text ('0.00'),"=TEXT(G2,""0.00"")",35.84,text,DRAFT - TEXT number format
+real_063,grades_course_scores,date,1,day of month of row 5 exam date,=DAY(E5),30,number,DRAFT - DAY
+real_064,grades_course_scores,math_and_composition,3,"index/match STU-1004's final score rounded to 1 decimal, 0 if missing","=IFERROR(ROUND(INDEX(G2:G108,MATCH(""STU-1004"",A2:A108,0)),1),0)",95.0,number,DRAFT - 4-function composition
+real_065,orders_ecommerce,aggregation,3,"overall shipping-to-order-total ratio (sum shipping / sum order total, 0 on error)","=IFERROR(SUM(H2:H57)/SUM(G2:G57),0)",0.029056941329161878,number,DRAFT - ratio of two sums
+real_066,orders_ecommerce,conditional_aggregation,1,how many orders got cancelled?,"=COUNTIF(E2:E57,""Cancelled"")",13,number,DRAFT - casual COUNTIF
+real_067,orders_ecommerce,conditional_aggregation,2,total order value for Delivered orders with more than 5 items,"=SUMIFS(G2:G57,E2:E57,""Delivered"",F2:F57,"">5"")",4813.24,number,DRAFT - SUMIFS cat + num
+real_068,orders_ecommerce,conditional_aggregation,3,total order amount for Web orders that were Delivered,"=SUMIFS(G2:G57,D2:D57,""Web"",E2:E57,""Delivered"")",2416.8399999999997,number,DRAFT - SUMIFS 2 categories
+real_069,orders_ecommerce,conditional_aggregation,3,avg order total for Delivered orders with at least 8 items,"=AVERAGEIFS(G2:G57,E2:E57,""Delivered"",F2:F57,"">=8"")",450.40875000000005,number,DRAFT - AVERAGEIFS
+real_070,orders_ecommerce,logic,3,"classify row 4 order total with IFS: >=800 VIP, >=300 Mid, else Small","=IFS(G4>=800,""VIP"",G4>=300,""Mid"",TRUE,""Small"")",VIP,text,DRAFT - 3-tier IFS
+real_071,orders_ecommerce,lookup,2,find customer name for ORD-1003 using xlookup,"=XLOOKUP(""ORD-1003"",A2:A57,C2:C57)",Halen Bramm,text,DRAFT - XLOOKUP
+real_072,orders_ecommerce,lookup,2,vlookup fulfillment status for ORD-1004,"=VLOOKUP(""ORD-1004"",A2:H57,5,FALSE)",Shipped,text,DRAFT - VLOOKUP
+real_073,orders_ecommerce,text,2,pull 4 chars from ORD id in row 2 starting at position 5,"=MID(A2,5,4)",1001,text,DRAFT - MID substring
+real_074,orders_ecommerce,date,2,build an Excel date for 2026-01-15,"=DATE(2026,1,15)",2026-01-15,date,DRAFT - DATE construct
+real_075,orders_ecommerce,date,3,format row 2 order date as yyyy-mm text,"=TEXT(B2,""yyyy-mm"")",2025-04,text,DRAFT - TEXT date year-month
+real_076,orders_ecommerce,date,3,how many Delivered orders happened after 2025-09-01?,"=COUNTIFS(E2:E57,""Delivered"",B2:B57,"">""&DATE(2025,9,1))",12,number,DRAFT - COUNTIFS + DATE
+real_077,orders_ecommerce,math_and_composition,1,round row 2 order total to the nearest whole number,"=ROUND(G2,0)",943.0,number,DRAFT - ROUND to integer
+real_078,orders_ecommerce,math_and_composition,2,"shipping fee divided by order total on row 2, 0 if error","=IFERROR(H2/G2,0)",0.03440670957344163,number,DRAFT - IFERROR division
+real_079,orders_ecommerce,math_and_composition,3,"say 'Goal Hit' if total Delivered order value beats 5000, else 'Short'","=IF(SUMIF(E2:E57,""Delivered"",G2:G57)>5000,""Goal Hit"",""Short"")",Goal Hit,text,DRAFT - IF + SUMIF target
+real_080,orders_ecommerce,math_and_composition,3,"index/match ORD-1005 shipping fee rounded to 1 dec, or 0 if not found","=IFERROR(ROUND(INDEX(H2:H57,MATCH(""ORD-1005"",A2:A57,0)),1),0)",1.1,number,DRAFT - IFERROR+ROUND+INDEX+MATCH
