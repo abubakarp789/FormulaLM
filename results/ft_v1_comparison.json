@@ -1,0 +1,1149 @@
+{
+  "ft_label": "Fine-tuned v1",
+  "synthetic": {
+    "base_zeroshot": {
+      "run_name": "baseline_zeroshot_synthetic",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/processed/test_synthetic.jsonl",
+      "seed": 42,
+      "few_shot": 0,
+      "few_shot_ids": [],
+      "max_tokens": 96,
+      "overall": {
+        "n": 500,
+        "syntax_valid_rate": 0.718,
+        "exec_ok_rate": 0.69,
+        "execution_accuracy": 0.446,
+        "exact_match_rate": 0.366,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 813.95,
+        "p50_latency_ms": 792.87,
+        "p95_latency_ms": 1197.69
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.75,
+          "exec_ok_rate": 0.75,
+          "execution_accuracy": 0.6528,
+          "exact_match_rate": 0.6389,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 816.11,
+          "p50_latency_ms": 739.23,
+          "p95_latency_ms": 1386.13
+        },
+        "conditional_aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.7917,
+          "exec_ok_rate": 0.6389,
+          "execution_accuracy": 0.2361,
+          "exact_match_rate": 0.1806,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 799.92,
+          "p50_latency_ms": 743.67,
+          "p95_latency_ms": 1386.13
+        },
+        "date": {
+          "n": 72,
+          "syntax_valid_rate": 0.7778,
+          "exec_ok_rate": 0.7361,
+          "execution_accuracy": 0.5694,
+          "exact_match_rate": 0.5278,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 820.3,
+          "p50_latency_ms": 759.78,
+          "p95_latency_ms": 1391.59
+        },
+        "logic": {
+          "n": 71,
+          "syntax_valid_rate": 0.9155,
+          "exec_ok_rate": 0.9155,
+          "execution_accuracy": 0.6901,
+          "exact_match_rate": 0.4085,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 854.76,
+          "p50_latency_ms": 805.42,
+          "p95_latency_ms": 1708.17
+        },
+        "lookup": {
+          "n": 71,
+          "syntax_valid_rate": 0.0563,
+          "exec_ok_rate": 0.0563,
+          "execution_accuracy": 0.0423,
+          "exact_match_rate": 0.0141,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 791.4,
+          "p50_latency_ms": 792.87,
+          "p95_latency_ms": 1114.66
+        },
+        "math_and_composition": {
+          "n": 71,
+          "syntax_valid_rate": 0.831,
+          "exec_ok_rate": 0.831,
+          "execution_accuracy": 0.5211,
+          "exact_match_rate": 0.3944,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 843.17,
+          "p50_latency_ms": 844.67,
+          "p95_latency_ms": 1197.69
+        },
+        "text": {
+          "n": 71,
+          "syntax_valid_rate": 0.9014,
+          "exec_ok_rate": 0.9014,
+          "execution_accuracy": 0.4085,
+          "exact_match_rate": 0.3944,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 772.09,
+          "p50_latency_ms": 734.7,
+          "p95_latency_ms": 1054.21
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 180,
+          "syntax_valid_rate": 0.7833,
+          "exec_ok_rate": 0.7389,
+          "execution_accuracy": 0.4722,
+          "exact_match_rate": 0.4333,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 793.43,
+          "p50_latency_ms": 739.14,
+          "p95_latency_ms": 1195.29
+        },
+        "2": {
+          "n": 179,
+          "syntax_valid_rate": 0.7542,
+          "exec_ok_rate": 0.743,
+          "execution_accuracy": 0.4804,
+          "exact_match_rate": 0.4078,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 806.0,
+          "p50_latency_ms": 798.2,
+          "p95_latency_ms": 1197.69
+        },
+        "3": {
+          "n": 141,
+          "syntax_valid_rate": 0.5887,
+          "exec_ok_rate": 0.5603,
+          "execution_accuracy": 0.3688,
+          "exact_match_rate": 0.227,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 850.25,
+          "p50_latency_ms": 828.08,
+          "p95_latency_ms": 1391.59
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 14,
+        "syntax_error": 92,
+        "unsupported_function": 49,
+        "wrong_value": 122
+      }
+    },
+    "base_5shot": {
+      "run_name": "baseline_5shot_synthetic",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/processed/test_synthetic.jsonl",
+      "seed": 42,
+      "few_shot": 5,
+      "few_shot_ids": [
+        "train_07343",
+        "train_00899",
+        "train_00235",
+        "train_07128",
+        "train_02574"
+      ],
+      "max_tokens": 96,
+      "overall": {
+        "n": 500,
+        "syntax_valid_rate": 0.85,
+        "exec_ok_rate": 0.782,
+        "execution_accuracy": 0.602,
+        "exact_match_rate": 0.512,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 1728.18,
+        "p50_latency_ms": 1720.82,
+        "p95_latency_ms": 1998.92
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.7639,
+          "exec_ok_rate": 0.7639,
+          "execution_accuracy": 0.6528,
+          "exact_match_rate": 0.5,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1728.28,
+          "p50_latency_ms": 1722.37,
+          "p95_latency_ms": 2009.85
+        },
+        "conditional_aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.9722,
+          "exec_ok_rate": 0.6528,
+          "execution_accuracy": 0.5833,
+          "exact_match_rate": 0.5556,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1731.87,
+          "p50_latency_ms": 1719.32,
+          "p95_latency_ms": 1954.79
+        },
+        "date": {
+          "n": 72,
+          "syntax_valid_rate": 0.9583,
+          "exec_ok_rate": 0.9167,
+          "execution_accuracy": 0.7917,
+          "exact_match_rate": 0.6806,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1720.39,
+          "p50_latency_ms": 1722.37,
+          "p95_latency_ms": 1971.96
+        },
+        "logic": {
+          "n": 71,
+          "syntax_valid_rate": 0.8028,
+          "exec_ok_rate": 0.7606,
+          "execution_accuracy": 0.6901,
+          "exact_match_rate": 0.5352,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1734.39,
+          "p50_latency_ms": 1714.73,
+          "p95_latency_ms": 2009.85
+        },
+        "lookup": {
+          "n": 71,
+          "syntax_valid_rate": 0.5915,
+          "exec_ok_rate": 0.5493,
+          "execution_accuracy": 0.4085,
+          "exact_match_rate": 0.3662,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1709.14,
+          "p50_latency_ms": 1692.0,
+          "p95_latency_ms": 1971.96
+        },
+        "math_and_composition": {
+          "n": 71,
+          "syntax_valid_rate": 0.9014,
+          "exec_ok_rate": 0.8732,
+          "execution_accuracy": 0.5775,
+          "exact_match_rate": 0.4789,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1737.12,
+          "p50_latency_ms": 1714.73,
+          "p95_latency_ms": 2263.15
+        },
+        "text": {
+          "n": 71,
+          "syntax_valid_rate": 0.9577,
+          "exec_ok_rate": 0.9577,
+          "execution_accuracy": 0.507,
+          "exact_match_rate": 0.4648,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1736.14,
+          "p50_latency_ms": 1743.6,
+          "p95_latency_ms": 2009.85
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 180,
+          "syntax_valid_rate": 0.9944,
+          "exec_ok_rate": 0.9889,
+          "execution_accuracy": 0.8444,
+          "exact_match_rate": 0.8333,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1710.31,
+          "p50_latency_ms": 1708.75,
+          "p95_latency_ms": 1971.96
+        },
+        "2": {
+          "n": 179,
+          "syntax_valid_rate": 0.8212,
+          "exec_ok_rate": 0.7821,
+          "execution_accuracy": 0.5084,
+          "exact_match_rate": 0.4358,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1721.46,
+          "p50_latency_ms": 1708.75,
+          "p95_latency_ms": 1998.92
+        },
+        "3": {
+          "n": 141,
+          "syntax_valid_rate": 0.7021,
+          "exec_ok_rate": 0.5177,
+          "execution_accuracy": 0.4113,
+          "exact_match_rate": 0.1986,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1759.52,
+          "p50_latency_ms": 1743.6,
+          "p95_latency_ms": 2009.85
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 34,
+        "syntax_error": 43,
+        "unsupported_function": 32,
+        "wrong_value": 90
+      }
+    },
+    "ft": {
+      "run_name": "ft_v1_synthetic",
+      "backend": "transformers:Qwen/Qwen3-1.7B+/content/drive/MyDrive/FormulaLM/qlora_v1/adapter",
+      "dataset": "data/processed/test_synthetic.jsonl",
+      "seed": 42,
+      "few_shot": 0,
+      "few_shot_ids": [],
+      "max_tokens": 96,
+      "overall": {
+        "n": 500,
+        "syntax_valid_rate": 0.996,
+        "exec_ok_rate": 0.996,
+        "execution_accuracy": 0.976,
+        "exact_match_rate": 0.97,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 794.71,
+        "p50_latency_ms": 789.08,
+        "p95_latency_ms": 961.43
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.9722,
+          "exec_ok_rate": 0.9722,
+          "execution_accuracy": 0.9583,
+          "exact_match_rate": 0.9583,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 778.63,
+          "p50_latency_ms": 773.74,
+          "p95_latency_ms": 975.45
+        },
+        "conditional_aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.9861,
+          "exact_match_rate": 0.9861,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 792.96,
+          "p50_latency_ms": 799.5,
+          "p95_latency_ms": 975.45
+        },
+        "date": {
+          "n": 72,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.9583,
+          "exact_match_rate": 0.9583,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 810.84,
+          "p50_latency_ms": 789.08,
+          "p95_latency_ms": 986.99
+        },
+        "logic": {
+          "n": 71,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 1.0,
+          "exact_match_rate": 1.0,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 791.08,
+          "p50_latency_ms": 807.18,
+          "p95_latency_ms": 921.62
+        },
+        "lookup": {
+          "n": 71,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 1.0,
+          "exact_match_rate": 0.9859,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 786.68,
+          "p50_latency_ms": 773.74,
+          "p95_latency_ms": 961.43
+        },
+        "math_and_composition": {
+          "n": 71,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.9577,
+          "exact_match_rate": 0.9437,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 811.68,
+          "p50_latency_ms": 841.81,
+          "p95_latency_ms": 961.43
+        },
+        "text": {
+          "n": 71,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.9718,
+          "exact_match_rate": 0.9577,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 791.11,
+          "p50_latency_ms": 807.18,
+          "p95_latency_ms": 923.61
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 180,
+          "syntax_valid_rate": 0.9944,
+          "exec_ok_rate": 0.9944,
+          "execution_accuracy": 0.9778,
+          "exact_match_rate": 0.9722,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 780.72,
+          "p50_latency_ms": 775.88,
+          "p95_latency_ms": 923.61
+        },
+        "2": {
+          "n": 179,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.9832,
+          "exact_match_rate": 0.9832,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 789.76,
+          "p50_latency_ms": 789.08,
+          "p95_latency_ms": 961.43
+        },
+        "3": {
+          "n": 141,
+          "syntax_valid_rate": 0.9929,
+          "exec_ok_rate": 0.9929,
+          "execution_accuracy": 0.9645,
+          "exact_match_rate": 0.9504,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 818.85,
+          "p50_latency_ms": 836.69,
+          "p95_latency_ms": 975.45
+        }
+      },
+      "error_breakdown": {
+        "unsupported_function": 2,
+        "wrong_value": 10
+      }
+    }
+  },
+  "real": {
+    "base_zeroshot": {
+      "run_name": "baseline_zeroshot_real",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/test_real/test_real_DRAFT.csv",
+      "seed": 42,
+      "few_shot": 0,
+      "few_shot_ids": [],
+      "max_tokens": 96,
+      "overall": {
+        "n": 80,
+        "syntax_valid_rate": 0.8125,
+        "exec_ok_rate": 0.7875,
+        "execution_accuracy": 0.5,
+        "exact_match_rate": 0.425,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 651.74,
+        "p50_latency_ms": 637.57,
+        "p95_latency_ms": 892.88
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 12,
+          "syntax_valid_rate": 0.9167,
+          "exec_ok_rate": 0.9167,
+          "execution_accuracy": 0.8333,
+          "exact_match_rate": 0.8333,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 595.85,
+          "p50_latency_ms": 601.09,
+          "p95_latency_ms": 892.88
+        },
+        "conditional_aggregation": {
+          "n": 21,
+          "syntax_valid_rate": 0.9048,
+          "exec_ok_rate": 0.8571,
+          "execution_accuracy": 0.3333,
+          "exact_match_rate": 0.2857,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 618.91,
+          "p50_latency_ms": 601.09,
+          "p95_latency_ms": 892.88
+        },
+        "date": {
+          "n": 9,
+          "syntax_valid_rate": 0.7778,
+          "exec_ok_rate": 0.7778,
+          "execution_accuracy": 0.5556,
+          "exact_match_rate": 0.4444,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 703.3,
+          "p50_latency_ms": 726.28,
+          "p95_latency_ms": 737.15
+        },
+        "logic": {
+          "n": 10,
+          "syntax_valid_rate": 0.9,
+          "exec_ok_rate": 0.9,
+          "execution_accuracy": 0.6,
+          "exact_match_rate": 0.4,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 611.22,
+          "p50_latency_ms": 595.43,
+          "p95_latency_ms": 892.88
+        },
+        "lookup": {
+          "n": 9,
+          "syntax_valid_rate": 0.3333,
+          "exec_ok_rate": 0.2222,
+          "execution_accuracy": 0.1111,
+          "exact_match_rate": 0.0,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 730.53,
+          "p50_latency_ms": 724.55,
+          "p95_latency_ms": 892.88
+        },
+        "math_and_composition": {
+          "n": 8,
+          "syntax_valid_rate": 0.625,
+          "exec_ok_rate": 0.625,
+          "execution_accuracy": 0.375,
+          "exact_match_rate": 0.375,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 699.29,
+          "p50_latency_ms": 726.28,
+          "p95_latency_ms": 737.15
+        },
+        "text": {
+          "n": 11,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.7273,
+          "exact_match_rate": 0.6364,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 671.0,
+          "p50_latency_ms": 638.16,
+          "p95_latency_ms": 737.15
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 29,
+          "syntax_valid_rate": 0.931,
+          "exec_ok_rate": 0.931,
+          "execution_accuracy": 0.6897,
+          "exact_match_rate": 0.6897,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 624.24,
+          "p50_latency_ms": 636.97,
+          "p95_latency_ms": 737.15
+        },
+        "2": {
+          "n": 33,
+          "syntax_valid_rate": 0.7879,
+          "exec_ok_rate": 0.7576,
+          "execution_accuracy": 0.4848,
+          "exact_match_rate": 0.3939,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 636.68,
+          "p50_latency_ms": 636.97,
+          "p95_latency_ms": 892.88
+        },
+        "3": {
+          "n": 18,
+          "syntax_valid_rate": 0.6667,
+          "exec_ok_rate": 0.6111,
+          "execution_accuracy": 0.2222,
+          "exact_match_rate": 0.0556,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 723.67,
+          "p50_latency_ms": 725.41,
+          "p95_latency_ms": 892.88
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 2,
+        "syntax_error": 7,
+        "unsupported_function": 8,
+        "wrong_value": 23
+      }
+    },
+    "base_5shot": {
+      "run_name": "baseline_5shot_real",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/test_real/test_real_DRAFT.csv",
+      "seed": 42,
+      "few_shot": 5,
+      "few_shot_ids": [
+        "train_07343",
+        "train_00899",
+        "train_00235",
+        "train_07128",
+        "train_02574"
+      ],
+      "max_tokens": 96,
+      "overall": {
+        "n": 80,
+        "syntax_valid_rate": 0.85,
+        "exec_ok_rate": 0.7625,
+        "execution_accuracy": 0.5125,
+        "exact_match_rate": 0.4125,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 1576.15,
+        "p50_latency_ms": 1548.86,
+        "p95_latency_ms": 1976.25
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 12,
+          "syntax_valid_rate": 0.9167,
+          "exec_ok_rate": 0.8333,
+          "execution_accuracy": 0.5833,
+          "exact_match_rate": 0.5833,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1432.28,
+          "p50_latency_ms": 1459.98,
+          "p95_latency_ms": 1547.78
+        },
+        "conditional_aggregation": {
+          "n": 21,
+          "syntax_valid_rate": 0.9524,
+          "exec_ok_rate": 0.7619,
+          "execution_accuracy": 0.381,
+          "exact_match_rate": 0.381,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1472.47,
+          "p50_latency_ms": 1504.54,
+          "p95_latency_ms": 1547.78
+        },
+        "date": {
+          "n": 9,
+          "syntax_valid_rate": 0.8889,
+          "exec_ok_rate": 0.8889,
+          "execution_accuracy": 0.7778,
+          "exact_match_rate": 0.4444,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1706.37,
+          "p50_latency_ms": 1635.45,
+          "p95_latency_ms": 1976.25
+        },
+        "logic": {
+          "n": 10,
+          "syntax_valid_rate": 0.7,
+          "exec_ok_rate": 0.7,
+          "execution_accuracy": 0.6,
+          "exact_match_rate": 0.4,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1587.98,
+          "p50_latency_ms": 1534.24,
+          "p95_latency_ms": 1976.25
+        },
+        "lookup": {
+          "n": 9,
+          "syntax_valid_rate": 0.5556,
+          "exec_ok_rate": 0.3333,
+          "execution_accuracy": 0.3333,
+          "exact_match_rate": 0.1111,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1677.38,
+          "p50_latency_ms": 1580.72,
+          "p95_latency_ms": 1976.25
+        },
+        "math_and_composition": {
+          "n": 8,
+          "syntax_valid_rate": 0.75,
+          "exec_ok_rate": 0.75,
+          "execution_accuracy": 0.25,
+          "exact_match_rate": 0.125,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1666.58,
+          "p50_latency_ms": 1635.45,
+          "p95_latency_ms": 1976.25
+        },
+        "text": {
+          "n": 11,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.7273,
+          "exact_match_rate": 0.7273,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1665.18,
+          "p50_latency_ms": 1580.72,
+          "p95_latency_ms": 1976.25
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 29,
+          "syntax_valid_rate": 0.9655,
+          "exec_ok_rate": 0.931,
+          "execution_accuracy": 0.7586,
+          "exact_match_rate": 0.7586,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1535.37,
+          "p50_latency_ms": 1520.69,
+          "p95_latency_ms": 1976.25
+        },
+        "2": {
+          "n": 33,
+          "syntax_valid_rate": 0.7879,
+          "exec_ok_rate": 0.697,
+          "execution_accuracy": 0.3636,
+          "exact_match_rate": 0.303,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1591.91,
+          "p50_latency_ms": 1547.78,
+          "p95_latency_ms": 1976.25
+        },
+        "3": {
+          "n": 18,
+          "syntax_valid_rate": 0.7778,
+          "exec_ok_rate": 0.6111,
+          "execution_accuracy": 0.3889,
+          "exact_match_rate": 0.0556,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1612.98,
+          "p50_latency_ms": 1580.72,
+          "p95_latency_ms": 1976.25
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 7,
+        "syntax_error": 6,
+        "unsupported_function": 6,
+        "wrong_value": 20
+      }
+    },
+    "ft": {
+      "run_name": "ft_v1_real",
+      "backend": "transformers:Qwen/Qwen3-1.7B+/content/drive/MyDrive/FormulaLM/qlora_v1/adapter",
+      "dataset": "data/test_real/test_real_DRAFT.csv",
+      "seed": 42,
+      "few_shot": 0,
+      "few_shot_ids": [],
+      "max_tokens": 96,
+      "overall": {
+        "n": 80,
+        "syntax_valid_rate": 1.0,
+        "exec_ok_rate": 1.0,
+        "execution_accuracy": 0.9125,
+        "exact_match_rate": 0.9125,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 789.85,
+        "p50_latency_ms": 810.5,
+        "p95_latency_ms": 994.6
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 12,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 1.0,
+          "exact_match_rate": 1.0,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 768.2,
+          "p50_latency_ms": 729.8,
+          "p95_latency_ms": 994.6
+        },
+        "conditional_aggregation": {
+          "n": 21,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.8571,
+          "exact_match_rate": 0.8571,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 727.47,
+          "p50_latency_ms": 711.45,
+          "p95_latency_ms": 994.6
+        },
+        "date": {
+          "n": 9,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.8889,
+          "exact_match_rate": 0.8889,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 854.83,
+          "p50_latency_ms": 823.59,
+          "p95_latency_ms": 955.84
+        },
+        "logic": {
+          "n": 10,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 1.0,
+          "exact_match_rate": 1.0,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 724.4,
+          "p50_latency_ms": 720.62,
+          "p95_latency_ms": 955.84
+        },
+        "lookup": {
+          "n": 9,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 1.0,
+          "exact_match_rate": 1.0,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 834.07,
+          "p50_latency_ms": 855.2,
+          "p95_latency_ms": 955.84
+        },
+        "math_and_composition": {
+          "n": 8,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.75,
+          "exact_match_rate": 0.75,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 845.48,
+          "p50_latency_ms": 823.59,
+          "p95_latency_ms": 955.84
+        },
+        "text": {
+          "n": 11,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.9091,
+          "exact_match_rate": 0.9091,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 862.23,
+          "p50_latency_ms": 861.0,
+          "p95_latency_ms": 955.84
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 29,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 1.0,
+          "exact_match_rate": 1.0,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 801.9,
+          "p50_latency_ms": 823.59,
+          "p95_latency_ms": 994.6
+        },
+        "2": {
+          "n": 33,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.9091,
+          "exact_match_rate": 0.9091,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 779.04,
+          "p50_latency_ms": 797.42,
+          "p95_latency_ms": 994.6
+        },
+        "3": {
+          "n": 18,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.7778,
+          "exact_match_rate": 0.7778,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 790.22,
+          "p50_latency_ms": 810.5,
+          "p95_latency_ms": 955.84
+        }
+      },
+      "error_breakdown": {
+        "wrong_value": 7
+      }
+    }
+  },
+  "ft_total_failures": 19,
+  "clusters": [
+    {
+      "cluster": "wrong_function",
+      "count": 8,
+      "share": 0.4211,
+      "test_synthetic_count": 7,
+      "test_real_count": 1,
+      "examples": [
+        {
+          "split": "test_real",
+          "id": "real_048",
+          "sheet_id": "inventory_stock_movements",
+          "category": "math_and_composition",
+          "difficulty": 2,
+          "request": "valuation per unit on row 2 (return 0 if error)",
+          "reference_formula": "=IFERROR(G2/F2,0)",
+          "extracted_formula": "=IFERROR(VLOOKUP(A2,Sheet1!A:E,7,FALSE),0)",
+          "raw_output": "=IFERROR(VLOOKUP(A2,Sheet1!A:E,7,FALSE),0)",
+          "expected_value": 20.663299492385786,
+          "predicted_value": 0,
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00006",
+          "sheet_id": "orders_ecommerce",
+          "category": "math_and_composition",
+          "difficulty": 3,
+          "request": "Did Channel 'Web' beat a Item Count target of 117.6? Return 'Met' or 'Missed'.",
+          "reference_formula": "=IF(SUMIF(D2:D57,\"Web\",F2:F57)>117.6,\"Met\",\"Missed\")",
+          "extracted_formula": "=IF(OR(D2=\"Web\",F2>117.6),\"Met\",\"Missed\")",
+          "raw_output": "=IF(OR(D2=\"Web\",F2>117.6),\"Met\",\"Missed\")",
+          "expected_value": "Missed",
+          "predicted_value": "Met",
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00037",
+          "sheet_id": "grades_course_scores",
+          "category": "math_and_composition",
+          "difficulty": 3,
+          "request": "Did Subject 'Computing' beat a Assignments Done target of 127.2? Return 'Above Target' or 'Below Target'.",
+          "reference_formula": "=IF(SUMIF(C2:C108,\"Computing\",F2:F108)>127.2,\"Above Target\",\"Below Target\")",
+          "extracted_formula": "=IF(OR(SUMIF(C2:C108,\"Computing\",F2:F108)>127.2,SUMIF(C2:C108,\"Computing\",F2:F108)<127.2),\"Above Target\",\"Below Target\")",
+          "raw_output": "=IF(OR(SUMIF(C2:C108,\"Computing\",F2:F108)>127.2,SUMIF(C2:C108,\"Computing\",F2:F108)<127.2),\"Above Target\",\"Below Target\")",
+          "expected_value": "Below Target",
+          "predicted_value": "Above Target",
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00117",
+          "sheet_id": "orders_ecommerce",
+          "category": "date",
+          "difficulty": 1,
+          "request": "Return the 4-digit calendar year of the date stored in Order Date at row 30.",
+          "reference_formula": "=YEAR(B30)",
+          "extracted_formula": "=TEXT(B30,\"yyyy\")",
+          "raw_output": "=TEXT(B30,\"yyyy\")",
+          "expected_value": 2025,
+          "predicted_value": "2025",
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00163",
+          "sheet_id": "sales_retail_store",
+          "category": "date",
+          "difficulty": 1,
+          "request": "Return the 4-digit calendar year of the date stored in Sale Date at row 29.",
+          "reference_formula": "=YEAR(B29)",
+          "extracted_formula": "=TEXT(B29,\"yyyy\")",
+          "raw_output": "=TEXT(B29,\"yyyy\")",
+          "expected_value": 2026,
+          "predicted_value": "2026",
+          "error_type": "wrong_value",
+          "error_message": null
+        }
+      ]
+    },
+    {
+      "cluster": "wrong_aggregation",
+      "count": 4,
+      "share": 0.2105,
+      "test_synthetic_count": 2,
+      "test_real_count": 2,
+      "examples": [
+        {
+          "split": "test_real",
+          "id": "real_038",
+          "sheet_id": "inventory_stock_movements",
+          "category": "conditional_aggregation",
+          "difficulty": 3,
+          "request": "total valuation of Outbound movements in Zone A",
+          "reference_formula": "=SUMIFS(G2:G106,D2:D106,\"Outbound\",E2:E106,\"Zone A\")",
+          "extracted_formula": "=SUMIF(E2:E106,\"A\",G2:G106)",
+          "raw_output": "=SUMIF(E2:E106,\"A\",G2:G106)",
+          "expected_value": 58629.53,
+          "predicted_value": 0.0,
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_real",
+          "id": "real_054",
+          "sheet_id": "grades_course_scores",
+          "category": "conditional_aggregation",
+          "difficulty": 2,
+          "request": "how many Math students are in Sec A?",
+          "reference_formula": "=COUNTIFS(C2:C108,\"Math\",D2:D108,\"Sec A\")",
+          "extracted_formula": "=COUNTIFS(C2:C108,\"Math\",D2:D108,\"A\")",
+          "raw_output": "=COUNTIFS(C2:C108,\"Math\",D2:D108,\"A\")",
+          "expected_value": 7,
+          "predicted_value": 0,
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00013",
+          "sheet_id": "orders_ecommerce",
+          "category": "math_and_composition",
+          "difficulty": 2,
+          "request": "Compute the arithmetic mean of the Item Count column and round the result to 2 decimal place(s).",
+          "reference_formula": "=ROUND(AVERAGE(F2:F57),2)",
+          "extracted_formula": "=AVERAGE(F2:F57)",
+          "raw_output": "=AVERAGE(F2:F57)",
+          "expected_value": 7.59,
+          "predicted_value": 7.589285714285714,
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00074",
+          "sheet_id": "grades_course_scores",
+          "category": "aggregation",
+          "difficulty": 3,
+          "request": "What is total Assignments Done per unit of total Final Score (return 0 if division fails)?",
+          "reference_formula": "=IFERROR(SUM(F2:F108)/SUM(G2:G108),0)",
+          "extracted_formula": "=IFERROR(SUMIF(G2:G108,\"*\",$F2:F108)/SUM(G2:G108),0)",
+          "raw_output": "=IFERROR(SUMIF(G2:G108,\"*\",$F2:F108)/SUM(G2:G108),0)",
+          "expected_value": 0.09132499521630978,
+          "predicted_value": 0.003044166507210326,
+          "error_type": "wrong_value",
+          "error_message": null
+        }
+      ]
+    },
+    {
+      "cluster": "wrong_column",
+      "count": 4,
+      "share": 0.2105,
+      "test_synthetic_count": 1,
+      "test_real_count": 3,
+      "examples": [
+        {
+          "split": "test_real",
+          "id": "real_047",
+          "sheet_id": "inventory_stock_movements",
+          "category": "date",
+          "difficulty": 3,
+          "request": "total Outbound units moved on or after 2025-10-01",
+          "reference_formula": "=SUMIFS(F2:F106,D2:D106,\"Outbound\",B2:B106,\">=\"&DATE(2025,10,1))",
+          "extracted_formula": "=SUMIFS(F2:F106,B2:B106,\"Outbound\",B2:B106,\">=\"&DATE(2025,10,1))",
+          "raw_output": "=SUMIFS(F2:F106,B2:B106,\"Outbound\",B2:B106,\">=\"&DATE(2025,10,1))",
+          "expected_value": 1062.0,
+          "predicted_value": 0.0,
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_real",
+          "id": "real_068",
+          "sheet_id": "orders_ecommerce",
+          "category": "conditional_aggregation",
+          "difficulty": 3,
+          "request": "total order amount for Web orders that were Delivered",
+          "reference_formula": "=SUMIFS(G2:G57,D2:D57,\"Web\",E2:E57,\"Delivered\")",
+          "extracted_formula": "=SUMIFS(G2:G57,E2:E57,\"Web\",H2:H57,\"Delivered\")",
+          "raw_output": "=SUMIFS(G2:G57,E2:E57,\"Web\",H2:H57,\"Delivered\")",
+          "expected_value": 2416.8399999999997,
+          "predicted_value": 0.0,
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_real",
+          "id": "real_079",
+          "sheet_id": "orders_ecommerce",
+          "category": "math_and_composition",
+          "difficulty": 3,
+          "request": "say 'Goal Hit' if total Delivered order value beats 5000, else 'Short'",
+          "reference_formula": "=IF(SUMIF(E2:E57,\"Delivered\",G2:G57)>5000,\"Goal Hit\",\"Short\")",
+          "extracted_formula": "=IF(SUMIF(D2:D57,\"Delivered\",G2:G57)>5000,\"Goal Hit\",\"Short\")",
+          "raw_output": "=IF(SUMIF(D2:D57,\"Delivered\",G2:G57)>5000,\"Goal Hit\",\"Short\")",
+          "expected_value": "Goal Hit",
+          "predicted_value": "Short",
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00085",
+          "sheet_id": "grades_course_scores",
+          "category": "conditional_aggregation",
+          "difficulty": 3,
+          "request": "sum Final Score where Section=Sec B & Subject=Math",
+          "reference_formula": "=SUMIFS(G2:G108,D2:D108,\"Sec B\",C2:C108,\"Math\")",
+          "extracted_formula": "=SUMIFS(G2:G108,C2:C108,\"Sec B\",C2:C108,\"Math\")",
+          "raw_output": "=SUMIFS(G2:G108,C2:C108,\"Sec B\",C2:C108,\"Math\")",
+          "expected_value": 497.3,
+          "predicted_value": 0.0,
+          "error_type": "wrong_value",
+          "error_message": null
+        }
+      ]
+    },
+    {
+      "cluster": "wrong_argument_order",
+      "count": 3,
+      "share": 0.1579,
+      "test_synthetic_count": 2,
+      "test_real_count": 1,
+      "examples": [
+        {
+          "split": "test_real",
+          "id": "real_014",
+          "sheet_id": "sales_retail_store",
+          "category": "text",
+          "difficulty": 2,
+          "request": "combine branch and item name on row 3 like 'Branch: Item' using concat",
+          "reference_formula": "=CONCAT(C3,\": \",D3)",
+          "extracted_formula": "=CONCAT(\"Branch:\",D3,\"-\",C3)",
+          "raw_output": "=CONCAT(\"Branch:\",D3,\"-\",C3)",
+          "expected_value": "Suncroft: Foldable Stand",
+          "predicted_value": "Branch:Foldable Stand-Suncroft",
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00312",
+          "sheet_id": "orders_ecommerce",
+          "category": "text",
+          "difficulty": 2,
+          "request": "List the Channel entries from row 2 to 5 joined by '; ' (skip empty cells).",
+          "reference_formula": "=TEXTJOIN(\"; \",TRUE,D2:D5)",
+          "extracted_formula": "=TEXTJOIN(\"; \",TRUE,D2:D57)",
+          "raw_output": "=TEXTJOIN(\"; \",TRUE,D2:D57)",
+          "expected_value": "Web; Marketplace; Phone; Marketplace",
+          "predicted_value": "Web; Marketplace; Phone; Marketplace; Mobile App; Marketplace; Phone; Marketplace; Marketplace; Web; Mobile App; Web; Web; Marketplace; Web; Marketplace; Marketplace; Mobile App; Web; Phone; Phone; Marketplace; Marketplace; Web; Marketplace; Mobile App; Marketplace; Phone; Phone; Marketplace; Web; Mobile App; Web; Marketplace; Phone; Mobile App; Mobile App; Web; Mobile App; Web; Mobile App; Web; Mobile App; Phone; Phone; Web; Mobile App; Web; Phone; Mobile App; Web; Web; Web; Mobile App; Phone; Mobile App",
+          "error_type": "wrong_value",
+          "error_message": null
+        },
+        {
+          "split": "test_synthetic",
+          "id": "test_syn_00411",
+          "sheet_id": "sales_retail_store",
+          "category": "text",
+          "difficulty": 2,
+          "request": "Build one text value from Item Name and Store Branch in row 38 joined by ': '.",
+          "reference_formula": "=CONCAT(D38,\": \",C38)",
+          "extracted_formula": "=CONCAT(D38,\" :\",C38)",
+          "raw_output": "=CONCAT(D38,\" :\",C38)",
+          "expected_value": "Monitor Riser: Ashvale",
+          "predicted_value": "Monitor Riser :Ashvale",
+          "error_type": "wrong_value",
+          "error_message": null
+        }
+      ]
+    },
+    {
+      "cluster": "over_generation",
+      "count": 0,
+      "share": 0.0,
+      "test_synthetic_count": 0,
+      "test_real_count": 0,
+      "examples": []
+    },
+    {
+      "cluster": "syntax_error",
+      "count": 0,
+      "share": 0.0,
+      "test_synthetic_count": 0,
+      "test_real_count": 0,
+      "examples": []
+    }
+  ]
+}
