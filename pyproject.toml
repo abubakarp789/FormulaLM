@@ -44,3 +44,7 @@ extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Keep natural-language phrasing strings one-per-line for readability.
+"src/data/templates.py" = ["E501"]
