@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from formulalm.config import REPO_ROOT
+from src.eval.analyze_errors import analyze_runs, classify_failure, render_summary_md
 from src.eval.executor import run_formula
 from src.eval.normalize import values_equal
 from src.eval.run_eval import (
@@ -15,6 +16,7 @@ from src.eval.run_eval import (
     extract_formula,
     is_raw_format_clean,
     load_eval_examples,
+    load_few_shot_from_train,
 )
 from src.eval.run_eval import main as eval_main
 
@@ -205,3 +207,65 @@ def test_few_shot_messages_and_jsonl_cli(tmp_path: Path):
     assert metrics["overall"]["n"] == 1
     assert metrics["overall"]["execution_accuracy"] == 1.0
     assert metrics["few_shot"] == 2
+
+
+def test_few_shot_drawn_from_train_only_and_error_analyzer(tmp_path: Path):
+    train_jsonl = REPO_ROOT / "data" / "processed" / "train.jsonl"
+    if train_jsonl.is_file():
+        pairs, ids = load_few_shot_from_train(train_jsonl, 5, seed=42)
+        assert len(pairs) == 5 and len(ids) == 5
+        assert all(i.startswith("train_") for i in ids)
+        assert all(fml.startswith("=") for _, fml in pairs)
+
+    # Test analyze_errors across two mock runs and failure classifier categories.
+    evaluate(
+        MockBackend(mode="mixed"),
+        TEST_REAL_CSV,
+        run_name="baseline_mock_a",
+        results_root=tmp_path,
+        limit=20,
+    )
+    evaluate(
+        MockBackend(mode="broken"),
+        TEST_REAL_CSV,
+        run_name="baseline_mock_b",
+        results_root=tmp_path,
+        limit=10,
+    )
+    analysis = analyze_runs([tmp_path / "baseline_mock_a", tmp_path / "baseline_mock_b"], top_k=15)
+    assert len(analysis["runs"]) == 2
+    assert analysis["total_failures"] > 0
+    assert len(analysis["top_patterns"]) >= 2
+
+    md = render_summary_md(analysis)
+    assert "## Comparison Table" in md
+    assert "## Top " in md
+
+    assert (
+        classify_failure(
+            {
+                "error_type": None,
+                "category": "aggregation",
+                "reference_formula": "=SUM(F2:F10)",
+                "extracted_formula": "=SUM(E2:E10)",
+            }
+        )
+        == "wrong_column_reference (aggregation)"
+    )
+    assert (
+        classify_failure(
+            {
+                "error_type": "unsupported_function",
+                "error_message": "Function(s) not in allow-list: TODAY",
+                "category": "date",
+                "reference_formula": "=DATE(2025,1,1)",
+                "extracted_formula": "=TODAY()",
+            }
+        )
+        == "volatile_function_used"
+    )
+
+    # Verify the baseline Colab notebook is valid JSON with code cells.
+    nb = json.loads((REPO_ROOT / "notebooks" / "01_baseline_eval.ipynb").read_text("utf-8"))
+    assert nb["nbformat"] == 4
+    assert any(c["cell_type"] == "code" for c in nb["cells"])

@@ -22,6 +22,7 @@ import argparse
 import csv
 import json
 import math
+import random
 import re
 import statistics
 import sys
@@ -251,11 +252,101 @@ def load_eval_examples(
     return examples, xlsx_by_sheet
 
 
-def build_eval_messages(example: EvalExample, *, few_shot: int = 0) -> list[dict[str, str]]:
+def load_few_shot_from_train(
+    train_jsonl_path: str | Path,
+    k: int,
+    *,
+    seed: int = 42,
+    manifest_path: str | Path | None = None,
+) -> tuple[list[tuple[str, str]], list[str]]:
+    """Deterministically sample ``k`` diverse few-shot examples strictly from ``train.jsonl``.
+
+    Samples across distinct categories first and verifies every sampled sheet belongs
+    to the training split (never held-out test sheets).
+    """
+    if k <= 0:
+        return [], []
+
+    path = Path(train_jsonl_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Few-shot training file not found: {path}")
+
+    mpath = (
+        REPO_ROOT / "data" / "sheets" / "manifest.json"
+        if manifest_path is None
+        else Path(manifest_path)
+    )
+    manifest = json.loads(mpath.read_text(encoding="utf-8"))
+    test_sheets = set(manifest["test_sheet_ids"])
+
+    by_cat: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    all_rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        rec = json.loads(line)
+        if rec.get("sheet_id") in test_sheets:
+            raise ValueError(f"Leakage detected: {rec.get('id')} uses held-out test sheet")
+        # Prefer clean unaugmented examples for few-shot demonstrations.
+        if rec.get("augmentation", "none") == "none":
+            by_cat[str(rec.get("category", "unknown"))].append(rec)
+        all_rows.append(rec)
+
+    rng = random.Random(seed)
+    chosen: list[dict[str, Any]] = []
+    chosen_ids: set[str] = set()
+
+    # Preferred diverse category order for 5-shot coverage.
+    preferred_cats = [
+        "aggregation",
+        "conditional_aggregation",
+        "logic",
+        "lookup",
+        "date",
+        "text",
+        "math_and_composition",
+    ]
+    cats = [c for c in preferred_cats if c in by_cat] + [
+        c for c in sorted(by_cat) if c not in preferred_cats
+    ]
+
+    for cat in cats:
+        if len(chosen) >= k:
+            break
+        pool = by_cat[cat]
+        if pool:
+            pick = rng.choice(pool)
+            chosen.append(pick)
+            chosen_ids.add(str(pick["id"]))
+
+    if len(chosen) < k:
+        rem = [r for r in all_rows if str(r["id"]) not in chosen_ids]
+        rng.shuffle(rem)
+        chosen.extend(rem[: k - len(chosen)])
+
+    pairs = [
+        (build_user_prompt(str(r["schema_text"]), str(r["request"])), str(r["formula"]))
+        for r in chosen[:k]
+    ]
+    ids = [str(r["id"]) for r in chosen[:k]]
+    return pairs, ids
+
+
+def build_eval_messages(
+    example: EvalExample,
+    *,
+    few_shot: int = 0,
+    few_shot_pairs: list[tuple[str, str]] | None = None,
+) -> list[dict[str, str]]:
     """Build chat messages (system + optional few-shot turns + target user prompt)."""
     messages: list[dict[str, str]] = [{"role": "system", "content": SYSTEM_PROMPT}]
     if few_shot > 0:
-        for user_demo, asst_demo in FEW_SHOT_EXAMPLES[:few_shot]:
+        demos = (
+            few_shot_pairs[:few_shot]
+            if few_shot_pairs is not None
+            else FEW_SHOT_EXAMPLES[:few_shot]
+        )
+        for user_demo, asst_demo in demos:
             messages.append({"role": "user", "content": user_demo})
             messages.append({"role": "assistant", "content": asst_demo})
     messages.append(
@@ -388,6 +479,9 @@ class TransformersBackend:
         if revision:
             tok_kwargs["revision"] = revision
         self.tokenizer = AutoTokenizer.from_pretrained(model_id, **tok_kwargs)
+        self.tokenizer.padding_side = "left"
+        if self.tokenizer.pad_token_id is None:
+            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
         model_kwargs: dict[str, Any] = {"device_map": "auto"}
         if revision:
@@ -405,6 +499,16 @@ class TransformersBackend:
         model.eval()
         self.model = model
 
+    def _render_prompt(self, messages: list[dict[str, str]]) -> str:
+        return str(
+            self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+                enable_thinking=self.enable_thinking,
+            )
+        )
+
     def generate(
         self,
         messages: list[dict[str, str]],
@@ -414,25 +518,33 @@ class TransformersBackend:
         example: EvalExample | None = None,
     ) -> str:
         del example
+        return self.generate_batch([messages], max_tokens=max_tokens, seed=seed)[0]
+
+    def generate_batch(
+        self,
+        batch_messages: list[list[dict[str, str]]],
+        *,
+        max_tokens: int,
+        seed: int,
+    ) -> list[str]:
         self.torch.manual_seed(seed)
-        text = self.tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=self.enable_thinking,
-        )
-        inputs = self.tokenizer(text, return_tensors="pt", add_special_tokens=False).to(
-            self.model.device
-        )
+        prompts = [self._render_prompt(msgs) for msgs in batch_messages]
+        inputs = self.tokenizer(
+            prompts, return_tensors="pt", padding=True, add_special_tokens=False
+        ).to(self.model.device)
+        prompt_len = inputs["input_ids"].shape[1]
         with self.torch.inference_mode():
             out = self.model.generate(
                 **inputs,
                 max_new_tokens=max_tokens,
                 do_sample=False,
-                pad_token_id=self.tokenizer.eos_token_id,
+                pad_token_id=self.tokenizer.pad_token_id,
             )
-        gen_ids = out[0, inputs["input_ids"].shape[1] :]
-        return str(self.tokenizer.decode(gen_ids, skip_special_tokens=True)).strip()
+        results: list[str] = []
+        for row_idx in range(len(prompts)):
+            gen_ids = out[row_idx, prompt_len:]
+            results.append(str(self.tokenizer.decode(gen_ids, skip_special_tokens=True)).strip())
+        return results
 
 
 class MockBackend:
@@ -529,6 +641,7 @@ def compute_metrics(
     seed: int,
     few_shot: int,
     max_tokens: int,
+    few_shot_ids: list[str] | None = None,
 ) -> dict[str, Any]:
     by_cat: dict[str, list[dict[str, Any]]] = defaultdict(list)
     by_diff: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -546,6 +659,7 @@ def compute_metrics(
         "dataset": dataset_path,
         "seed": seed,
         "few_shot": few_shot,
+        "few_shot_ids": few_shot_ids or [],
         "max_tokens": max_tokens,
         "overall": _summarize_group(predictions),
         "by_category": {k: _summarize_group(by_cat[k]) for k in sorted(by_cat)},
@@ -651,6 +765,8 @@ def evaluate(
     seed: int = 42,
     max_tokens: int = 96,
     few_shot: int = 0,
+    few_shot_source: str | Path | None = None,
+    batch_size: int = 1,
     limit: int | None = None,
     resume: bool = True,
     overwrite: bool = False,
@@ -671,6 +787,18 @@ def evaluate(
     if limit is not None:
         examples = examples[:limit]
 
+    few_shot_pairs: list[tuple[str, str]] | None = None
+    few_shot_ids: list[str] = []
+    if few_shot > 0:
+        default_train = cfg["paths"]["processed_dir"] / "train.jsonl"
+        fs_path = Path(few_shot_source) if few_shot_source is not None else default_train
+        if fs_path.is_file():
+            few_shot_pairs, few_shot_ids = load_few_shot_from_train(
+                fs_path, few_shot, seed=seed, manifest_path=manifest_path
+            )
+        elif few_shot_source is not None:
+            raise FileNotFoundError(f"Few-shot source not found: {fs_path}")
+
     existing_by_id: dict[str, dict[str, Any]] = {}
     if resume and pred_path.exists():
         for line in pred_path.read_text(encoding="utf-8").splitlines():
@@ -687,78 +815,108 @@ def evaluate(
             "temperature": 0.0,
             "max_tokens": max_tokens,
             "few_shot": few_shot,
+            "few_shot_source": str(few_shot_source) if few_shot_source else None,
+            "few_shot_ids": few_shot_ids,
+            "batch_size": batch_size,
             "limit": limit,
             "resume": resume,
         },
         run_dir,
     )
 
+    pending = [ex for ex in examples if ex.id not in existing_by_id]
+    eff_batch = max(1, batch_size) if hasattr(backend, "generate_batch") else 1
+
     with pred_path.open("a", encoding="utf-8") as pred_f:
-        for ex in examples:
-            if ex.id in existing_by_id:
-                continue
+        for start in range(0, len(pending), eff_batch):
+            chunk = pending[start : start + eff_batch]
+            chunk_msgs = [
+                build_eval_messages(ex, few_shot=few_shot, few_shot_pairs=few_shot_pairs)
+                for ex in chunk
+            ]
 
-            messages = build_eval_messages(ex, few_shot=few_shot)
             t0 = time.perf_counter()
-            try:
-                raw_output = backend.generate(
-                    messages, max_tokens=max_tokens, seed=seed, example=ex
-                )
-                gen_err = None
-            except Exception as exc:
-                raw_output = ""
-                gen_err = f"{type(exc).__name__}: {exc}"
-            latency_ms = (time.perf_counter() - t0) * 1000.0
-
-            extracted = extract_formula(raw_output)
-            raw_fmt_ok = is_raw_format_clean(raw_output)
-
-            if gen_err is not None:
-                res_ok = False
-                pred_val = None
-                err_type = "runtime_error"
-                err_msg = f"Backend error: {gen_err}"
-                syntax_valid = False
+            if eff_batch > 1 and hasattr(backend, "generate_batch"):
+                try:
+                    raw_outputs = backend.generate_batch(
+                        chunk_msgs, max_tokens=max_tokens, seed=seed
+                    )
+                    gen_errs: list[str | None] = [None] * len(chunk)
+                except Exception as exc:
+                    raw_outputs = [""] * len(chunk)
+                    gen_errs = [f"{type(exc).__name__}: {exc}"] * len(chunk)
+                per_item_ms = ((time.perf_counter() - t0) * 1000.0) / len(chunk)
+                latencies = [per_item_ms] * len(chunk)
             else:
-                exec_res = run_formula(
-                    extracted, xlsx_by_sheet[ex.sheet_id], timeout=formula_timeout
-                )
-                res_ok = exec_res.ok
-                pred_val = exec_res.value
-                err_type = exec_res.error_type
-                err_msg = exec_res.error_message
-                syntax_valid = exec_res.error_type not in (
-                    "syntax_error",
-                    "unsupported_function",
-                )
+                raw_outputs = []
+                gen_errs = []
+                latencies = []
+                for ex, msgs in zip(chunk, chunk_msgs, strict=True):
+                    t_item = time.perf_counter()
+                    try:
+                        out_txt = backend.generate(
+                            msgs, max_tokens=max_tokens, seed=seed, example=ex
+                        )
+                        g_err = None
+                    except Exception as exc:
+                        out_txt = ""
+                        g_err = f"{type(exc).__name__}: {exc}"
+                    raw_outputs.append(out_txt)
+                    gen_errs.append(g_err)
+                    latencies.append((time.perf_counter() - t_item) * 1000.0)
 
-            exec_correct = res_ok and values_equal(pred_val, ex.expected_value)
-            em = exact_match(extracted, ex.reference_formula)
+            for ex, raw_output, gen_err, latency_ms in zip(
+                chunk, raw_outputs, gen_errs, latencies, strict=True
+            ):
+                extracted = extract_formula(raw_output)
+                raw_fmt_ok = is_raw_format_clean(raw_output)
 
-            record = {
-                "id": ex.id,
-                "sheet_id": ex.sheet_id,
-                "category": ex.category,
-                "difficulty": ex.difficulty,
-                "request": ex.request,
-                "reference_formula": ex.reference_formula,
-                "expected_value": _serialize_value(ex.expected_value),
-                "expected_type": ex.expected_type,
-                "raw_output": raw_output,
-                "extracted_formula": extracted,
-                "predicted_value": _serialize_value(pred_val),
-                "syntax_valid": syntax_valid,
-                "exec_ok": res_ok,
-                "exec_correct": exec_correct,
-                "exact_match": em,
-                "raw_format_ok": raw_fmt_ok,
-                "error_type": err_type if not exec_correct else None,
-                "error_message": err_msg if not exec_correct else None,
-                "latency_ms": round(latency_ms, 2),
-            }
-            pred_f.write(json.dumps(record, ensure_ascii=False) + "\n")
-            pred_f.flush()
-            existing_by_id[ex.id] = record
+                if gen_err is not None:
+                    res_ok = False
+                    pred_val = None
+                    err_type = "runtime_error"
+                    err_msg = f"Backend error: {gen_err}"
+                    syntax_valid = False
+                else:
+                    exec_res = run_formula(
+                        extracted, xlsx_by_sheet[ex.sheet_id], timeout=formula_timeout
+                    )
+                    res_ok = exec_res.ok
+                    pred_val = exec_res.value
+                    err_type = exec_res.error_type
+                    err_msg = exec_res.error_message
+                    syntax_valid = exec_res.error_type not in (
+                        "syntax_error",
+                        "unsupported_function",
+                    )
+
+                exec_correct = res_ok and values_equal(pred_val, ex.expected_value)
+                em = exact_match(extracted, ex.reference_formula)
+
+                record = {
+                    "id": ex.id,
+                    "sheet_id": ex.sheet_id,
+                    "category": ex.category,
+                    "difficulty": ex.difficulty,
+                    "request": ex.request,
+                    "reference_formula": ex.reference_formula,
+                    "expected_value": _serialize_value(ex.expected_value),
+                    "expected_type": ex.expected_type,
+                    "raw_output": raw_output,
+                    "extracted_formula": extracted,
+                    "predicted_value": _serialize_value(pred_val),
+                    "syntax_valid": syntax_valid,
+                    "exec_ok": res_ok,
+                    "exec_correct": exec_correct,
+                    "exact_match": em,
+                    "raw_format_ok": raw_fmt_ok,
+                    "error_type": err_type if not exec_correct else None,
+                    "error_message": err_msg if not exec_correct else None,
+                    "latency_ms": round(latency_ms, 2),
+                }
+                pred_f.write(json.dumps(record, ensure_ascii=False) + "\n")
+                pred_f.flush()
+                existing_by_id[ex.id] = record
 
     ordered_preds = [existing_by_id[ex.id] for ex in examples if ex.id in existing_by_id]
     try:
@@ -774,6 +932,7 @@ def evaluate(
         seed=seed,
         few_shot=few_shot,
         max_tokens=max_tokens,
+        few_shot_ids=few_shot_ids,
     )
     (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
     (run_dir / "report.md").write_text(render_report_md(metrics, ordered_preds), encoding="utf-8")
@@ -795,6 +954,7 @@ def _make_backend(args: argparse.Namespace) -> ModelBackend:
         return TransformersBackend(
             args.model,
             adapter_path=args.adapter,
+            revision=args.revision,
             load_in_4bit=args.load_in_4bit,
             enable_thinking=False,
         )
@@ -813,6 +973,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--dataset", required=True, help="Path to JSONL or CSV dataset")
     parser.add_argument("--model", default=None, help="Model name/id for ollama/transformers")
+    parser.add_argument("--revision", default=None, help="Optional HF revision commit hash")
     parser.add_argument("--adapter", default=None, help="Optional PEFT adapter path")
     parser.add_argument("--load-in-4bit", action="store_true", help="4-bit load for transformers")
     parser.add_argument(
@@ -826,6 +987,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-tokens", type=int, default=96, help="Max new tokens")
     parser.add_argument(
         "--few-shot", type=int, default=0, help="Number of few-shot examples (0..5)"
+    )
+    parser.add_argument(
+        "--few-shot-source",
+        default=None,
+        help="Train JSONL to draw few-shot demos from (default: data/processed/train.jsonl)",
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=1,
+        help="Batch size for transformers backend (e.g. 8 on T4 GPU)",
     )
     parser.add_argument("--limit", type=int, default=None, help="Evaluate only first N examples")
     parser.add_argument("--seed", type=int, default=None, help="Override random seed")
@@ -844,13 +1016,14 @@ def main(argv: list[str] | None = None) -> int:
     log = get_logger("formulalm.eval", log_file=cfg["paths"]["logs_dir"] / f"{args.run_name}.log")
     backend = _make_backend(args)
     log.info(
-        "Starting eval run=%s backend=%s dataset=%s seed=%d few_shot=%d max_tokens=%d",
+        "Starting eval run=%s backend=%s dataset=%s seed=%d few_shot=%d max_tokens=%d batch=%d",
         args.run_name,
         backend.name,
         args.dataset,
         seed,
         args.few_shot,
         args.max_tokens,
+        args.batch_size,
     )
     metrics = evaluate(
         backend=backend,
@@ -860,6 +1033,8 @@ def main(argv: list[str] | None = None) -> int:
         seed=seed,
         max_tokens=args.max_tokens,
         few_shot=args.few_shot,
+        few_shot_source=args.few_shot_source,
+        batch_size=args.batch_size,
         limit=args.limit,
         resume=not args.overwrite,
         overwrite=args.overwrite,
