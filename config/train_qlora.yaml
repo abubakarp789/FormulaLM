@@ -1,0 +1,65 @@
+# FormulaLM QLoRA fine-tuning configuration (Qwen3-1.7B, non-thinking, T4 16 GB VRAM).
+# Every training run snapshots this resolved config to train_config.json alongside loss_log.csv.
+
+run_name: qlora_v1
+seed: 42
+
+model:
+  base_id: Qwen/Qwen3-1.7B
+  base_revision: 70d244cc86ccca08cf5af4e1e306ecf908b1ad5e
+  load_in_4bit: true
+  enable_thinking: false
+  # Chosen from data stats: longest example across all 9,000 rows is 603 chars (~251 tokens);
+  # 512 gives >2x headroom with zero truncation while halving T4 attention memory vs 1024.
+  max_seq_length: 512
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.0
+  bias: none
+  use_rslora: false
+  use_gradient_checkpointing: unsloth
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+training:
+  num_train_epochs: 2
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4   # effective batch size = 16 -> 500 steps/epoch (1,000 total)
+  per_device_eval_batch_size: 4
+  learning_rate: 2.0e-4
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  optim: adamw_8bit
+  max_grad_norm: 1.0
+  logging_steps: 20
+  eval_steps: 100
+  save_steps: 100
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: eval_loss
+  packing: false
+
+smoke_test:
+  train_examples: 200
+  val_examples: 50
+  num_train_epochs: 1
+  logging_steps: 2
+  eval_steps: 6
+  save_steps: 12
+
+data:
+  train_file: data/processed/train.jsonl
+  val_file: data/processed/val.jsonl
+
+hub:
+  hf_repo_id: abubakar56/formulalm-qwen3-1.7b-lora
+  private: false
