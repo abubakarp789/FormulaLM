@@ -1,0 +1,3019 @@
+{
+  "seed": 42,
+  "num_sheets": 25,
+  "train_sheets": 20,
+  "test_sheets": 5,
+  "heldout_fraction": 0.2,
+  "row_range": [
+    30,
+    200
+  ],
+  "blank_rate": 0.04,
+  "domains": [
+    "attendance",
+    "expenses",
+    "hr_employees",
+    "inventory",
+    "marketing",
+    "orders",
+    "project_tracking",
+    "sales",
+    "student_grades",
+    "subscriptions",
+    "support_tickets"
+  ],
+  "train_sheet_ids": [
+    "sales_regional_q1",
+    "sales_b2b_deals",
+    "hr_payroll_ledger",
+    "hr_performance_reviews",
+    "inventory_warehouse_stock",
+    "inventory_parts_catalog",
+    "grades_semester_summary",
+    "grades_lab_assessments",
+    "expenses_travel_claims",
+    "expenses_department_spend",
+    "expenses_office_bills",
+    "orders_wholesale_shipments",
+    "orders_purchase_requests",
+    "projects_task_board",
+    "projects_sprint_budget",
+    "attendance_daily_log",
+    "attendance_shift_records",
+    "subscriptions_saas_accounts",
+    "support_helpdesk_queue",
+    "marketing_campaign_metrics"
+  ],
+  "test_sheet_ids": [
+    "sales_retail_store",
+    "hr_employee_roster",
+    "inventory_stock_movements",
+    "grades_course_scores",
+    "orders_ecommerce"
+  ],
+  "sheets": [
+    {
+      "sheet_id": "sales_regional_q1",
+      "domain": "sales",
+      "split": "train",
+      "description": "Regional product sales transactions by rep and product line.",
+      "num_rows": 193,
+      "num_cols": 7,
+      "blank_cells": 8,
+      "key_column": "A",
+      "csv_path": "data/sheets/sales_regional_q1.csv",
+      "xlsx_path": "data/sheets/sales_regional_q1.xlsx",
+      "csv_sha256": "4d9cc0c882d804308fb673c801e2f0a0fc707b7ebcdb17af0b8719549269e12f",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Sale ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "SL-1001",
+            "SL-1002",
+            "SL-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Order Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-04-25",
+            "2025-03-31",
+            "2026-06-02"
+          ],
+          "min": "2025-01-02",
+          "max": "2026-06-28"
+        },
+        {
+          "letter": "C",
+          "name": "Region",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "North",
+            "Central",
+            "Central"
+          ],
+          "categories": [
+            "Central",
+            "East",
+            "North",
+            "South",
+            "West"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Sales Rep",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Rina Jern",
+            "Kova Meld",
+            "Bram Bramm"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Product Line",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Accessories",
+            "Hardware",
+            "Supplies"
+          ],
+          "categories": [
+            "Accessories",
+            "Furniture",
+            "Hardware",
+            "Supplies"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Units Sold",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            18,
+            12,
+            29
+          ],
+          "min": 1,
+          "max": 80
+        },
+        {
+          "letter": "G",
+          "name": "Unit Price",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 8,
+          "sample_values": [
+            334.71,
+            108.15,
+            209.03
+          ],
+          "min": 13.67,
+          "max": 448.53
+        }
+      ]
+    },
+    {
+      "sheet_id": "sales_retail_store",
+      "domain": "sales",
+      "split": "test",
+      "description": "Point-of-sale retail store receipts across branches.",
+      "num_rows": 114,
+      "num_cols": 6,
+      "blank_cells": 5,
+      "key_column": "A",
+      "csv_path": "data/sheets/sales_retail_store.csv",
+      "xlsx_path": "data/sheets/sales_retail_store.xlsx",
+      "csv_sha256": "1b7b4b1d701db1a37bd9b2a589a39191f559cf07a330703a41cebf5cb8588396",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Receipt Code",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "RC-1001",
+            "RC-1002",
+            "RC-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Sale Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-04-07",
+            "2025-06-03",
+            "2025-12-25"
+          ],
+          "min": "2025-01-17",
+          "max": "2026-06-25"
+        },
+        {
+          "letter": "C",
+          "name": "Store Branch",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Larkspur",
+            "Suncroft",
+            "Suncroft"
+          ],
+          "categories": [
+            "Ashvale",
+            "Brinport",
+            "Larkspur",
+            "Mirehaven",
+            "Suncroft"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Item Name",
+          "type": "text",
+          "nullable": true,
+          "unique": false,
+          "null_count": 5,
+          "sample_values": [
+            "Pocket Scale",
+            "Foldable Stand",
+            "Pocket Scale"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Quantity",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            10,
+            19,
+            5
+          ],
+          "min": 1,
+          "max": 25
+        },
+        {
+          "letter": "F",
+          "name": "Net Amount",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            237.82,
+            613.21,
+            550.68
+          ],
+          "min": 29.14,
+          "max": 919.63
+        }
+      ]
+    },
+    {
+      "sheet_id": "sales_b2b_deals",
+      "domain": "sales",
+      "split": "train",
+      "description": "B2B sales pipeline deals with contract value and discount.",
+      "num_rows": 120,
+      "num_cols": 8,
+      "blank_cells": 5,
+      "key_column": "A",
+      "csv_path": "data/sheets/sales_b2b_deals.csv",
+      "xlsx_path": "data/sheets/sales_b2b_deals.xlsx",
+      "csv_sha256": "230d0c1e5d4887daca79dfc774462384905992f1e1bca387398ffedca3e5ec60",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Deal ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "DL-1001",
+            "DL-1002",
+            "DL-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Close Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-09-28",
+            "2025-11-01",
+            "2025-10-08"
+          ],
+          "min": "2025-01-03",
+          "max": "2026-06-25"
+        },
+        {
+          "letter": "C",
+          "name": "Account Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Ivory Labs",
+            "Osprey Studio",
+            "Osprey Goods"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Territory",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "South",
+            "South",
+            "West"
+          ],
+          "categories": [
+            "East",
+            "North",
+            "South",
+            "West"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Stage",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Proposal",
+            "Lost",
+            "Lost"
+          ],
+          "categories": [
+            "Lost",
+            "Negotiation",
+            "Proposal",
+            "Won"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Seats",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            76,
+            86,
+            214
+          ],
+          "min": 6,
+          "max": 249
+        },
+        {
+          "letter": "G",
+          "name": "Contract Value",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            27451.03,
+            23810.86,
+            17548.76
+          ],
+          "min": 1796.85,
+          "max": 47667.38
+        },
+        {
+          "letter": "H",
+          "name": "Discount Pct",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 5,
+          "sample_values": [
+            0.06,
+            0.14,
+            0.19
+          ],
+          "min": 0.0,
+          "max": 0.25
+        }
+      ]
+    },
+    {
+      "sheet_id": "hr_employee_roster",
+      "domain": "hr_employees",
+      "split": "test",
+      "description": "Company employee directory with departments, tenure and salaries.",
+      "num_rows": 143,
+      "num_cols": 7,
+      "blank_cells": 6,
+      "key_column": "A",
+      "csv_path": "data/sheets/hr_employee_roster.csv",
+      "xlsx_path": "data/sheets/hr_employee_roster.xlsx",
+      "csv_sha256": "c68f2db52c9ae953f3ed7ed83242cc94f5efa91b880ca11319827483cbedcc51",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Employee ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "EMP-1001",
+            "EMP-1002",
+            "EMP-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Full Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Nolan Palk",
+            "Wren Vald",
+            "Pira Morn"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Department",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Engineering",
+            "Finance",
+            "Engineering"
+          ],
+          "categories": [
+            "Design",
+            "Engineering",
+            "Finance",
+            "Operations",
+            "Support"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Work Hub",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Veldor",
+            "Veldor",
+            "Fallowby"
+          ],
+          "categories": [
+            "Crestholm",
+            "Duskford",
+            "Fallowby",
+            "Stonewick",
+            "Veldor"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Hire Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2021-05-19",
+            "2022-10-11",
+            "2022-04-21"
+          ],
+          "min": "2020-01-06",
+          "max": "2025-12-29"
+        },
+        {
+          "letter": "F",
+          "name": "Years Service",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            9,
+            4,
+            8
+          ],
+          "min": 0,
+          "max": 12
+        },
+        {
+          "letter": "G",
+          "name": "Annual Salary",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 6,
+          "sample_values": [
+            116110.98,
+            106974.4,
+            102941.18
+          ],
+          "min": 39917.03,
+          "max": 144707.81
+        }
+      ]
+    },
+    {
+      "sheet_id": "hr_payroll_ledger",
+      "domain": "hr_employees",
+      "split": "train",
+      "description": "Monthly payroll hours, hourly rates and bonus payouts.",
+      "num_rows": 42,
+      "num_cols": 7,
+      "blank_cells": 2,
+      "key_column": "A",
+      "csv_path": "data/sheets/hr_payroll_ledger.csv",
+      "xlsx_path": "data/sheets/hr_payroll_ledger.xlsx",
+      "csv_sha256": "f26202e9a5d3ef8ee64c95ff52829f3da66ce253b3cdbd58e6bf5823e064037a",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Payslip ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "PAY-1001",
+            "PAY-1002",
+            "PAY-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Staff Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Orin Stel",
+            "Lumen Palk",
+            "Bram Vess"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Pay Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2026-02-17",
+            "2026-05-26",
+            "2026-02-18"
+          ],
+          "min": "2025-01-06",
+          "max": "2026-06-14"
+        },
+        {
+          "letter": "D",
+          "name": "Role Band",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Mid",
+            "Lead",
+            "Lead"
+          ],
+          "categories": [
+            "Junior",
+            "Lead",
+            "Mid",
+            "Senior"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Hours Worked",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            130,
+            160,
+            124
+          ],
+          "min": 120,
+          "max": 194
+        },
+        {
+          "letter": "F",
+          "name": "Hourly Rate",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            48.76,
+            25.95,
+            55.33
+          ],
+          "min": 18.15,
+          "max": 83.9
+        },
+        {
+          "letter": "G",
+          "name": "Bonus Amount",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 2,
+          "sample_values": [
+            2003.15,
+            1243.43,
+            0.42
+          ],
+          "min": 0.42,
+          "max": 2439.56
+        }
+      ]
+    },
+    {
+      "sheet_id": "hr_performance_reviews",
+      "domain": "hr_employees",
+      "split": "train",
+      "description": "Annual staff performance review scores and goals completed.",
+      "num_rows": 79,
+      "num_cols": 6,
+      "blank_cells": 3,
+      "key_column": "A",
+      "csv_path": "data/sheets/hr_performance_reviews.csv",
+      "xlsx_path": "data/sheets/hr_performance_reviews.xlsx",
+      "csv_sha256": "6721c715f2d3b304f75eeef6f54b80e1efa677993195d09527219a5fdc10a458",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Review ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "REV-1001",
+            "REV-1002",
+            "REV-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Employee Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Halen Solk",
+            "Elara Morn",
+            "Rovan Pell"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Team",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "QA",
+            "Platform",
+            "Growth"
+          ],
+          "categories": [
+            "Data",
+            "Growth",
+            "Platform",
+            "QA",
+            "Security"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Review Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-02-25",
+            "2025-09-14",
+            "2025-05-12"
+          ],
+          "min": "2025-01-05",
+          "max": "2026-06-15"
+        },
+        {
+          "letter": "E",
+          "name": "Goals Met",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            9,
+            2,
+            4
+          ],
+          "min": 1,
+          "max": 10
+        },
+        {
+          "letter": "F",
+          "name": "Review Score",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 3,
+          "sample_values": [
+            3.38,
+            2.59,
+            2.3
+          ],
+          "min": 2.03,
+          "max": 4.97
+        }
+      ]
+    },
+    {
+      "sheet_id": "inventory_warehouse_stock",
+      "domain": "inventory",
+      "split": "train",
+      "description": "Warehouse stock quantities, reorder thresholds and unit costs.",
+      "num_rows": 118,
+      "num_cols": 7,
+      "blank_cells": 5,
+      "key_column": "A",
+      "csv_path": "data/sheets/inventory_warehouse_stock.csv",
+      "xlsx_path": "data/sheets/inventory_warehouse_stock.xlsx",
+      "csv_sha256": "24c3d674ffe40df3eb2ce40dafb4c2e432fc263e9359125006561384a0ea8e8f",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "SKU",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "SKU-1001",
+            "SKU-1002",
+            "SKU-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Item Description",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Thermal Flask",
+            "Battery Pack",
+            "Acoustic Panel"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Warehouse",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "WH-Central",
+            "WH-South",
+            "WH-Central"
+          ],
+          "categories": [
+            "WH-Central",
+            "WH-East",
+            "WH-North",
+            "WH-South"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Stock Qty",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            124,
+            291,
+            80
+          ],
+          "min": 7,
+          "max": 586
+        },
+        {
+          "letter": "E",
+          "name": "Reorder Level",
+          "type": "integer",
+          "nullable": true,
+          "unique": false,
+          "null_count": 5,
+          "sample_values": [
+            59,
+            60,
+            63
+          ],
+          "min": 16,
+          "max": 120
+        },
+        {
+          "letter": "F",
+          "name": "Unit Cost",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            182.74,
+            71.31,
+            130.61
+          ],
+          "min": 6.21,
+          "max": 209.68
+        },
+        {
+          "letter": "G",
+          "name": "Last Restocked",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-07-23",
+            "2026-06-07",
+            "2026-04-20"
+          ],
+          "min": "2025-01-09",
+          "max": "2026-06-29"
+        }
+      ]
+    },
+    {
+      "sheet_id": "inventory_parts_catalog",
+      "domain": "inventory",
+      "split": "train",
+      "description": "Compact spare parts inventory with supplier tier and bin weight.",
+      "num_rows": 187,
+      "num_cols": 5,
+      "blank_cells": 7,
+      "key_column": "A",
+      "csv_path": "data/sheets/inventory_parts_catalog.csv",
+      "xlsx_path": "data/sheets/inventory_parts_catalog.xlsx",
+      "csv_sha256": "059ada04a9b78dcc87ecb838e6b89d3f7533fab81336c972859245d4367b2a2b",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Part Code",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "PRT-1001",
+            "PRT-1002",
+            "PRT-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Supplier Tier",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Tier 2",
+            "Tier 1",
+            "Tier 3"
+          ],
+          "categories": [
+            "Tier 1",
+            "Tier 2",
+            "Tier 3"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Bin Count",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            357,
+            223,
+            381
+          ],
+          "min": 6,
+          "max": 445
+        },
+        {
+          "letter": "D",
+          "name": "Unit Weight",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 7,
+          "sample_values": [
+            4.91,
+            6.08,
+            12.23
+          ],
+          "min": 0.23,
+          "max": 14.73
+        },
+        {
+          "letter": "E",
+          "name": "Inspection Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2026-04-14",
+            "2025-02-12",
+            "2025-11-17"
+          ],
+          "min": "2025-01-01",
+          "max": "2026-06-30"
+        }
+      ]
+    },
+    {
+      "sheet_id": "inventory_stock_movements",
+      "domain": "inventory",
+      "split": "test",
+      "description": "Inbound and outbound warehouse stock movement ledger.",
+      "num_rows": 105,
+      "num_cols": 7,
+      "blank_cells": 4,
+      "key_column": "A",
+      "csv_path": "data/sheets/inventory_stock_movements.csv",
+      "xlsx_path": "data/sheets/inventory_stock_movements.xlsx",
+      "csv_sha256": "a19fbf0cf48c646c8b80cf313a987c8f47813108270ffb3f1ae1a5bc1c96929e",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Move ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "MOV-1001",
+            "MOV-1002",
+            "MOV-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Move Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2026-04-24",
+            "2025-11-28",
+            "2026-01-27"
+          ],
+          "min": "2025-01-13",
+          "max": "2026-06-30"
+        },
+        {
+          "letter": "C",
+          "name": "Part Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Nylon Washer",
+            "Valve Collar",
+            "Seal Ring"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Movement Type",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Adjustment",
+            "Outbound",
+            "Transfer"
+          ],
+          "categories": [
+            "Adjustment",
+            "Inbound",
+            "Outbound",
+            "Transfer"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Zone",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Zone C",
+            "Zone A",
+            "Zone A"
+          ],
+          "categories": [
+            "Cold Bay",
+            "Zone A",
+            "Zone B",
+            "Zone C"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Units Moved",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            197,
+            71,
+            67
+          ],
+          "min": 2,
+          "max": 199
+        },
+        {
+          "letter": "G",
+          "name": "Valuation",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 4,
+          "sample_values": [
+            4070.67,
+            7388.08,
+            9079.36
+          ],
+          "min": 87.71,
+          "max": 9446.3
+        }
+      ]
+    },
+    {
+      "sheet_id": "grades_course_scores",
+      "domain": "student_grades",
+      "split": "test",
+      "description": "Course exam scores and completed assignments by subject.",
+      "num_rows": 107,
+      "num_cols": 7,
+      "blank_cells": 4,
+      "key_column": "A",
+      "csv_path": "data/sheets/grades_course_scores.csv",
+      "xlsx_path": "data/sheets/grades_course_scores.xlsx",
+      "csv_sha256": "e4c770c2eda39fe0d65800506c3ae57521e82521bc3eb5c1560292ac5953c5b7",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Student ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "STU-1001",
+            "STU-1002",
+            "STU-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Student Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Rina Rask",
+            "Soren Rask",
+            "Joren Hald"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Subject",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Math",
+            "Economics",
+            "Physics"
+          ],
+          "categories": [
+            "Computing",
+            "Economics",
+            "History",
+            "Math",
+            "Physics"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Section",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Sec C",
+            "Sec B",
+            "Sec C"
+          ],
+          "categories": [
+            "Sec A",
+            "Sec B",
+            "Sec C"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Exam Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-12-27",
+            "2025-12-15",
+            "2026-06-23"
+          ],
+          "min": "2025-01-27",
+          "max": "2026-06-28"
+        },
+        {
+          "letter": "F",
+          "name": "Assignments Done",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            2,
+            2,
+            8
+          ],
+          "min": 0,
+          "max": 12
+        },
+        {
+          "letter": "G",
+          "name": "Final Score",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 4,
+          "sample_values": [
+            35.84,
+            41.66,
+            95.02
+          ],
+          "min": 35.51,
+          "max": 99.99
+        }
+      ]
+    },
+    {
+      "sheet_id": "grades_semester_summary",
+      "domain": "student_grades",
+      "split": "train",
+      "description": "Compact semester GPA and credit hours per student.",
+      "num_rows": 83,
+      "num_cols": 5,
+      "blank_cells": 3,
+      "key_column": "A",
+      "csv_path": "data/sheets/grades_semester_summary.csv",
+      "xlsx_path": "data/sheets/grades_semester_summary.xlsx",
+      "csv_sha256": "44c711d2b17d8b718f77c86795bf6d0c7f472cc87980a8311186a83d87e713b8",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Roll No",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "RL-1001",
+            "RL-1002",
+            "RL-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Major",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Data Science",
+            "Data Science",
+            "Mathematics"
+          ],
+          "categories": [
+            "Computer Science",
+            "Data Science",
+            "Mathematics",
+            "Physics"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Credits",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            15,
+            10,
+            19
+          ],
+          "min": 9,
+          "max": 21
+        },
+        {
+          "letter": "D",
+          "name": "Semester GPA",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 3,
+          "sample_values": [
+            3.51,
+            2.46,
+            3.13
+          ],
+          "min": 1.82,
+          "max": 3.99
+        },
+        {
+          "letter": "E",
+          "name": "Term End",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-10-19",
+            "2026-03-19",
+            "2026-01-03"
+          ],
+          "min": "2025-01-06",
+          "max": "2026-06-25"
+        }
+      ]
+    },
+    {
+      "sheet_id": "grades_lab_assessments",
+      "domain": "student_grades",
+      "split": "train",
+      "description": "Lab submission attempts, earned points and grading status.",
+      "num_rows": 84,
+      "num_cols": 7,
+      "blank_cells": 3,
+      "key_column": "A",
+      "csv_path": "data/sheets/grades_lab_assessments.csv",
+      "xlsx_path": "data/sheets/grades_lab_assessments.xlsx",
+      "csv_sha256": "a834ad24f48372181f942a4fddf253b34609a1cc51917fd8285da885070fdd56",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Submission ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "LAB-1001",
+            "LAB-1002",
+            "LAB-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Candidate",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Fenn Norr",
+            "Quen Jern",
+            "Yara Korr"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Lab Module",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Systems",
+            "Networks",
+            "Systems"
+          ],
+          "categories": [
+            "Networks",
+            "Python",
+            "SQL",
+            "Statistics",
+            "Systems"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Submit Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-12-15",
+            "2026-03-09",
+            "2025-12-29"
+          ],
+          "min": "2025-01-03",
+          "max": "2026-06-26"
+        },
+        {
+          "letter": "E",
+          "name": "Attempts",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            2,
+            5,
+            1
+          ],
+          "min": 1,
+          "max": 5
+        },
+        {
+          "letter": "F",
+          "name": "Points Earned",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 3,
+          "sample_values": [
+            10.94,
+            14.42,
+            11.91
+          ],
+          "min": 10.94,
+          "max": 49.86
+        },
+        {
+          "letter": "G",
+          "name": "Status",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Failed",
+            "Passed",
+            "Failed"
+          ],
+          "categories": [
+            "Failed",
+            "Needs Review",
+            "Passed"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet_id": "expenses_travel_claims",
+      "domain": "expenses",
+      "split": "train",
+      "description": "Employee travel reimbursement claims by city and category.",
+      "num_rows": 105,
+      "num_cols": 7,
+      "blank_cells": 4,
+      "key_column": "A",
+      "csv_path": "data/sheets/expenses_travel_claims.csv",
+      "xlsx_path": "data/sheets/expenses_travel_claims.xlsx",
+      "csv_sha256": "6c2052b93dcbf1772ab23bf66706c4105c4d31480150e20789bdf53d1b34c113",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Claim ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "CLM-1001",
+            "CLM-1002",
+            "CLM-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Expense Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-06-02",
+            "2026-06-05",
+            "2025-06-21"
+          ],
+          "min": "2025-01-07",
+          "max": "2026-06-13"
+        },
+        {
+          "letter": "C",
+          "name": "Claimant",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Ulan Jern",
+            "Rovan Corv",
+            "Zev Rask"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Category",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Flight",
+            "Flight",
+            "Transit"
+          ],
+          "categories": [
+            "Conference",
+            "Flight",
+            "Hotel",
+            "Meals",
+            "Transit"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "City",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Crestholm",
+            "Mirehaven",
+            "Larkspur"
+          ],
+          "categories": [
+            "Ashvale",
+            "Brinport",
+            "Crestholm",
+            "Larkspur",
+            "Mirehaven",
+            "Suncroft"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Nights",
+          "type": "integer",
+          "nullable": true,
+          "unique": false,
+          "null_count": 4,
+          "sample_values": [
+            4,
+            10,
+            7
+          ],
+          "min": 0,
+          "max": 10
+        },
+        {
+          "letter": "G",
+          "name": "Amount USD",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            2096.75,
+            1481.5,
+            441.91
+          ],
+          "min": 43.36,
+          "max": 2347.58
+        }
+      ]
+    },
+    {
+      "sheet_id": "expenses_department_spend",
+      "domain": "expenses",
+      "split": "train",
+      "description": "Departmental vendor spend vouchers across cost centers.",
+      "num_rows": 124,
+      "num_cols": 6,
+      "blank_cells": 5,
+      "key_column": "A",
+      "csv_path": "data/sheets/expenses_department_spend.csv",
+      "xlsx_path": "data/sheets/expenses_department_spend.xlsx",
+      "csv_sha256": "87a024e7ecd7af38f479d854ca467327d8bbffa89d2f7e427331b5d06e04bb62",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Voucher No",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "VCH-1001",
+            "VCH-1002",
+            "VCH-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Posted Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-05-11",
+            "2025-07-14",
+            "2025-05-10"
+          ],
+          "min": "2025-01-01",
+          "max": "2026-06-27"
+        },
+        {
+          "letter": "C",
+          "name": "Cost Center",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Marketing",
+            "People",
+            "Legal"
+          ],
+          "categories": [
+            "Facilities",
+            "IT",
+            "Legal",
+            "Marketing",
+            "People"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Vendor Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Aether Devices",
+            "Boreal Craft",
+            "Ivory Devices"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Invoice Items",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            1,
+            24,
+            15
+          ],
+          "min": 1,
+          "max": 40
+        },
+        {
+          "letter": "F",
+          "name": "Total Spend",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 5,
+          "sample_values": [
+            5801.47,
+            14769.27,
+            2038.85
+          ],
+          "min": 238.31,
+          "max": 18266.91
+        }
+      ]
+    },
+    {
+      "sheet_id": "expenses_office_bills",
+      "domain": "expenses",
+      "split": "train",
+      "description": "Recurring facility utility and operations bills.",
+      "num_rows": 78,
+      "num_cols": 7,
+      "blank_cells": 3,
+      "key_column": "A",
+      "csv_path": "data/sheets/expenses_office_bills.csv",
+      "xlsx_path": "data/sheets/expenses_office_bills.xlsx",
+      "csv_sha256": "0ef4907b5f0dc9d8076872bf5fd75213484e955d4cd928c7bd1e072a2f6e9f90",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Bill ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "BIL-1001",
+            "BIL-1002",
+            "BIL-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Due Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-03-13",
+            "2025-04-13",
+            "2025-04-23"
+          ],
+          "min": "2025-01-09",
+          "max": "2026-06-25"
+        },
+        {
+          "letter": "C",
+          "name": "Facility",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Annex East",
+            "Annex East",
+            "HQ North"
+          ],
+          "categories": [
+            "Annex East",
+            "Depot West",
+            "HQ North",
+            "Lab South"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Expense Type",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Electricity",
+            "Electricity",
+            "Electricity"
+          ],
+          "categories": [
+            "Electricity",
+            "Internet",
+            "Maintenance",
+            "Security",
+            "Water"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Utility Units",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            883,
+            214,
+            280
+          ],
+          "min": 12,
+          "max": 1190
+        },
+        {
+          "letter": "F",
+          "name": "Bill Amount",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            1064.03,
+            1615.07,
+            1076.86
+          ],
+          "min": 103.95,
+          "max": 4187.57
+        },
+        {
+          "letter": "G",
+          "name": "Approval Note",
+          "type": "text",
+          "nullable": true,
+          "unique": false,
+          "null_count": 3,
+          "sample_values": [
+            "Budget matched",
+            "Verified receipt",
+            "Pending signoff"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet_id": "orders_ecommerce",
+      "domain": "orders",
+      "split": "test",
+      "description": "Online customer orders with channel, fulfillment status and shipping.",
+      "num_rows": 56,
+      "num_cols": 8,
+      "blank_cells": 2,
+      "key_column": "A",
+      "csv_path": "data/sheets/orders_ecommerce.csv",
+      "xlsx_path": "data/sheets/orders_ecommerce.xlsx",
+      "csv_sha256": "a7a02578f99ccd5d003195a16cf826c2381d1fa4a995b1218916a21fc1ca12d9",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Order ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "ORD-1001",
+            "ORD-1002",
+            "ORD-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Order Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-04-02",
+            "2025-04-13",
+            "2026-01-26"
+          ],
+          "min": "2025-01-04",
+          "max": "2026-06-25"
+        },
+        {
+          "letter": "C",
+          "name": "Customer Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Bram Usk",
+            "Lumen Meld",
+            "Halen Bramm"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Channel",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Web",
+            "Marketplace",
+            "Phone"
+          ],
+          "categories": [
+            "Marketplace",
+            "Mobile App",
+            "Phone",
+            "Web"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Fulfillment",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Cancelled",
+            "Cancelled",
+            "Delivered"
+          ],
+          "categories": [
+            "Cancelled",
+            "Delivered",
+            "Pending",
+            "Shipped"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Item Count",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            12,
+            4,
+            6
+          ],
+          "min": 1,
+          "max": 15
+        },
+        {
+          "letter": "G",
+          "name": "Order Total",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            943.13,
+            289.48,
+            1209.97
+          ],
+          "min": 26.85,
+          "max": 1209.97
+        },
+        {
+          "letter": "H",
+          "name": "Shipping Fee",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 2,
+          "sample_values": [
+            32.45,
+            15.91,
+            31.99
+          ],
+          "min": 0.18,
+          "max": 34.75
+        }
+      ]
+    },
+    {
+      "sheet_id": "orders_wholesale_shipments",
+      "domain": "orders",
+      "split": "train",
+      "description": "Wholesale carton shipments by region and priority.",
+      "num_rows": 139,
+      "num_cols": 7,
+      "blank_cells": 6,
+      "key_column": "A",
+      "csv_path": "data/sheets/orders_wholesale_shipments.csv",
+      "xlsx_path": "data/sheets/orders_wholesale_shipments.xlsx",
+      "csv_sha256": "dd1e9c32fd8f193959d0637d225c80c822204aef9baea5b01dc293a811dd3184",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Shipment ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "SHP-1001",
+            "SHP-1002",
+            "SHP-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Ship Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-12-09",
+            "2025-12-27",
+            "2025-04-23"
+          ],
+          "min": "2025-01-07",
+          "max": "2026-06-18"
+        },
+        {
+          "letter": "C",
+          "name": "Buyer Org",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Vektor Systems",
+            "Drifter Devices",
+            "Bramble Metals"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Region",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "East",
+            "North",
+            "North"
+          ],
+          "categories": [
+            "East",
+            "North",
+            "South",
+            "West"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Cartons",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            21,
+            127,
+            147
+          ],
+          "min": 3,
+          "max": 180
+        },
+        {
+          "letter": "F",
+          "name": "Freight Cost",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 6,
+          "sample_values": [
+            1158.98,
+            5598.74,
+            4377.89
+          ],
+          "min": 178.54,
+          "max": 6362.63
+        },
+        {
+          "letter": "G",
+          "name": "Priority",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Standard",
+            "Express",
+            "Express"
+          ],
+          "categories": [
+            "Economy",
+            "Express",
+            "Standard"
+          ]
+        }
+      ]
+    },
+    {
+      "sheet_id": "orders_purchase_requests",
+      "domain": "orders",
+      "split": "train",
+      "description": "Procurement purchase orders placed with external suppliers.",
+      "num_rows": 48,
+      "num_cols": 6,
+      "blank_cells": 2,
+      "key_column": "A",
+      "csv_path": "data/sheets/orders_purchase_requests.csv",
+      "xlsx_path": "data/sheets/orders_purchase_requests.xlsx",
+      "csv_sha256": "29f5d756a629a3bfb76feff518a6ce318cd266aba5076bd46c40d70cbfec2ab3",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "PO Number",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "PO-1001",
+            "PO-1002",
+            "PO-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Request Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-11-19",
+            "2026-06-18",
+            "2025-01-09"
+          ],
+          "min": "2025-01-09",
+          "max": "2026-06-18"
+        },
+        {
+          "letter": "C",
+          "name": "Vendor",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Bramble Tools",
+            "Cobalt Logistics",
+            "Quarry Systems"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Category",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Raw Material",
+            "Raw Material",
+            "Software"
+          ],
+          "categories": [
+            "Equipment",
+            "Packaging",
+            "Raw Material",
+            "Software"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Order Qty",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            482,
+            490,
+            451
+          ],
+          "min": 19,
+          "max": 491
+        },
+        {
+          "letter": "F",
+          "name": "Unit Price",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 2,
+          "sample_values": [
+            269.71,
+            243.3,
+            310.39
+          ],
+          "min": 8.08,
+          "max": 366.13
+        }
+      ]
+    },
+    {
+      "sheet_id": "projects_task_board",
+      "domain": "project_tracking",
+      "split": "train",
+      "description": "Engineering task board with assignees, points and due dates.",
+      "num_rows": 138,
+      "num_cols": 7,
+      "blank_cells": 6,
+      "key_column": "A",
+      "csv_path": "data/sheets/projects_task_board.csv",
+      "xlsx_path": "data/sheets/projects_task_board.xlsx",
+      "csv_sha256": "56db5c73146146b7cb41e024f0040cd16b7b628c9c39a1f97a33cc299bab005c",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Task ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "TSK-1001",
+            "TSK-1002",
+            "TSK-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Task Title",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Clean stale logs",
+            "Tune cache window",
+            "Review access roles"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Assignee",
+          "type": "text",
+          "nullable": true,
+          "unique": false,
+          "null_count": 6,
+          "sample_values": [
+            "Kaelen Drav",
+            "Halen Vald",
+            "Yara Dren"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Workstream",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Frontend",
+            "Infra",
+            "Frontend"
+          ],
+          "categories": [
+            "Backend",
+            "Docs",
+            "Frontend",
+            "Infra",
+            "ML"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Status",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Backlog",
+            "Blocked",
+            "Blocked"
+          ],
+          "categories": [
+            "Backlog",
+            "Blocked",
+            "Done",
+            "In Progress"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Story Points",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            7,
+            9,
+            9
+          ],
+          "min": 1,
+          "max": 13
+        },
+        {
+          "letter": "G",
+          "name": "Due Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-01-10",
+            "2025-11-27",
+            "2025-07-29"
+          ],
+          "min": "2025-01-01",
+          "max": "2026-06-29"
+        }
+      ]
+    },
+    {
+      "sheet_id": "projects_sprint_budget",
+      "domain": "project_tracking",
+      "split": "train",
+      "description": "Sprint time logs, billable hourly rates and budget spend.",
+      "num_rows": 173,
+      "num_cols": 7,
+      "blank_cells": 7,
+      "key_column": "A",
+      "csv_path": "data/sheets/projects_sprint_budget.csv",
+      "xlsx_path": "data/sheets/projects_sprint_budget.xlsx",
+      "csv_sha256": "fe7da4ff44c15f7e5fdefbb2466d3b6e5e831a816bf361ce73d48b5c5fbf2ebb",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Entry ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "LOG-1001",
+            "LOG-1002",
+            "LOG-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Log Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2026-05-31",
+            "2026-05-15",
+            "2025-06-17"
+          ],
+          "min": "2025-01-01",
+          "max": "2026-06-29"
+        },
+        {
+          "letter": "C",
+          "name": "Project Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Echo Pipeline",
+            "Atlas Revamp",
+            "Cedar Portal"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Phase",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Launch",
+            "Testing",
+            "Discovery"
+          ],
+          "categories": [
+            "Build",
+            "Discovery",
+            "Launch",
+            "Testing"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Hours Logged",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            9,
+            59,
+            50
+          ],
+          "min": 2,
+          "max": 60
+        },
+        {
+          "letter": "F",
+          "name": "Billable Rate",
+          "type": "decimal",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            162.27,
+            161.92,
+            96.84
+          ],
+          "min": 45.81,
+          "max": 164.93
+        },
+        {
+          "letter": "G",
+          "name": "Budget Used",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 7,
+          "sample_values": [
+            8994.98,
+            4575.71,
+            3033.16
+          ],
+          "min": 421.66,
+          "max": 9477.73
+        }
+      ]
+    },
+    {
+      "sheet_id": "attendance_daily_log",
+      "domain": "attendance",
+      "split": "train",
+      "description": "Daily staff attendance records and hours present.",
+      "num_rows": 193,
+      "num_cols": 6,
+      "blank_cells": 8,
+      "key_column": "A",
+      "csv_path": "data/sheets/attendance_daily_log.csv",
+      "xlsx_path": "data/sheets/attendance_daily_log.xlsx",
+      "csv_sha256": "801fc46251eb55321edfa944b48dc1ebbcf1274510047cb9236579d93444c5a5",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Record ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "ATT-1001",
+            "ATT-1002",
+            "ATT-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Work Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-01-16",
+            "2025-01-05",
+            "2026-01-16"
+          ],
+          "min": "2025-01-05",
+          "max": "2026-06-28"
+        },
+        {
+          "letter": "C",
+          "name": "Member Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Cira Stel",
+            "Pira Pell",
+            "Caden Meld"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Department",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Support",
+            "Support",
+            "Support"
+          ],
+          "categories": [
+            "Engineering",
+            "Operations",
+            "Sales",
+            "Support"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Attendance Status",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Present",
+            "Absent",
+            "Remote"
+          ],
+          "categories": [
+            "Absent",
+            "Leave",
+            "Present",
+            "Remote"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Hours Present",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 8,
+          "sample_values": [
+            9.71,
+            8.68,
+            6.29
+          ],
+          "min": 0.04,
+          "max": 10.46
+        }
+      ]
+    },
+    {
+      "sheet_id": "attendance_shift_records",
+      "domain": "attendance",
+      "split": "train",
+      "description": "Operations shift check-ins with late minutes and overtime hours.",
+      "num_rows": 163,
+      "num_cols": 7,
+      "blank_cells": 7,
+      "key_column": "A",
+      "csv_path": "data/sheets/attendance_shift_records.csv",
+      "xlsx_path": "data/sheets/attendance_shift_records.xlsx",
+      "csv_sha256": "0c4725418e341ed40cdeeffd62761a6e97d491f7828ea7b00302b521f6296fb4",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Shift ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "SHF-1001",
+            "SHF-1002",
+            "SHF-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Shift Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-06-27",
+            "2025-12-12",
+            "2025-10-05"
+          ],
+          "min": "2025-01-03",
+          "max": "2026-06-30"
+        },
+        {
+          "letter": "C",
+          "name": "Operator",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Halen Morn",
+            "Lira Drav",
+            "Tovin Pell"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Site",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Site Gamma",
+            "Site Beta",
+            "Site Alpha"
+          ],
+          "categories": [
+            "Site Alpha",
+            "Site Beta",
+            "Site Gamma"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Shift Type",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Morning",
+            "Morning",
+            "Evening"
+          ],
+          "categories": [
+            "Evening",
+            "Morning",
+            "Night"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Late Minutes",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            13,
+            25,
+            38
+          ],
+          "min": 0,
+          "max": 45
+        },
+        {
+          "letter": "G",
+          "name": "Overtime Hours",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 7,
+          "sample_values": [
+            2.69,
+            2.18,
+            0.32
+          ],
+          "min": 0.01,
+          "max": 4.48
+        }
+      ]
+    },
+    {
+      "sheet_id": "subscriptions_saas_accounts",
+      "domain": "subscriptions",
+      "split": "train",
+      "description": "Active software subscription accounts, seat counts and monthly fees.",
+      "num_rows": 86,
+      "num_cols": 7,
+      "blank_cells": 3,
+      "key_column": "A",
+      "csv_path": "data/sheets/subscriptions_saas_accounts.csv",
+      "xlsx_path": "data/sheets/subscriptions_saas_accounts.xlsx",
+      "csv_sha256": "d81ecd2bc40a9dbdce1b8fedc7a11316acc6095018ad772dce6b419c6e11f1b1",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Account ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "SUB-1001",
+            "SUB-1002",
+            "SUB-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Org Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Marlin Logistics",
+            "Harbor Tools",
+            "Quarry Devices"
+          ]
+        },
+        {
+          "letter": "C",
+          "name": "Plan Tier",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Business",
+            "Starter",
+            "Starter"
+          ],
+          "categories": [
+            "Business",
+            "Enterprise",
+            "Growth",
+            "Starter"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Billing Cycle",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Monthly",
+            "Annual",
+            "Monthly"
+          ],
+          "categories": [
+            "Annual",
+            "Monthly"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Start Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-02-07",
+            "2026-04-06",
+            "2025-09-14"
+          ],
+          "min": "2025-01-01",
+          "max": "2026-06-27"
+        },
+        {
+          "letter": "F",
+          "name": "Active Users",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            132,
+            108,
+            307
+          ],
+          "min": 2,
+          "max": 345
+        },
+        {
+          "letter": "G",
+          "name": "Monthly Fee",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 3,
+          "sample_values": [
+            62.58,
+            297.39,
+            2203.28
+          ],
+          "min": 62.58,
+          "max": 2866.7
+        }
+      ]
+    },
+    {
+      "sheet_id": "support_helpdesk_queue",
+      "domain": "support_tickets",
+      "split": "train",
+      "description": "Customer support tickets with severity, replies and resolution time.",
+      "num_rows": 109,
+      "num_cols": 7,
+      "blank_cells": 4,
+      "key_column": "A",
+      "csv_path": "data/sheets/support_helpdesk_queue.csv",
+      "xlsx_path": "data/sheets/support_helpdesk_queue.xlsx",
+      "csv_sha256": "8ebbac2e4429df722be4169aa0f79825f0b3d6bf6ffc1cf1594eb99fbb27a9e7",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Ticket ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "TKT-1001",
+            "TKT-1002",
+            "TKT-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Opened Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-07-19",
+            "2025-05-25",
+            "2026-04-30"
+          ],
+          "min": "2025-01-07",
+          "max": "2026-06-21"
+        },
+        {
+          "letter": "C",
+          "name": "Queue",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Technical",
+            "Account",
+            "Technical"
+          ],
+          "categories": [
+            "Account",
+            "Billing",
+            "Onboarding",
+            "Technical"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Severity",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Medium",
+            "Critical",
+            "Critical"
+          ],
+          "categories": [
+            "Critical",
+            "High",
+            "Low",
+            "Medium"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Agent Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Galia Solk",
+            "Dorian Usk",
+            "Halen Yorn"
+          ]
+        },
+        {
+          "letter": "F",
+          "name": "Replies Count",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            8,
+            1,
+            14
+          ],
+          "min": 1,
+          "max": 18
+        },
+        {
+          "letter": "G",
+          "name": "Resolution Hours",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 4,
+          "sample_values": [
+            28.62,
+            95.05,
+            93.36
+          ],
+          "min": 1.12,
+          "max": 95.25
+        }
+      ]
+    },
+    {
+      "sheet_id": "marketing_campaign_metrics",
+      "domain": "marketing",
+      "split": "train",
+      "description": "Digital campaign performance with clicks, conversions and ad spend.",
+      "num_rows": 157,
+      "num_cols": 7,
+      "blank_cells": 6,
+      "key_column": "A",
+      "csv_path": "data/sheets/marketing_campaign_metrics.csv",
+      "xlsx_path": "data/sheets/marketing_campaign_metrics.xlsx",
+      "csv_sha256": "86e34ff3fdbc065209e46aced281bca598da730a9b18ac1cb7d7d10250863309",
+      "columns": [
+        {
+          "letter": "A",
+          "name": "Campaign ID",
+          "type": "text",
+          "nullable": false,
+          "unique": true,
+          "null_count": 0,
+          "sample_values": [
+            "CMP-1001",
+            "CMP-1002",
+            "CMP-1003"
+          ]
+        },
+        {
+          "letter": "B",
+          "name": "Launch Date",
+          "type": "date",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "2025-04-06",
+            "2025-06-04",
+            "2026-04-17"
+          ],
+          "min": "2025-01-03",
+          "max": "2026-06-29"
+        },
+        {
+          "letter": "C",
+          "name": "Campaign Name",
+          "type": "text",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Annual Upgrade",
+            "Holiday Flash",
+            "Feature Drop"
+          ]
+        },
+        {
+          "letter": "D",
+          "name": "Channel",
+          "type": "category",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            "Search",
+            "Social",
+            "Affiliate"
+          ],
+          "categories": [
+            "Affiliate",
+            "Display",
+            "Email",
+            "Search",
+            "Social"
+          ]
+        },
+        {
+          "letter": "E",
+          "name": "Clicks",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            4907,
+            3936,
+            24813
+          ],
+          "min": 401,
+          "max": 24964
+        },
+        {
+          "letter": "F",
+          "name": "Conversions",
+          "type": "integer",
+          "nullable": false,
+          "unique": false,
+          "null_count": 0,
+          "sample_values": [
+            819,
+            429,
+            290
+          ],
+          "min": 10,
+          "max": 1193
+        },
+        {
+          "letter": "G",
+          "name": "Ad Spend",
+          "type": "decimal",
+          "nullable": true,
+          "unique": false,
+          "null_count": 6,
+          "sample_values": [
+            840.44,
+            2462.18,
+            916.13
+          ],
+          "min": 374.67,
+          "max": 14978.86
+        }
+      ]
+    }
+  ]
+}

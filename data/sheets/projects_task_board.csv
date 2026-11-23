@@ -1,0 +1,139 @@
+Task ID,Task Title,Assignee,Workstream,Status,Story Points,Due Date
+TSK-1001,Clean stale logs,Kaelen Drav,Frontend,Backlog,7,2025-01-10
+TSK-1002,Tune cache window,Halen Vald,Infra,Blocked,9,2025-11-27
+TSK-1003,Review access roles,Yara Dren,Frontend,Blocked,9,2025-07-29
+TSK-1004,Review access roles,Yara Korr,ML,Backlog,4,2025-12-05
+TSK-1005,Test bulk import,Iona Dren,Docs,Backlog,1,2025-11-22
+TSK-1006,Patch date filter,Lira Fask,ML,Done,1,2025-11-16
+TSK-1007,Test bulk import,Maren Bramm,Backend,Backlog,6,2025-04-07
+TSK-1008,Audit schema rules,Tovin Dren,Backend,Blocked,11,2025-08-20
+TSK-1009,Draft API spec,Aelen Bramm,Infra,Blocked,7,2025-11-10
+TSK-1010,Draft API spec,Caden Korr,Docs,In Progress,2,2025-06-06
+TSK-1011,Refactor parser,Nolan Lisk,Frontend,Blocked,10,2025-04-15
+TSK-1012,Add retry guard,Zev Pell,Docs,Blocked,13,2026-04-30
+TSK-1013,Verify CSV export,Kaelen Vorn,Frontend,In Progress,2,2025-05-31
+TSK-1014,Add retry guard,Kaelen Zell,Backend,Blocked,2,2025-02-23
+TSK-1015,Add retry guard,Lumen Vald,ML,Blocked,5,2026-05-28
+TSK-1016,Refactor parser,Pira Tarn,ML,Backlog,12,2026-05-01
+TSK-1017,Draft API spec,Talia Oren,Docs,Done,10,2025-08-08
+TSK-1018,Add retry guard,Rina Fask,ML,Backlog,8,2025-09-14
+TSK-1019,Fix rounding bug,Halen Vald,Infra,In Progress,1,2026-01-10
+TSK-1020,Clean stale logs,Wren Vald,Frontend,In Progress,7,2026-01-19
+TSK-1021,Add retry guard,Aelen Bramm,ML,Blocked,9,2025-07-19
+TSK-1022,Audit schema rules,Talia Pell,Backend,Blocked,5,2026-05-30
+TSK-1023,Audit schema rules,Rina Meld,Infra,Backlog,7,2025-02-14
+TSK-1024,Test bulk import,Quen Lisk,Backend,Done,12,2026-04-28
+TSK-1025,Review access roles,Tovin Drav,Frontend,Backlog,12,2025-04-17
+TSK-1026,Audit schema rules,Yara Brek,Docs,In Progress,12,2025-07-01
+TSK-1027,Add retry guard,Fenn Usk,Backend,Done,8,2025-03-05
+TSK-1028,Draft API spec,Galia Lisk,Frontend,Done,6,2025-11-21
+TSK-1029,Test bulk import,Kaelen Rask,Docs,Done,11,2026-02-17
+TSK-1030,Patch date filter,Dorian Kest,Frontend,In Progress,12,2025-10-01
+TSK-1031,Refactor parser,Lira Wesk,Backend,Blocked,10,2025-07-23
+TSK-1032,Test bulk import,Eris Solk,Backend,Blocked,5,2025-12-26
+TSK-1033,Refactor parser,Vesper Yorn,Docs,Done,10,2026-04-20
+TSK-1034,Refactor parser,Halen Palk,Frontend,Done,3,2025-11-22
+TSK-1035,Review access roles,Bram Dren,Backend,In Progress,11,2026-01-19
+TSK-1036,Clean stale logs,Fenn Jern,Infra,In Progress,12,2025-05-16
+TSK-1037,Tune cache window,Dorian Stel,Infra,In Progress,5,2025-05-24
+TSK-1038,Review access roles,Ulan Usk,Frontend,In Progress,5,2025-07-24
+TSK-1039,Add retry guard,Soren Korr,ML,Blocked,2,2026-05-17
+TSK-1040,Draft API spec,Yara Quill,Docs,Backlog,11,2025-06-24
+TSK-1041,Audit schema rules,Zev Fask,Docs,In Progress,12,2026-03-21
+TSK-1042,Draft API spec,Soren Corv,Infra,Blocked,2,2026-06-10
+TSK-1043,Verify CSV export,Quen Corv,ML,Blocked,1,2025-04-29
+TSK-1044,Build status chart,Lira Zell,Frontend,Backlog,10,2025-11-27
+TSK-1045,Draft API spec,Zev Meld,Infra,Done,11,2026-01-03
+TSK-1046,Audit schema rules,Kaelen Usk,ML,Blocked,6,2025-04-13
+TSK-1047,Add retry guard,Wren Norr,Frontend,Backlog,9,2025-07-10
+TSK-1048,Audit schema rules,Lumen Yorn,Docs,Backlog,12,2026-02-13
+TSK-1049,Clean stale logs,Pira Korr,Infra,Blocked,8,2026-02-15
+TSK-1050,Tune cache window,Cira Hald,Docs,Done,7,2026-03-13
+TSK-1051,Tune cache window,Caden Brek,Frontend,In Progress,5,2026-06-21
+TSK-1052,Verify CSV export,Iona Neld,Infra,Done,2,2025-11-13
+TSK-1053,Add retry guard,Wren Yorn,ML,In Progress,8,2025-01-01
+TSK-1054,Fix rounding bug,Joren Bramm,Frontend,Blocked,5,2025-03-24
+TSK-1055,Add retry guard,Pira Corv,ML,Done,12,2025-09-08
+TSK-1056,Add retry guard,Yara Vorn,ML,In Progress,6,2025-04-13
+TSK-1057,Clean stale logs,Caden Corv,ML,Backlog,8,2025-09-06
+TSK-1058,Refactor parser,Zev Neld,Infra,In Progress,7,2025-12-01
+TSK-1059,Tune cache window,Kova Tarn,Docs,Done,6,2026-05-16
+TSK-1060,Fix rounding bug,Bram Hald,Docs,In Progress,13,2025-08-29
+TSK-1061,Draft API spec,Yara Pell,Docs,Done,10,2026-02-12
+TSK-1062,Refactor parser,Orin Neld,ML,In Progress,1,2025-08-05
+TSK-1063,Tune cache window,Kova Palk,Infra,Backlog,11,2025-07-04
+TSK-1064,Patch date filter,,Infra,Backlog,11,2026-05-08
+TSK-1065,Audit schema rules,Quen Usk,Frontend,In Progress,7,2026-06-14
+TSK-1066,Refactor parser,Tovin Palk,Infra,Done,11,2026-02-19
+TSK-1067,Audit schema rules,Kaelen Oren,Frontend,Backlog,11,2026-04-11
+TSK-1068,Audit schema rules,,ML,Done,5,2026-03-12
+TSK-1069,Tune cache window,Halen Wesk,Docs,Blocked,13,2026-04-30
+TSK-1070,Test bulk import,Vesper Rask,Backend,In Progress,7,2026-06-29
+TSK-1071,Patch date filter,,Backend,Blocked,12,2025-09-22
+TSK-1072,Verify CSV export,Tovin Vald,Backend,Backlog,5,2025-02-10
+TSK-1073,Refactor parser,Rovan Yorn,Infra,Done,10,2026-01-14
+TSK-1074,Tune cache window,Kova Pell,Infra,Done,9,2025-10-01
+TSK-1075,Add retry guard,Soren Quill,ML,Done,8,2025-11-29
+TSK-1076,Tune cache window,Cira Tov,Infra,Done,9,2026-02-10
+TSK-1077,Verify CSV export,,Docs,Done,3,2025-05-29
+TSK-1078,Fix rounding bug,Rovan Vald,Infra,Blocked,8,2025-09-07
+TSK-1079,Test bulk import,Tovin Meld,Backend,Blocked,6,2025-02-09
+TSK-1080,Add retry guard,Galia Stel,Docs,Done,6,2025-11-06
+TSK-1081,Patch date filter,Caden Brek,Frontend,Blocked,12,2025-03-23
+TSK-1082,Patch date filter,Halen Bramm,Docs,Blocked,5,2026-06-11
+TSK-1083,Build status chart,Pira Halv,Infra,Backlog,4,2026-03-24
+TSK-1084,Tune cache window,Lira Lisk,Docs,Done,10,2026-02-13
+TSK-1085,Add retry guard,Soren Lisk,Backend,Backlog,4,2025-01-20
+TSK-1086,Patch date filter,Iona Lisk,Infra,Backlog,10,2025-11-22
+TSK-1087,Refactor parser,Orin Hald,Backend,Blocked,4,2025-03-07
+TSK-1088,Review access roles,,Docs,Backlog,11,2025-12-03
+TSK-1089,Build status chart,Zev Zell,Docs,Done,6,2025-12-15
+TSK-1090,Draft API spec,Wren Wesk,Frontend,Backlog,12,2026-05-26
+TSK-1091,Verify CSV export,Kaelen Stel,Infra,Backlog,1,2025-03-22
+TSK-1092,Fix rounding bug,Rovan Quill,Backend,In Progress,12,2026-06-27
+TSK-1093,Draft API spec,Talia Morn,Infra,Backlog,11,2026-04-24
+TSK-1094,Audit schema rules,Joren Dren,Docs,Blocked,10,2026-03-18
+TSK-1095,Patch date filter,Bram Morn,Docs,Backlog,4,2026-01-20
+TSK-1096,Build status chart,Iona Stel,Docs,Done,2,2026-02-10
+TSK-1097,Verify CSV export,Nolan Tov,Docs,Blocked,3,2025-06-12
+TSK-1098,Test bulk import,Caden Usk,Infra,In Progress,7,2025-10-13
+TSK-1099,Draft API spec,Yara Vess,Infra,Backlog,4,2026-02-18
+TSK-1100,Clean stale logs,Tovin Morn,ML,In Progress,3,2026-02-14
+TSK-1101,Tune cache window,Aelen Pell,ML,In Progress,11,2025-04-11
+TSK-1102,Patch date filter,Eris Usk,ML,In Progress,11,2025-01-30
+TSK-1103,Review access roles,Orin Neld,Docs,Done,10,2026-02-23
+TSK-1104,Audit schema rules,Ulan Jern,Frontend,Backlog,11,2025-04-04
+TSK-1105,Draft API spec,Bram Stel,Docs,In Progress,3,2026-04-14
+TSK-1106,Draft API spec,Pira Solk,ML,In Progress,6,2025-05-16
+TSK-1107,Tune cache window,Elara Brek,Frontend,Backlog,8,2025-09-08
+TSK-1108,Fix rounding bug,Lumen Jern,Frontend,Backlog,9,2025-04-24
+TSK-1109,Review access roles,Vesper Dren,Frontend,Backlog,12,2025-03-13
+TSK-1110,Audit schema rules,Cira Usk,Docs,Backlog,7,2025-03-14
+TSK-1111,Patch date filter,Quen Tov,Docs,Done,8,2026-05-08
+TSK-1112,Test bulk import,Dorian Morn,ML,Done,6,2026-02-14
+TSK-1113,Test bulk import,Lumen Vald,Backend,Done,3,2025-09-26
+TSK-1114,Review access roles,Halen Dren,Infra,Backlog,11,2025-12-14
+TSK-1115,Add retry guard,Pira Zell,Frontend,Blocked,2,2025-12-04
+TSK-1116,Fix rounding bug,Elara Yorn,ML,In Progress,13,2025-09-24
+TSK-1117,Draft API spec,Soren Wesk,Infra,Backlog,12,2025-09-22
+TSK-1118,Review access roles,Rina Meld,Frontend,In Progress,9,2025-10-23
+TSK-1119,Audit schema rules,Orin Rask,Docs,Blocked,12,2025-10-26
+TSK-1120,Tune cache window,Kaelen Norr,ML,Backlog,11,2025-10-29
+TSK-1121,Add retry guard,Iona Fask,Docs,Blocked,7,2025-09-21
+TSK-1122,Fix rounding bug,Orin Brek,Frontend,Blocked,3,2025-01-13
+TSK-1123,Tune cache window,Yara Tarn,ML,In Progress,6,2025-06-09
+TSK-1124,Review access roles,Ulan Rask,ML,Backlog,11,2025-06-23
+TSK-1125,Build status chart,Nira Solk,ML,Backlog,1,2025-03-08
+TSK-1126,Draft API spec,Orin Norr,Frontend,In Progress,3,2025-10-12
+TSK-1127,Review access roles,Halen Bramm,Infra,Backlog,8,2025-01-13
+TSK-1128,Test bulk import,Orin Bramm,Infra,Done,7,2025-04-12
+TSK-1129,Draft API spec,Elara Lisk,Docs,Done,13,2025-02-27
+TSK-1130,Clean stale logs,Pira Jern,Infra,In Progress,12,2025-09-08
+TSK-1131,Verify CSV export,Tovin Solk,Backend,Blocked,9,2025-10-12
+TSK-1132,Refactor parser,Maren Kest,Frontend,Blocked,1,2025-08-01
+TSK-1133,Verify CSV export,Pira Zell,ML,Done,9,2025-02-22
+TSK-1134,Draft API spec,Elara Bramm,ML,Done,8,2025-03-27
+TSK-1135,Clean stale logs,Maren Vess,Docs,In Progress,10,2026-05-14
+TSK-1136,Tune cache window,Aelen Vald,Backend,Backlog,13,2025-07-19
+TSK-1137,Review access roles,,Infra,Backlog,10,2025-10-05
+TSK-1138,Clean stale logs,Lira Pell,Docs,Backlog,9,2025-10-18

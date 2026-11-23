@@ -1,0 +1,79 @@
+Bill ID,Due Date,Facility,Expense Type,Utility Units,Bill Amount,Approval Note
+BIL-1001,2025-03-13,Annex East,Electricity,883,1064.03,Budget matched
+BIL-1002,2025-04-13,Annex East,Electricity,214,1615.07,Verified receipt
+BIL-1003,2025-04-23,HQ North,Electricity,280,1076.86,Pending signoff
+BIL-1004,2025-10-02,Annex East,Security,37,3337.42,Verified receipt
+BIL-1005,2025-04-19,Depot West,Electricity,424,623.5,Split invoice
+BIL-1006,2025-06-17,Depot West,Water,990,687.0,Verified receipt
+BIL-1007,2025-10-01,HQ North,Electricity,101,472.2,Checked by ops
+BIL-1008,2025-04-16,Lab South,Internet,12,3835.05,Verified receipt
+BIL-1009,2025-08-21,Lab South,Maintenance,311,1513.0,Checked by ops
+BIL-1010,2025-08-20,Lab South,Electricity,1017,749.52,Pending signoff
+BIL-1011,2025-08-18,HQ North,Water,741,361.98,Urgent review
+BIL-1012,2025-05-02,Depot West,Electricity,98,2556.72,
+BIL-1013,2026-03-15,Depot West,Security,381,2868.05,
+BIL-1014,2025-11-05,Depot West,Water,222,1171.39,Split invoice
+BIL-1015,2026-01-13,Depot West,Electricity,14,3625.42,Standard rate
+BIL-1016,2025-05-31,Depot West,Internet,809,1901.02,Split invoice
+BIL-1017,2025-03-10,HQ North,Security,885,4032.08,Checked by ops
+BIL-1018,2025-05-29,HQ North,Water,271,800.68,Budget matched
+BIL-1019,2025-12-28,Depot West,Maintenance,878,2044.75,Budget matched
+BIL-1020,2025-12-08,Annex East,Internet,794,1784.53,Split invoice
+BIL-1021,2026-05-20,Annex East,Maintenance,181,2458.91,Budget matched
+BIL-1022,2026-06-24,Annex East,Electricity,491,1547.9,Recurring bill
+BIL-1023,2025-01-18,Depot West,Security,980,4023.89,Pending signoff
+BIL-1024,2025-03-03,Depot West,Water,295,1269.47,Standard rate
+BIL-1025,2026-03-08,Annex East,Internet,469,277.12,Standard rate
+BIL-1026,2025-05-01,Annex East,Maintenance,63,2937.39,Budget matched
+BIL-1027,2026-01-16,HQ North,Electricity,161,2026.21,Standard rate
+BIL-1028,2025-01-31,Annex East,Water,299,373.22,Pending signoff
+BIL-1029,2025-01-13,Lab South,Internet,383,1996.87,Standard rate
+BIL-1030,2026-06-25,Depot West,Maintenance,852,3047.23,Split invoice
+BIL-1031,2025-01-14,Depot West,Electricity,329,294.3,Verified receipt
+BIL-1032,2025-06-27,Annex East,Electricity,821,3504.79,Split invoice
+BIL-1033,2025-09-22,Depot West,Internet,877,3915.18,Checked by ops
+BIL-1034,2025-04-05,Lab South,Internet,443,1708.67,Verified receipt
+BIL-1035,2025-08-13,Lab South,Internet,1155,2559.12,Pending signoff
+BIL-1036,2026-04-25,Lab South,Water,839,3482.24,Standard rate
+BIL-1037,2025-02-25,Depot West,Maintenance,408,1166.52,
+BIL-1038,2025-03-21,Depot West,Security,697,161.54,Checked by ops
+BIL-1039,2025-06-16,HQ North,Electricity,443,2526.0,Checked by ops
+BIL-1040,2025-07-12,Annex East,Electricity,502,1163.39,Verified receipt
+BIL-1041,2026-05-11,HQ North,Electricity,654,432.29,Checked by ops
+BIL-1042,2025-01-09,Depot West,Water,825,2123.4,Urgent review
+BIL-1043,2026-02-05,Depot West,Internet,209,1421.63,Pending signoff
+BIL-1044,2026-05-30,Annex East,Electricity,792,2026.74,Verified receipt
+BIL-1045,2025-10-25,Annex East,Internet,958,372.22,Pending signoff
+BIL-1046,2025-08-26,Annex East,Internet,339,4172.65,Urgent review
+BIL-1047,2026-04-04,Annex East,Water,605,1542.11,Budget matched
+BIL-1048,2025-02-10,Lab South,Internet,437,4187.57,Pending signoff
+BIL-1049,2025-06-06,Lab South,Electricity,40,637.6,Checked by ops
+BIL-1050,2025-03-31,Lab South,Electricity,941,1348.5,Checked by ops
+BIL-1051,2025-06-15,HQ North,Water,1190,1554.63,Pending signoff
+BIL-1052,2025-03-14,Annex East,Maintenance,538,4142.43,Checked by ops
+BIL-1053,2026-03-29,Annex East,Electricity,1174,2073.72,Urgent review
+BIL-1054,2025-10-21,Lab South,Maintenance,274,1876.64,Urgent review
+BIL-1055,2026-01-18,HQ North,Maintenance,1046,1915.13,Verified receipt
+BIL-1056,2025-02-28,Annex East,Security,26,687.21,Pending signoff
+BIL-1057,2025-10-25,Lab South,Internet,1177,1704.01,Pending signoff
+BIL-1058,2025-08-17,Lab South,Maintenance,201,1494.84,Split invoice
+BIL-1059,2026-04-22,HQ North,Electricity,379,3085.54,Budget matched
+BIL-1060,2026-03-20,Annex East,Maintenance,683,312.88,Urgent review
+BIL-1061,2026-05-13,Annex East,Maintenance,244,1201.65,Verified receipt
+BIL-1062,2025-06-09,Lab South,Internet,447,1375.38,Verified receipt
+BIL-1063,2026-01-25,HQ North,Water,890,4110.92,Recurring bill
+BIL-1064,2025-02-25,Annex East,Electricity,876,1166.22,Standard rate
+BIL-1065,2025-03-27,Annex East,Electricity,570,1728.06,Checked by ops
+BIL-1066,2026-04-08,Lab South,Security,448,2827.37,Checked by ops
+BIL-1067,2025-07-08,HQ North,Electricity,887,1466.09,Checked by ops
+BIL-1068,2025-06-18,Annex East,Water,868,2046.15,Standard rate
+BIL-1069,2026-03-24,Depot West,Security,806,3464.63,Recurring bill
+BIL-1070,2025-03-21,Annex East,Water,658,103.95,Split invoice
+BIL-1071,2025-06-01,Lab South,Water,242,3335.83,Budget matched
+BIL-1072,2025-09-27,HQ North,Maintenance,267,2680.49,Pending signoff
+BIL-1073,2025-02-07,Annex East,Internet,870,2938.73,Standard rate
+BIL-1074,2026-01-22,Annex East,Water,439,4002.13,Verified receipt
+BIL-1075,2026-01-15,Depot West,Electricity,628,3770.6,Pending signoff
+BIL-1076,2026-05-27,Lab South,Maintenance,850,1506.43,Budget matched
+BIL-1077,2026-06-20,Depot West,Electricity,370,1951.41,Urgent review
+BIL-1078,2025-07-01,Annex East,Security,902,1630.4,Budget matched

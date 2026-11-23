@@ -8,6 +8,7 @@ seed: 42
 
 paths:
   data_dir: data
+  sheets_dir: data/sheets
   schemas_dir: data/schemas
   templates_dir: data/templates
   generated_dir: data/generated
@@ -27,8 +28,9 @@ model:
 
 data:
   dialect: excel
-  n_sheets: 24             # brief: 20-30 sample sheets
-  rows_per_sheet: [20, 60]
+  n_sheets: 25             # brief: 20-30 sample sheets
+  rows_per_sheet: [30, 200]
+  blank_rate: 0.04         # fraction of blank cells in designated nullable columns
 
 splits:
   train: 8000              # brief: 5k-10k

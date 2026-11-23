@@ -1,11 +1,12 @@
 # Task runner for Linux/macOS/Colab/Git Bash. On Windows PowerShell use scripts/tasks.ps1.
-.PHONY: help setup test lint format data eval reqs
+.PHONY: help setup test lint format sheets data eval reqs
 
 help:
 	@echo "setup  - create .venv and install locked deps (uv sync)"
 	@echo "test   - run pytest"
 	@echo "lint   - ruff check + format check"
 	@echo "format - ruff format + autofix"
+	@echo "sheets - generate synthetic CSV/XLSX sheets and manifest"
 	@echo "data   - generate synthetic dataset"
 	@echo "eval   - run executable evaluation"
 	@echo "reqs   - re-export requirements.txt and re-compile requirements-train.txt"
@@ -23,6 +24,9 @@ lint:
 format:
 	uv run ruff format .
 	uv run ruff check --fix .
+
+sheets:
+	uv run python -m src.data.sheets $(ARGS)
 
 data:
 	uv run python scripts/generate_data.py $(ARGS)
