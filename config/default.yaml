@@ -1,0 +1,47 @@
+# FormulaLM default configuration.
+# All paths are relative to the repository root and resolved by formulalm.config.load_config.
+# Split sizes and generation settings are initial targets from docs/BRIEF.md and may be tuned
+# in later prompts; every run saves the exact config it used next to its outputs.
+
+project: formulalm
+seed: 42
+
+paths:
+  data_dir: data
+  schemas_dir: data/schemas
+  templates_dir: data/templates
+  generated_dir: data/generated
+  handwritten_dir: data/handwritten
+  results_dir: results
+  logs_dir: logs
+  outputs_dir: outputs   # git-ignored: adapters, merged weights, GGUF files
+
+model:
+  base_id: Qwen/Qwen3-1.7B
+  # Commit hash of Qwen/Qwen3-1.7B on the Hugging Face Hub, verified via the Hub API on 2026-11-24.
+  base_revision: 70d244cc86ccca08cf5af4e1e306ecf908b1ad5e
+  unsloth_id: unsloth/Qwen3-1.7B
+  license: apache-2.0      # from the official model card; fine-tuned weights inherit it
+  enable_thinking: false   # non-thinking mode: output is only the formula
+  max_seq_length: 1024
+
+data:
+  dialect: excel
+  n_sheets: 24             # brief: 20-30 sample sheets
+  rows_per_sheet: [20, 60]
+
+splits:
+  train: 8000              # brief: 5k-10k
+  valid: 500
+  test_synthetic: 1000     # unseen phrasings + unseen schemas
+  test_handwritten: 80     # hand-written realistic requests
+  heldout_schema_fraction: 0.2
+  heldout_template_fraction: 0.2
+
+eval:
+  float_tolerance: 1.0e-6
+  engines: [formulas, libreoffice]
+
+hub:
+  hf_user: abubakar56
+  modelscope_user: abubakar56

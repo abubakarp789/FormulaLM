@@ -1,0 +1,51 @@
+# --- Python / tooling caches ---
+.venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+
+# --- Secrets (use environment variables; see .env.example) ---
+.env
+.env.*
+!.env.example
+
+# --- Model weights and training artifacts (published to HF/ModelScope, never committed) ---
+outputs/
+models/
+adapters/
+checkpoints/
+wandb/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx
+Modelfile.local
+
+# --- Large / regenerable data ---
+# Generated datasets are reproducible from config seed and published as an HF dataset.
+data/generated/*
+!data/generated/.gitkeep
+*.parquet
+*.zip
+
+# --- Logs and local run scratch ---
+logs/
+*.log
+gradio_cached_examples/
+.gradio/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

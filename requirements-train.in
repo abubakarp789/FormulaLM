@@ -1,0 +1,11 @@
+# Top-level training requirements for Colab/Kaggle (Linux x86_64, CUDA, Python 3.12).
+# Pins mirror the organizer starter repo's verified NVIDIA lock
+# (github.com/junaiddshaukat/finetune-anywhere, paths/nvidia-gpu/requirements.in, checked 2026-11-24).
+# Compile to requirements-train.txt with:
+#   uv pip compile requirements-train.in -o requirements-train.txt --python-version 3.12 --python-platform x86_64-manylinux_2_28
+unsloth==2026.11.7
+# Without this pin the resolver picks unsloth-zoo 2026.11.10; keep the starter's tested pair.
+unsloth-zoo==2026.11.7
+torch==2.8.0
+PyYAML==6.0.3
+hf_transfer
