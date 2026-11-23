@@ -475,10 +475,16 @@ class TransformersBackend:
         self.enable_thinking = enable_thinking
         self.name = f"transformers:{model_id}" + (f"+{adapter_path}" if adapter_path else "")
 
+        tok_source = adapter_path if adapter_path else model_id
         tok_kwargs: dict[str, Any] = {}
-        if revision:
+        if revision and not adapter_path:
             tok_kwargs["revision"] = revision
-        self.tokenizer = AutoTokenizer.from_pretrained(model_id, **tok_kwargs)
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(tok_source, **tok_kwargs)
+        except Exception:
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                model_id, **({"revision": revision} if revision else {})
+            )
         self.tokenizer.padding_side = "left"
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
