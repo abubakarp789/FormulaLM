@@ -1,0 +1,26 @@
+{
+  "config": {
+    "run_name": "baseline_5shot_real",
+    "backend": "transformers:Qwen/Qwen3-1.7B",
+    "dataset": "data/test_real/test_real_DRAFT.csv",
+    "seed": 42,
+    "temperature": 0.0,
+    "max_tokens": 96,
+    "few_shot": 5,
+    "few_shot_source": "data/processed/train.jsonl",
+    "few_shot_ids": [
+      "train_07343",
+      "train_00899",
+      "train_00235",
+      "train_07128",
+      "train_02574"
+    ],
+    "batch_size": 8,
+    "limit": null,
+    "resume": true
+  },
+  "git_commit": "a70c1774cfb14e22a9ea4e8fe5e7db00739b79f5",
+  "python": "3.13.16",
+  "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "created_utc": "2026-11-23T21:38:51+00:00"
+}

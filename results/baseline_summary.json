@@ -1,0 +1,969 @@
+{
+  "runs": [
+    {
+      "run_name": "baseline_zeroshot_synthetic",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/processed/test_synthetic.jsonl",
+      "seed": 42,
+      "few_shot": 0,
+      "few_shot_ids": [],
+      "max_tokens": 96,
+      "overall": {
+        "n": 500,
+        "syntax_valid_rate": 0.718,
+        "exec_ok_rate": 0.69,
+        "execution_accuracy": 0.446,
+        "exact_match_rate": 0.366,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 813.95,
+        "p50_latency_ms": 792.87,
+        "p95_latency_ms": 1197.69
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.75,
+          "exec_ok_rate": 0.75,
+          "execution_accuracy": 0.6528,
+          "exact_match_rate": 0.6389,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 816.11,
+          "p50_latency_ms": 739.23,
+          "p95_latency_ms": 1386.13
+        },
+        "conditional_aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.7917,
+          "exec_ok_rate": 0.6389,
+          "execution_accuracy": 0.2361,
+          "exact_match_rate": 0.1806,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 799.92,
+          "p50_latency_ms": 743.67,
+          "p95_latency_ms": 1386.13
+        },
+        "date": {
+          "n": 72,
+          "syntax_valid_rate": 0.7778,
+          "exec_ok_rate": 0.7361,
+          "execution_accuracy": 0.5694,
+          "exact_match_rate": 0.5278,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 820.3,
+          "p50_latency_ms": 759.78,
+          "p95_latency_ms": 1391.59
+        },
+        "logic": {
+          "n": 71,
+          "syntax_valid_rate": 0.9155,
+          "exec_ok_rate": 0.9155,
+          "execution_accuracy": 0.6901,
+          "exact_match_rate": 0.4085,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 854.76,
+          "p50_latency_ms": 805.42,
+          "p95_latency_ms": 1708.17
+        },
+        "lookup": {
+          "n": 71,
+          "syntax_valid_rate": 0.0563,
+          "exec_ok_rate": 0.0563,
+          "execution_accuracy": 0.0423,
+          "exact_match_rate": 0.0141,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 791.4,
+          "p50_latency_ms": 792.87,
+          "p95_latency_ms": 1114.66
+        },
+        "math_and_composition": {
+          "n": 71,
+          "syntax_valid_rate": 0.831,
+          "exec_ok_rate": 0.831,
+          "execution_accuracy": 0.5211,
+          "exact_match_rate": 0.3944,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 843.17,
+          "p50_latency_ms": 844.67,
+          "p95_latency_ms": 1197.69
+        },
+        "text": {
+          "n": 71,
+          "syntax_valid_rate": 0.9014,
+          "exec_ok_rate": 0.9014,
+          "execution_accuracy": 0.4085,
+          "exact_match_rate": 0.3944,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 772.09,
+          "p50_latency_ms": 734.7,
+          "p95_latency_ms": 1054.21
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 180,
+          "syntax_valid_rate": 0.7833,
+          "exec_ok_rate": 0.7389,
+          "execution_accuracy": 0.4722,
+          "exact_match_rate": 0.4333,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 793.43,
+          "p50_latency_ms": 739.14,
+          "p95_latency_ms": 1195.29
+        },
+        "2": {
+          "n": 179,
+          "syntax_valid_rate": 0.7542,
+          "exec_ok_rate": 0.743,
+          "execution_accuracy": 0.4804,
+          "exact_match_rate": 0.4078,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 806.0,
+          "p50_latency_ms": 798.2,
+          "p95_latency_ms": 1197.69
+        },
+        "3": {
+          "n": 141,
+          "syntax_valid_rate": 0.5887,
+          "exec_ok_rate": 0.5603,
+          "execution_accuracy": 0.3688,
+          "exact_match_rate": 0.227,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 850.25,
+          "p50_latency_ms": 828.08,
+          "p95_latency_ms": 1391.59
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 14,
+        "syntax_error": 92,
+        "unsupported_function": 49,
+        "wrong_value": 122
+      }
+    },
+    {
+      "run_name": "baseline_5shot_synthetic",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/processed/test_synthetic.jsonl",
+      "seed": 42,
+      "few_shot": 5,
+      "few_shot_ids": [
+        "train_07343",
+        "train_00899",
+        "train_00235",
+        "train_07128",
+        "train_02574"
+      ],
+      "max_tokens": 96,
+      "overall": {
+        "n": 500,
+        "syntax_valid_rate": 0.85,
+        "exec_ok_rate": 0.782,
+        "execution_accuracy": 0.602,
+        "exact_match_rate": 0.512,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 1728.18,
+        "p50_latency_ms": 1720.82,
+        "p95_latency_ms": 1998.92
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.7639,
+          "exec_ok_rate": 0.7639,
+          "execution_accuracy": 0.6528,
+          "exact_match_rate": 0.5,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1728.28,
+          "p50_latency_ms": 1722.37,
+          "p95_latency_ms": 2009.85
+        },
+        "conditional_aggregation": {
+          "n": 72,
+          "syntax_valid_rate": 0.9722,
+          "exec_ok_rate": 0.6528,
+          "execution_accuracy": 0.5833,
+          "exact_match_rate": 0.5556,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1731.87,
+          "p50_latency_ms": 1719.32,
+          "p95_latency_ms": 1954.79
+        },
+        "date": {
+          "n": 72,
+          "syntax_valid_rate": 0.9583,
+          "exec_ok_rate": 0.9167,
+          "execution_accuracy": 0.7917,
+          "exact_match_rate": 0.6806,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1720.39,
+          "p50_latency_ms": 1722.37,
+          "p95_latency_ms": 1971.96
+        },
+        "logic": {
+          "n": 71,
+          "syntax_valid_rate": 0.8028,
+          "exec_ok_rate": 0.7606,
+          "execution_accuracy": 0.6901,
+          "exact_match_rate": 0.5352,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1734.39,
+          "p50_latency_ms": 1714.73,
+          "p95_latency_ms": 2009.85
+        },
+        "lookup": {
+          "n": 71,
+          "syntax_valid_rate": 0.5915,
+          "exec_ok_rate": 0.5493,
+          "execution_accuracy": 0.4085,
+          "exact_match_rate": 0.3662,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1709.14,
+          "p50_latency_ms": 1692.0,
+          "p95_latency_ms": 1971.96
+        },
+        "math_and_composition": {
+          "n": 71,
+          "syntax_valid_rate": 0.9014,
+          "exec_ok_rate": 0.8732,
+          "execution_accuracy": 0.5775,
+          "exact_match_rate": 0.4789,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1737.12,
+          "p50_latency_ms": 1714.73,
+          "p95_latency_ms": 2263.15
+        },
+        "text": {
+          "n": 71,
+          "syntax_valid_rate": 0.9577,
+          "exec_ok_rate": 0.9577,
+          "execution_accuracy": 0.507,
+          "exact_match_rate": 0.4648,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1736.14,
+          "p50_latency_ms": 1743.6,
+          "p95_latency_ms": 2009.85
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 180,
+          "syntax_valid_rate": 0.9944,
+          "exec_ok_rate": 0.9889,
+          "execution_accuracy": 0.8444,
+          "exact_match_rate": 0.8333,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1710.31,
+          "p50_latency_ms": 1708.75,
+          "p95_latency_ms": 1971.96
+        },
+        "2": {
+          "n": 179,
+          "syntax_valid_rate": 0.8212,
+          "exec_ok_rate": 0.7821,
+          "execution_accuracy": 0.5084,
+          "exact_match_rate": 0.4358,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1721.46,
+          "p50_latency_ms": 1708.75,
+          "p95_latency_ms": 1998.92
+        },
+        "3": {
+          "n": 141,
+          "syntax_valid_rate": 0.7021,
+          "exec_ok_rate": 0.5177,
+          "execution_accuracy": 0.4113,
+          "exact_match_rate": 0.1986,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1759.52,
+          "p50_latency_ms": 1743.6,
+          "p95_latency_ms": 2009.85
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 34,
+        "syntax_error": 43,
+        "unsupported_function": 32,
+        "wrong_value": 90
+      }
+    },
+    {
+      "run_name": "baseline_zeroshot_real",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/test_real/test_real_DRAFT.csv",
+      "seed": 42,
+      "few_shot": 0,
+      "few_shot_ids": [],
+      "max_tokens": 96,
+      "overall": {
+        "n": 80,
+        "syntax_valid_rate": 0.8125,
+        "exec_ok_rate": 0.7875,
+        "execution_accuracy": 0.5,
+        "exact_match_rate": 0.425,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 651.74,
+        "p50_latency_ms": 637.57,
+        "p95_latency_ms": 892.88
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 12,
+          "syntax_valid_rate": 0.9167,
+          "exec_ok_rate": 0.9167,
+          "execution_accuracy": 0.8333,
+          "exact_match_rate": 0.8333,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 595.85,
+          "p50_latency_ms": 601.09,
+          "p95_latency_ms": 892.88
+        },
+        "conditional_aggregation": {
+          "n": 21,
+          "syntax_valid_rate": 0.9048,
+          "exec_ok_rate": 0.8571,
+          "execution_accuracy": 0.3333,
+          "exact_match_rate": 0.2857,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 618.91,
+          "p50_latency_ms": 601.09,
+          "p95_latency_ms": 892.88
+        },
+        "date": {
+          "n": 9,
+          "syntax_valid_rate": 0.7778,
+          "exec_ok_rate": 0.7778,
+          "execution_accuracy": 0.5556,
+          "exact_match_rate": 0.4444,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 703.3,
+          "p50_latency_ms": 726.28,
+          "p95_latency_ms": 737.15
+        },
+        "logic": {
+          "n": 10,
+          "syntax_valid_rate": 0.9,
+          "exec_ok_rate": 0.9,
+          "execution_accuracy": 0.6,
+          "exact_match_rate": 0.4,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 611.22,
+          "p50_latency_ms": 595.43,
+          "p95_latency_ms": 892.88
+        },
+        "lookup": {
+          "n": 9,
+          "syntax_valid_rate": 0.3333,
+          "exec_ok_rate": 0.2222,
+          "execution_accuracy": 0.1111,
+          "exact_match_rate": 0.0,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 730.53,
+          "p50_latency_ms": 724.55,
+          "p95_latency_ms": 892.88
+        },
+        "math_and_composition": {
+          "n": 8,
+          "syntax_valid_rate": 0.625,
+          "exec_ok_rate": 0.625,
+          "execution_accuracy": 0.375,
+          "exact_match_rate": 0.375,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 699.29,
+          "p50_latency_ms": 726.28,
+          "p95_latency_ms": 737.15
+        },
+        "text": {
+          "n": 11,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.7273,
+          "exact_match_rate": 0.6364,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 671.0,
+          "p50_latency_ms": 638.16,
+          "p95_latency_ms": 737.15
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 29,
+          "syntax_valid_rate": 0.931,
+          "exec_ok_rate": 0.931,
+          "execution_accuracy": 0.6897,
+          "exact_match_rate": 0.6897,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 624.24,
+          "p50_latency_ms": 636.97,
+          "p95_latency_ms": 737.15
+        },
+        "2": {
+          "n": 33,
+          "syntax_valid_rate": 0.7879,
+          "exec_ok_rate": 0.7576,
+          "execution_accuracy": 0.4848,
+          "exact_match_rate": 0.3939,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 636.68,
+          "p50_latency_ms": 636.97,
+          "p95_latency_ms": 892.88
+        },
+        "3": {
+          "n": 18,
+          "syntax_valid_rate": 0.6667,
+          "exec_ok_rate": 0.6111,
+          "execution_accuracy": 0.2222,
+          "exact_match_rate": 0.0556,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 723.67,
+          "p50_latency_ms": 725.41,
+          "p95_latency_ms": 892.88
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 2,
+        "syntax_error": 7,
+        "unsupported_function": 8,
+        "wrong_value": 23
+      }
+    },
+    {
+      "run_name": "baseline_5shot_real",
+      "backend": "transformers:Qwen/Qwen3-1.7B",
+      "dataset": "data/test_real/test_real_DRAFT.csv",
+      "seed": 42,
+      "few_shot": 5,
+      "few_shot_ids": [
+        "train_07343",
+        "train_00899",
+        "train_00235",
+        "train_07128",
+        "train_02574"
+      ],
+      "max_tokens": 96,
+      "overall": {
+        "n": 80,
+        "syntax_valid_rate": 0.85,
+        "exec_ok_rate": 0.7625,
+        "execution_accuracy": 0.5125,
+        "exact_match_rate": 0.4125,
+        "raw_format_ok_rate": 1.0,
+        "avg_latency_ms": 1576.15,
+        "p50_latency_ms": 1548.86,
+        "p95_latency_ms": 1976.25
+      },
+      "by_category": {
+        "aggregation": {
+          "n": 12,
+          "syntax_valid_rate": 0.9167,
+          "exec_ok_rate": 0.8333,
+          "execution_accuracy": 0.5833,
+          "exact_match_rate": 0.5833,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1432.28,
+          "p50_latency_ms": 1459.98,
+          "p95_latency_ms": 1547.78
+        },
+        "conditional_aggregation": {
+          "n": 21,
+          "syntax_valid_rate": 0.9524,
+          "exec_ok_rate": 0.7619,
+          "execution_accuracy": 0.381,
+          "exact_match_rate": 0.381,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1472.47,
+          "p50_latency_ms": 1504.54,
+          "p95_latency_ms": 1547.78
+        },
+        "date": {
+          "n": 9,
+          "syntax_valid_rate": 0.8889,
+          "exec_ok_rate": 0.8889,
+          "execution_accuracy": 0.7778,
+          "exact_match_rate": 0.4444,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1706.37,
+          "p50_latency_ms": 1635.45,
+          "p95_latency_ms": 1976.25
+        },
+        "logic": {
+          "n": 10,
+          "syntax_valid_rate": 0.7,
+          "exec_ok_rate": 0.7,
+          "execution_accuracy": 0.6,
+          "exact_match_rate": 0.4,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1587.98,
+          "p50_latency_ms": 1534.24,
+          "p95_latency_ms": 1976.25
+        },
+        "lookup": {
+          "n": 9,
+          "syntax_valid_rate": 0.5556,
+          "exec_ok_rate": 0.3333,
+          "execution_accuracy": 0.3333,
+          "exact_match_rate": 0.1111,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1677.38,
+          "p50_latency_ms": 1580.72,
+          "p95_latency_ms": 1976.25
+        },
+        "math_and_composition": {
+          "n": 8,
+          "syntax_valid_rate": 0.75,
+          "exec_ok_rate": 0.75,
+          "execution_accuracy": 0.25,
+          "exact_match_rate": 0.125,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1666.58,
+          "p50_latency_ms": 1635.45,
+          "p95_latency_ms": 1976.25
+        },
+        "text": {
+          "n": 11,
+          "syntax_valid_rate": 1.0,
+          "exec_ok_rate": 1.0,
+          "execution_accuracy": 0.7273,
+          "exact_match_rate": 0.7273,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1665.18,
+          "p50_latency_ms": 1580.72,
+          "p95_latency_ms": 1976.25
+        }
+      },
+      "by_difficulty": {
+        "1": {
+          "n": 29,
+          "syntax_valid_rate": 0.9655,
+          "exec_ok_rate": 0.931,
+          "execution_accuracy": 0.7586,
+          "exact_match_rate": 0.7586,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1535.37,
+          "p50_latency_ms": 1520.69,
+          "p95_latency_ms": 1976.25
+        },
+        "2": {
+          "n": 33,
+          "syntax_valid_rate": 0.7879,
+          "exec_ok_rate": 0.697,
+          "execution_accuracy": 0.3636,
+          "exact_match_rate": 0.303,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1591.91,
+          "p50_latency_ms": 1547.78,
+          "p95_latency_ms": 1976.25
+        },
+        "3": {
+          "n": 18,
+          "syntax_valid_rate": 0.7778,
+          "exec_ok_rate": 0.6111,
+          "execution_accuracy": 0.3889,
+          "exact_match_rate": 0.0556,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1612.98,
+          "p50_latency_ms": 1580.72,
+          "p95_latency_ms": 1976.25
+        }
+      },
+      "error_breakdown": {
+        "runtime_error": 7,
+        "syntax_error": 6,
+        "unsupported_function": 6,
+        "wrong_value": 20
+      }
+    }
+  ],
+  "total_failures": 555,
+  "top_patterns": [
+    {
+      "rank": 1,
+      "pattern": "external_or_invalid_sheet_ref",
+      "count": 69,
+      "share": 0.1243,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00010",
+          "sheet_id": "hr_employee_roster",
+          "request": "Count records dated after 2021-12-27 based on Hire Date.",
+          "reference_formula": "=COUNTIF(E2:E144,\">\"&DATE(2021,12,27))",
+          "extracted_formula": "=COUNTIF(hr_employee_roster!E2:E144, \">2021-12-27\")",
+          "error_type": "syntax_error"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00012",
+          "sheet_id": "hr_employee_roster",
+          "request": "index Department position 92",
+          "reference_formula": "=INDEX(C2:C144,92)",
+          "extracted_formula": "=INDEX(hr_employee_roster!C2:C144,92)",
+          "error_type": "syntax_error"
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "pattern": "syntax_error (lookup)",
+      "count": 49,
+      "share": 0.0883,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00009",
+          "sheet_id": "inventory_stock_movements",
+          "request": "Wrap an exact-match VLOOKUP of 'ZZZ-9999' in Move ID (returning Part Name) inside IFERROR so missing keys return 'Missing'.",
+          "reference_formula": "=IFERROR(VLOOKUP(\"ZZZ-9999\",A2:G106,3,FALSE),\"Missing\")",
+          "extracted_formula": "=IFERROR(VLOOKUP(A2, inventory_stock_movements, 4, FALSE), \"Missing\")",
+          "error_type": "syntax_error"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00015",
+          "sheet_id": "orders_ecommerce",
+          "request": "iferror(vlookup Channel for Order ID='ORD-1011', 'Not Found')",
+          "reference_formula": "=IFERROR(VLOOKUP(\"ORD-1011\",A2:H57,4,FALSE),\"Not Found\")",
+          "extracted_formula": "=IFERROR(VLOOKUP(A2, orders_ecommerce, 4, FALSE), \"Not Found\")",
+          "error_type": "syntax_error"
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "pattern": "wrong_column_reference (text)",
+      "count": 46,
+      "share": 0.0829,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00014",
+          "sheet_id": "orders_ecommerce",
+          "request": "List the Fulfillment entries from row 8 to 10 joined by ' | ' (skip empty cells).",
+          "reference_formula": "=TEXTJOIN(\" | \",TRUE,E8:E10)",
+          "extracted_formula": "=TEXTJOIN(\" | \", TRUE, H8:H10)",
+          "error_type": "wrong_value"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00033",
+          "sheet_id": "inventory_stock_movements",
+          "request": "List the Movement Type entries from row 2 to 5 joined by ', ' (skip empty cells).",
+          "reference_formula": "=TEXTJOIN(\", \",TRUE,D2:D5)",
+          "extracted_formula": "=TEXTJOIN(\", \", TRUE, B2:B5)",
+          "error_type": "wrong_value"
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "pattern": "disallowed_or_unknown_function (aggregation)",
+      "count": 37,
+      "share": 0.0667,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00005",
+          "sheet_id": "orders_ecommerce",
+          "request": "What is total Order Total per unit of total Shipping Fee (return 0 if division fails)?",
+          "reference_formula": "=IFERROR(SUM(G2:G57)/SUM(H2:H57),0)",
+          "extracted_formula": "=SUMPRODUCT((G2:G57)/H2:H57)",
+          "error_type": "unsupported_function"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00052",
+          "sheet_id": "hr_employee_roster",
+          "request": "Return the total number of cells in Years Service that contain a number.",
+          "reference_formula": "=COUNT(F2:F144)",
+          "extracted_formula": "=SUMPRODUCT(--ISNUMBER(F2:F144))",
+          "error_type": "unsupported_function"
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "pattern": "runtime_value_type_error",
+      "count": 36,
+      "share": 0.0649,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00024",
+          "sheet_id": "sales_retail_store",
+          "request": "Give me the conditional mean of Net Amount for Store Branch 'Suncroft' and Quantity >= 13.",
+          "reference_formula": "=AVERAGEIFS(F2:F115,C2:C115,\"Suncroft\",E2:E115,\">=13\")",
+          "extracted_formula": "= AVERAGEIF(C2:C115, \"Suncroft\", E2:E115, 13)",
+          "error_type": "runtime_error"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00118",
+          "sheet_id": "hr_employee_roster",
+          "request": "Compute the sum of Annual Salary for 'Crestholm' in Work Hub where Years Service is higher than 4.",
+          "reference_formula": "=SUMIFS(G2:G144,D2:D144,\"Crestholm\",F2:F144,\">4\")",
+          "extracted_formula": "=SUMIFS(G2:G144, C2:C144,\"Crestholm\", E2:E144>\"4\")",
+          "error_type": "runtime_error"
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "pattern": "wrong_column_reference (conditional_aggregation)",
+      "count": 35,
+      "share": 0.0631,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00004",
+          "sheet_id": "grades_course_scores",
+          "request": "Calculate the total Assignments Done where Section is 'Sec B' and Subject is 'Economics'.",
+          "reference_formula": "=SUMIFS(F2:F108,D2:D108,\"Sec B\",C2:C108,\"Economics\")",
+          "extracted_formula": "=SUMIFS(G2:G108, C2:C108,\"Economics\", D2:D108,\"Sec B\")",
+          "error_type": "wrong_value"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00026",
+          "sheet_id": "inventory_stock_movements",
+          "request": "Calculate the sum of Units Moved values strictly greater than 108.",
+          "reference_formula": "=SUMIF(F2:F106,\">108\")",
+          "extracted_formula": "=SUMIF(G2:G106,\">108\")",
+          "error_type": "wrong_value"
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "pattern": "missing_round_call",
+      "count": 27,
+      "share": 0.0486,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00013",
+          "sheet_id": "orders_ecommerce",
+          "request": "Compute the arithmetic mean of the Item Count column and round the result to 2 decimal place(s).",
+          "reference_formula": "=ROUND(AVERAGE(F2:F57),2)",
+          "extracted_formula": "= AVERAGE(F2:F57)",
+          "error_type": "wrong_value"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00016",
+          "sheet_id": "grades_course_scores",
+          "request": "Average the Final Score column and round to 1 decimal place(s).",
+          "reference_formula": "=ROUND(AVERAGE(G2:G108),1)",
+          "extracted_formula": "= AVERAGE(G2:G108)",
+          "error_type": "wrong_value"
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "pattern": "wrong_function_choice (text)",
+      "count": 24,
+      "share": 0.0432,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00097",
+          "sheet_id": "hr_employee_roster",
+          "request": "concat Employee ID + '-' + Department row 93",
+          "reference_formula": "=CONCAT(A93,\"-\",C93)",
+          "extracted_formula": "=LEFT(A93,1)& \"-\"&C93",
+          "error_type": "wrong_value"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00132",
+          "sheet_id": "inventory_stock_movements",
+          "request": "mid Zone row 37 start 3 len 2",
+          "reference_formula": "=MID(E37,3,2)",
+          "extracted_formula": "=LEFT(B37,3)",
+          "error_type": "wrong_value"
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "pattern": "disallowed_or_unknown_function (math_and_composition)",
+      "count": 16,
+      "share": 0.0288,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00096",
+          "sheet_id": "orders_ecommerce",
+          "request": "In row 29, divide Order Total by Item Count and return 0 if an error occurs.",
+          "reference_formula": "=IFERROR(G29/F29,0)",
+          "extracted_formula": "=IF(ISERROR(G29/F29), 0, G29/F29)",
+          "error_type": "unsupported_function"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00107",
+          "sheet_id": "sales_retail_store",
+          "request": "In row 30, divide Quantity by Net Amount and return 0 if an error occurs.",
+          "reference_formula": "=IFERROR(E30/F30,0)",
+          "extracted_formula": "=IF(ISERROR(Quantity/Net Amount), 0, Quantity/Net Amount)",
+          "error_type": "unsupported_function"
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "pattern": "wrong_function_choice (conditional_aggregation)",
+      "count": 16,
+      "share": 0.0288,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00112",
+          "sheet_id": "hr_employee_roster",
+          "request": "Give me the conditional mean of Annual Salary for Work Hub 'Veldor' and Years Service >= 10.",
+          "reference_formula": "=AVERAGEIFS(G2:G144,D2:D144,\"Veldor\",F2:F144,\">=10\")",
+          "extracted_formula": "= AVERAGEIF(D2:D144, \"Veldor\", G2:G144)",
+          "error_type": "wrong_value"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00208",
+          "sheet_id": "orders_ecommerce",
+          "request": "Give me the conditional mean of Shipping Fee for Channel 'Phone' and Item Count >= 11.",
+          "reference_formula": "=AVERAGEIFS(H2:H57,D2:D57,\"Phone\",F2:F57,\">=11\")",
+          "extracted_formula": "= AVERAGEIF(D2:D57, \"Phone\", G2:G57)",
+          "error_type": "wrong_value"
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "pattern": "runtime_div_by_zero",
+      "count": 14,
+      "share": 0.0252,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00075",
+          "sheet_id": "inventory_stock_movements",
+          "request": "avg Valuation where Zone = Zone C",
+          "reference_formula": "=AVERAGEIF(E2:E106,\"Zone C\",G2:G106)",
+          "extracted_formula": "= AVERAGEIF(G2:G106, \"Zone C\", G2:G106)",
+          "error_type": "runtime_error"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00121",
+          "sheet_id": "sales_retail_store",
+          "request": "Calculate the average of Net Amount values strictly greater than 467.7.",
+          "reference_formula": "=AVERAGEIF(F2:F115,\">467.7\")",
+          "extracted_formula": "= AVERAGEIF(E2:E115, \">467.7\")",
+          "error_type": "runtime_error"
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "pattern": "wrong_column_reference (logic)",
+      "count": 14,
+      "share": 0.0252,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00113",
+          "sheet_id": "orders_ecommerce",
+          "request": "Categorize Item Count on row 48 via IFS: 'High' (>= 11), 'Medium' (>= 4), 'Low' (otherwise).",
+          "reference_formula": "=IFS(F48>=11,\"High\",F48>=4,\"Medium\",TRUE,\"Low\")",
+          "extracted_formula": "=IFS(G48>=11,\"High\",G48>=4,\"Medium\",\"Low\")",
+          "error_type": "wrong_value"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00137",
+          "sheet_id": "orders_ecommerce",
+          "request": "For row 35, return 'Above' if Shipping Fee is greater than 26.2, otherwise return 'Below'.",
+          "reference_formula": "=IF(H35>26.2,\"Above\",\"Below\")",
+          "extracted_formula": "=IF(G35>26.2,\"Above\",\"Below\")",
+          "error_type": "wrong_value"
+        }
+      ]
+    },
+    {
+      "rank": 13,
+      "pattern": "wrong_function_choice (date)",
+      "count": 13,
+      "share": 0.0234,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00028",
+          "sheet_id": "orders_ecommerce",
+          "request": "What month is Order Date on row 10?",
+          "reference_formula": "=MONTH(B10)",
+          "extracted_formula": "=TEXT(B10,\"mmm\")",
+          "error_type": "wrong_value"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00063",
+          "sheet_id": "sales_retail_store",
+          "request": "What month is Sale Date on row 61?",
+          "reference_formula": "=MONTH(B61)",
+          "extracted_formula": "=TEXT(B61,\"mmm\")",
+          "error_type": "wrong_value"
+        }
+      ]
+    },
+    {
+      "rank": 14,
+      "pattern": "disallowed_or_unknown_function (logic)",
+      "count": 12,
+      "share": 0.0216,
+      "examples": [
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00159",
+          "sheet_id": "inventory_stock_movements",
+          "request": "Check row 16's Zone cell; if it equals 'Cold Bay' or 'Zone A', output 'Flagged', otherwise output 'Normal'.",
+          "reference_formula": "=IF(OR(E16=\"Cold Bay\",E16=\"Zone A\"),\"Flagged\",\"Normal\")",
+          "extracted_formula": "=IF(OR(ROW()=16, E16=\"Cold Bay\", E16=\"Zone A\"),\"Flagged\",\"Normal\")",
+          "error_type": "unsupported_function"
+        },
+        {
+          "run": "baseline_zeroshot_synthetic",
+          "id": "test_syn_00162",
+          "sheet_id": "orders_ecommerce",
+          "request": "For row 44, show Shipping Fee or 'N/A' if it's empty.",
+          "reference_formula": "=IF(H44=\"\",\"N/A\",H44)",
+          "extracted_formula": "=IF(ISNUMBER(H44), H44, \"N/A\")",
+          "error_type": "unsupported_function"
+        }
+      ]
+    },
+    {
+      "rank": 15,
+      "pattern": "syntax_error (logic)",
+      "count": 12,
+      "share": 0.0216,
+      "examples": [
+        {
+          "run": "baseline_5shot_synthetic",
+          "id": "test_syn_00055",
+          "sheet_id": "sales_retail_store",
+          "request": "Check row 71's Store Branch cell; if it equals 'Suncroft' or 'Larkspur', output 'Selected', otherwise output 'Excluded'.",
+          "reference_formula": "=IF(OR(C71=\"Suncroft\",C71=\"Larkspur\"),\"Selected\",\"Excluded\")",
+          "extracted_formula": "=IF(C71=\"Suncroft\" OR C71=\"Larkspur\",\"Selected\",\"Excluded\")",
+          "error_type": "syntax_error"
+        },
+        {
+          "run": "baseline_5shot_synthetic",
+          "id": "test_syn_00159",
+          "sheet_id": "inventory_stock_movements",
+          "request": "Check row 16's Zone cell; if it equals 'Cold Bay' or 'Zone A', output 'Flagged', otherwise output 'Normal'.",
+          "reference_formula": "=IF(OR(E16=\"Cold Bay\",E16=\"Zone A\"),\"Flagged\",\"Normal\")",
+          "extracted_formula": "=IF(E16=\"Cold Bay\" OR E16=\"Zone A\",\"Flagged\",\"Normal\")",
+          "error_type": "syntax_error"
+        }
+      ]
+    }
+  ]
+}
