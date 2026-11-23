@@ -9,6 +9,7 @@ seed: 42
 paths:
   data_dir: data
   sheets_dir: data/sheets
+  processed_dir: data/processed
   schemas_dir: data/schemas
   templates_dir: data/templates
   generated_dir: data/generated
@@ -35,10 +36,12 @@ data:
 splits:
   train: 8000              # brief: 5k-10k
   valid: 500
-  test_synthetic: 1000     # unseen phrasings + unseen schemas
+  test_synthetic: 500      # unseen phrasings + unseen schemas
   test_handwritten: 80     # hand-written realistic requests
   heldout_schema_fraction: 0.2
   heldout_template_fraction: 0.2
+  reserved_test_phrasings: 2
+  reserved_val_phrasings: 1
 
 eval:
   float_tolerance: 1.0e-6

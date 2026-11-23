@@ -1,0 +1,1013 @@
+{
+  "seed": 42,
+  "system_prompt": "You are FormulaLM. Given a spreadsheet schema and a user request, reply with only the Excel formula starting with '='. No explanation, no markdown.",
+  "reserved_test_phrasings": 2,
+  "reserved_val_phrasings": 1,
+  "train_augment_prob": 0.25,
+  "total_checked": 9000,
+  "total_verified": 9000,
+  "total_dropped": 0,
+  "phrasing_splits": {
+    "sum_column": {
+      "train": [
+        0,
+        1,
+        2,
+        5,
+        7
+      ],
+      "val": [
+        6
+      ],
+      "test": [
+        3,
+        4
+      ]
+    },
+    "average_column": {
+      "train": [
+        0,
+        4,
+        5,
+        6
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        1,
+        3
+      ]
+    },
+    "min_column": {
+      "train": [
+        0,
+        1,
+        5,
+        6
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        2,
+        3
+      ]
+    },
+    "max_column": {
+      "train": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "val": [
+        0
+      ],
+      "test": [
+        2,
+        5
+      ]
+    },
+    "count_numeric": {
+      "train": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        3,
+        6
+      ]
+    },
+    "range_spread_max_min": {
+      "train": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "val": [
+        3
+      ],
+      "test": [
+        0,
+        5
+      ]
+    },
+    "sum_two_columns": {
+      "train": [
+        0,
+        2,
+        3,
+        6
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        4,
+        5
+      ]
+    },
+    "avg_ratio_two_sums": {
+      "train": [
+        0,
+        3,
+        5,
+        6
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        2,
+        4
+      ]
+    },
+    "sumif_category_eq": {
+      "train": [
+        2,
+        4,
+        5,
+        6,
+        7
+      ],
+      "val": [
+        3
+      ],
+      "test": [
+        0,
+        1
+      ]
+    },
+    "countif_category_eq": {
+      "train": [
+        0,
+        1,
+        5,
+        6
+      ],
+      "val": [
+        3
+      ],
+      "test": [
+        2,
+        4
+      ]
+    },
+    "averageif_category_eq": {
+      "train": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        2,
+        4
+      ]
+    },
+    "sumif_numeric_gt": {
+      "train": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        0,
+        3
+      ]
+    },
+    "countif_numeric_gte": {
+      "train": [
+        0,
+        1,
+        2,
+        5
+      ],
+      "val": [
+        6
+      ],
+      "test": [
+        3,
+        4
+      ]
+    },
+    "averageif_numeric_gt": {
+      "train": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        0,
+        6
+      ]
+    },
+    "countif_category_neq": {
+      "train": [
+        0,
+        1,
+        2,
+        5
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        3,
+        6
+      ]
+    },
+    "countif_wildcard_prefix": {
+      "train": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        4,
+        6
+      ]
+    },
+    "sumifs_cat_and_num": {
+      "train": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        0,
+        6
+      ]
+    },
+    "countifs_two_cats": {
+      "train": [
+        1,
+        2,
+        4,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        0,
+        3
+      ]
+    },
+    "sumifs_two_cats": {
+      "train": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        0,
+        2
+      ]
+    },
+    "averageifs_cat_and_num": {
+      "train": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        2,
+        6
+      ]
+    },
+    "if_numeric_gt_label": {
+      "train": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        0,
+        4
+      ]
+    },
+    "if_category_eq_label": {
+      "train": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        0,
+        1
+      ]
+    },
+    "if_blank_fallback": {
+      "train": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "val": [
+        3
+      ],
+      "test": [
+        1,
+        6
+      ]
+    },
+    "and_two_conditions": {
+      "train": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        5,
+        6
+      ]
+    },
+    "or_two_categories": {
+      "train": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        0,
+        3
+      ]
+    },
+    "if_and_combined": {
+      "train": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "val": [
+        0
+      ],
+      "test": [
+        3,
+        4
+      ]
+    },
+    "if_or_combined": {
+      "train": [
+        0,
+        1,
+        4,
+        6
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        3,
+        5
+      ]
+    },
+    "ifs_three_tiers": {
+      "train": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        4,
+        6
+      ]
+    },
+    "vlookup_exact_by_key": {
+      "train": [
+        0,
+        1,
+        4,
+        6
+      ],
+      "val": [
+        3
+      ],
+      "test": [
+        2,
+        5
+      ]
+    },
+    "xlookup_exact_by_key": {
+      "train": [
+        0,
+        1,
+        4,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        2,
+        3
+      ]
+    },
+    "xlookup_with_default": {
+      "train": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "val": [
+        0
+      ],
+      "test": [
+        5,
+        6
+      ]
+    },
+    "index_match_exact": {
+      "train": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        0,
+        4
+      ]
+    },
+    "match_row_position": {
+      "train": [
+        0,
+        1,
+        5,
+        6
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        2,
+        3
+      ]
+    },
+    "index_nth_row": {
+      "train": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "val": [
+        0
+      ],
+      "test": [
+        2,
+        3
+      ]
+    },
+    "iferror_vlookup_safe": {
+      "train": [
+        0,
+        1,
+        5,
+        6
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        2,
+        3
+      ]
+    },
+    "upper_cell": {
+      "train": [
+        0,
+        1,
+        2,
+        6
+      ],
+      "val": [
+        3
+      ],
+      "test": [
+        4,
+        5
+      ]
+    },
+    "lower_cell": {
+      "train": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "val": [
+        0
+      ],
+      "test": [
+        2,
+        5
+      ]
+    },
+    "proper_cell": {
+      "train": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        2,
+        4
+      ]
+    },
+    "trim_cell": {
+      "train": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "val": [
+        6
+      ],
+      "test": [
+        0,
+        1
+      ]
+    },
+    "len_cell": {
+      "train": [
+        0,
+        4,
+        5,
+        6
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        2,
+        3
+      ]
+    },
+    "left_n_chars": {
+      "train": [
+        0,
+        1,
+        4,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        2,
+        3
+      ]
+    },
+    "right_n_chars": {
+      "train": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        0,
+        5
+      ]
+    },
+    "mid_substring": {
+      "train": [
+        0,
+        3,
+        5,
+        6
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        1,
+        2
+      ]
+    },
+    "concat_two_cells_sep": {
+      "train": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "val": [
+        4
+      ],
+      "test": [
+        2,
+        6
+      ]
+    },
+    "textjoin_range_delim": {
+      "train": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        2,
+        4
+      ]
+    },
+    "text_format_number": {
+      "train": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        0,
+        4
+      ]
+    },
+    "year_from_date": {
+      "train": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "val": [
+        0
+      ],
+      "test": [
+        3,
+        4
+      ]
+    },
+    "month_from_date": {
+      "train": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "val": [
+        6
+      ],
+      "test": [
+        1,
+        3
+      ]
+    },
+    "day_from_date": {
+      "train": [
+        0,
+        1,
+        4,
+        6
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        3,
+        5
+      ]
+    },
+    "date_construct": {
+      "train": [
+        0,
+        1,
+        4,
+        6
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        3,
+        5
+      ]
+    },
+    "countif_date_after": {
+      "train": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        5,
+        6
+      ]
+    },
+    "text_date_year_month": {
+      "train": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "val": [
+        1
+      ],
+      "test": [
+        5,
+        6
+      ]
+    },
+    "countifs_cat_and_date_after": {
+      "train": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "val": [
+        3
+      ],
+      "test": [
+        0,
+        4
+      ]
+    },
+    "sumifs_cat_and_date_after": {
+      "train": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "val": [
+        6
+      ],
+      "test": [
+        0,
+        4
+      ]
+    },
+    "round_decimal_cell": {
+      "train": [
+        0,
+        3,
+        4,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        1,
+        2
+      ]
+    },
+    "round_average_column": {
+      "train": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "val": [
+        0
+      ],
+      "test": [
+        3,
+        6
+      ]
+    },
+    "iferror_safe_division": {
+      "train": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "val": [
+        5
+      ],
+      "test": [
+        0,
+        4
+      ]
+    },
+    "round_sumif_share_pct": {
+      "train": [
+        0,
+        4,
+        5,
+        6
+      ],
+      "val": [
+        2
+      ],
+      "test": [
+        1,
+        3
+      ]
+    },
+    "if_sumif_exceeds_target": {
+      "train": [
+        0,
+        1,
+        2,
+        5
+      ],
+      "val": [
+        6
+      ],
+      "test": [
+        3,
+        4
+      ]
+    },
+    "iferror_index_match_round": {
+      "train": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "val": [
+        6
+      ],
+      "test": [
+        0,
+        3
+      ]
+    }
+  },
+  "splits": {
+    "train": {
+      "count": 8000,
+      "unique_sheets": 20,
+      "unique_templates": 60,
+      "by_category": {
+        "aggregation": 1143,
+        "conditional_aggregation": 1143,
+        "date": 1143,
+        "logic": 1143,
+        "lookup": 1143,
+        "math_and_composition": 1143,
+        "text": 1142
+      },
+      "by_difficulty": {
+        "1": 2857,
+        "2": 2857,
+        "3": 2286
+      },
+      "augmented_count": 2168,
+      "by_augmentation": {
+        "none": 5832,
+        "rule:prefix_excel_formula": 219,
+        "rule:prefix_formula_colon": 589,
+        "rule:prefix_need_formula": 191,
+        "rule:prefix_please": 206,
+        "rule:strip_period": 325,
+        "rule:suffix_formula_only": 561,
+        "rule:swap_calculate_compute": 24,
+        "rule:swap_column_field": 11,
+        "rule:swap_records_rows": 32,
+        "rule:swap_sheet_table": 10
+      },
+      "candidates_checked": 8000,
+      "dropped_count": 0,
+      "dropped_samples": [],
+      "file": "train.jsonl",
+      "sha256": "7f3d8e5ebeb4019a3c23fc1a1615cd5465ed342c4ff9ad35fb462ad9b3a8159c",
+      "size_bytes": 9648916
+    },
+    "val": {
+      "count": 500,
+      "unique_sheets": 20,
+      "unique_templates": 60,
+      "by_category": {
+        "aggregation": 72,
+        "conditional_aggregation": 72,
+        "date": 72,
+        "logic": 71,
+        "lookup": 71,
+        "math_and_composition": 71,
+        "text": 71
+      },
+      "by_difficulty": {
+        "1": 180,
+        "2": 179,
+        "3": 141
+      },
+      "augmented_count": 0,
+      "by_augmentation": {
+        "none": 500
+      },
+      "candidates_checked": 500,
+      "dropped_count": 0,
+      "dropped_samples": [],
+      "file": "val.jsonl",
+      "sha256": "f2cf0d3181baee06d5045b09959cb642354970a5041d7c73bc4423d8ec60775c",
+      "size_bytes": 591252
+    },
+    "test": {
+      "count": 500,
+      "unique_sheets": 5,
+      "unique_templates": 60,
+      "by_category": {
+        "aggregation": 72,
+        "conditional_aggregation": 72,
+        "date": 72,
+        "logic": 71,
+        "lookup": 71,
+        "math_and_composition": 71,
+        "text": 71
+      },
+      "by_difficulty": {
+        "1": 180,
+        "2": 179,
+        "3": 141
+      },
+      "augmented_count": 0,
+      "by_augmentation": {
+        "none": 500
+      },
+      "candidates_checked": 500,
+      "dropped_count": 0,
+      "dropped_samples": [],
+      "file": "test_synthetic.jsonl",
+      "sha256": "ec6348fef4ca3b6af46192e6a4b71be074ef01c0560f7c9d6fce57a788f73951",
+      "size_bytes": 602284
+    }
+  }
+}

@@ -299,8 +299,8 @@ def _parse_csv_cell(raw: str) -> Any:
 @functools.lru_cache(maxsize=64)
 def _load_sheet_cached(
     resolved_path: str, mtime_ns: int, file_size: int
-) -> tuple[str, tuple[tuple[Any, ...], ...], int, int]:
-    """Load an XLSX or CSV sheet into an immutable grid cached by path/mtime/size."""
+) -> tuple[str, np.ndarray, int, int]:
+    """Load an XLSX or CSV sheet into a read-only 2D numpy grid cached by path/mtime/size."""
     del mtime_ns, file_size  # part of the cache key
     path = Path(resolved_path)
     suffix = path.suffix.lower()
@@ -323,11 +323,16 @@ def _load_sheet_cached(
 
     max_r = len(rows)
     max_c = max((len(r) for r in rows), default=0)
-    padded = tuple(r + (sh.EMPTY,) * (max_c - len(r)) if len(r) < max_c else r for r in rows)
-    return sheet_name, padded, max_r, max_c
+    grid = np.empty((max_r, max_c), dtype=object)
+    grid.fill(sh.EMPTY)
+    for r_idx, row in enumerate(rows):
+        for c_idx, val in enumerate(row):
+            grid[r_idx, c_idx] = val
+    grid.flags.writeable = False
+    return sheet_name, grid, max_r, max_c
 
 
-def _load_sheet(sheet_path: str | Path) -> tuple[str, tuple[tuple[Any, ...], ...], int, int]:
+def _load_sheet(sheet_path: str | Path) -> tuple[str, np.ndarray, int, int]:
     path = Path(sheet_path).resolve()
     if not path.is_file():
         raise FileNotFoundError(f"Sheet file not found: {path}")
@@ -355,7 +360,7 @@ class _RefRuntimeError(Exception):
 
 def _slice_reference(
     ref: str,
-    grid: tuple[tuple[Any, ...], ...],
+    grid: np.ndarray,
     max_r: int,
     max_c: int,
     target_rc: tuple[int, int],
@@ -398,20 +403,24 @@ def _slice_reference(
                 f"Reference {ref!r} spans {n_rows * n_cols} cells (limit {MAX_RANGE_CELLS})"
             )
 
+        if 1 <= r1 and r2 <= max_r and 1 <= c1 and c2 <= max_c:
+            return grid[r1 - 1 : r2, c1 - 1 : c2].copy().view(Array)
+
         arr = np.empty((n_rows, n_cols), dtype=object)
-        for i, r in enumerate(range(r1, r2 + 1)):
-            for j, c in enumerate(range(c1, c2 + 1)):
-                if 1 <= r <= max_r and 1 <= c <= max_c:
-                    arr[i, j] = grid[r - 1][c - 1]
-                else:
-                    arr[i, j] = sh.EMPTY
+        arr.fill(sh.EMPTY)
+        ov_r1, ov_r2 = max(r1, 1), min(r2, max_r)
+        ov_c1, ov_c2 = max(c1, 1), min(c2, max_c)
+        if ov_r1 <= ov_r2 and ov_c1 <= ov_c2:
+            arr[ov_r1 - r1 : ov_r2 - r1 + 1, ov_c1 - c1 : ov_c2 - c1 + 1] = grid[
+                ov_r1 - 1 : ov_r2, ov_c1 - 1 : ov_c2
+            ]
         return arr.view(Array)
 
     r, c = coordinate_to_tuple(coord)
     if (r, c) == (tr, tc):
         raise _RefRuntimeError(f"Circular self-reference to target cell R{tr}C{tc}")
     if 1 <= r <= max_r and 1 <= c <= max_c:
-        return grid[r - 1][c - 1]
+        return grid[r - 1, c - 1]
     return sh.EMPTY
 
 
@@ -521,7 +530,7 @@ def _classify_and_unwrap(raw_val: Any, engine: str, target_cell: str) -> Executi
 def _eval_with_formulas(
     formula: str,
     active_sheet: str,
-    grid: tuple[tuple[Any, ...], ...],
+    grid: np.ndarray,
     max_r: int,
     max_c: int,
     target_cell: str,
