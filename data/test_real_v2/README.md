@@ -1,22 +1,26 @@
-# Blind Real-World Evaluation Set (`test_real_v2`)
+# Fresh Blind Real-World Test Set (`test_real_v2`)
 
-**Status: PLACEHOLDER — to be authored solely by Abubakar and kept BLIND until QLoRA v2 training is completely finished.**
+**Status: PLACEHOLDER — awaiting Abubakar's hand-written `requests.csv`.**
 
 ## Why this set exists
 
-Because QLoRA v2's data and training changes were informed by error analysis on `test_synthetic` and `test_real` (`test_real_DRAFT.csv`), any v2 score on those two original sets is labeled **"informed by v1 error analysis"**.
+Because QLoRA v2's data additions were informed by v1 error analysis on `test_synthetic` and `test_real` (`test_real_DRAFT.csv`), any v2 score on those two original sets is labeled **"informed by v1 error analysis"**.
 
-This folder reserves space for **~50 fresh hand-written realistic requests** (`data/test_real_v2/test_real_v2.csv`) that:
-- Are written directly by Abubakar over the 5 held-out test sheets (`sales_retail_store`, `hr_employee_roster`, `inventory_stock_movements`, `grades_course_scores`, `orders_ecommerce`).
-- Are **never shown to the AI assistant or inspected** before QLoRA v2 training finishes.
-- Are reported **separately** in `README.md` and `results/` as an unbiased blind generalization check comparing Base, Frozen v1 (`v1-frozen`), and v2.
+This folder reserves space for ~50 fresh requests authored directly by Abubakar over the 5 held-out test sheets:
+`sales_retail_store`, `hr_employee_roster`, `inventory_stock_movements`, `grades_course_scores`, `orders_ecommerce`.
 
-## How to author and self-verify locally (without showing it to the assistant)
+## Two-step authoring and verification workflow
 
-1. Copy `test_real_v2_TEMPLATE.csv` to `test_real_v2.csv`.
-2. Fill in ~50 realistic requests (`id`, `sheet_id`, `category`, `difficulty`, `request`, `reference_formula`, optional `notes`), leaving `expected_value` and `expected_type` blank if you want the verifier to compute them.
-3. Run the local verifier to check held-out sheet compliance, syntax, and auto-fill `expected_value`:
-   ```powershell
-   uv run python -m src.eval.verify_csv data/test_real_v2/test_real_v2.csv --fill-expected
-   ```
-4. Evaluate Base, Frozen v1, and v2 on `data/test_real_v2/test_real_v2.csv` **after** v2 training finishes (using `notebooks/03_eval_ft_v2.ipynb` or `src.eval.run_eval`).
+1. **Author raw requests (`data/test_real_v2/requests.csv`):**
+   - Copy `requests_TEMPLATE.csv` to `requests.csv` (columns: `sheet_id,request`; optional `id,notes`).
+   - Validate locally (checks held-out sheet IDs, non-empty requests, duplicates, and overlap with v1 `test_real`):
+     ```powershell
+     uv run python -m src.eval.test_real_v2 --mode raw data/test_real_v2/requests.csv
+     ```
+2. **Annotate & verify (`data/test_real_v2/test_real_v2.csv`):**
+   - Once you hand over `requests.csv`, the assistant adds `reference_formula`, `expected_value`, `expected_type`, `category`, and `difficulty`, verifies every row with the executor, and **reports any ambiguous or unanswerable request instead of guessing**.
+   - Re-verify the final annotated CSV at any time:
+     ```powershell
+     uv run python -m src.eval.test_real_v2 --mode annotated data/test_real_v2/test_real_v2.csv --fill-expected
+     ```
+3. **Evaluate v1 and v2 side by side** on `data/test_real_v2/test_real_v2.csv` using `notebooks/03_eval_ft_v2.ipynb`, then run `python -m src.eval.compare_v1_v2` to apply the shipping decision rule.

@@ -32,6 +32,7 @@ def verify_csv(
     *,
     manifest_path: str | Path | None = None,
     fill_expected: bool = False,
+    timeout: float = 5.0,
 ) -> dict[str, Any]:
     path = Path(csv_path)
     if not path.is_file():
@@ -72,7 +73,7 @@ def verify_csv(
             errors.append(f"{rid}: duplicate request on {sid}")
         seen_reqs.add(req_key)
 
-        res = run_formula(fml, xlsx_by_sheet[sid])
+        res = run_formula(fml, xlsx_by_sheet[sid], timeout=timeout)
         if not res.ok:
             errors.append(f"{rid}: formula failed ({res.error_type}: {res.error_message}) -> {fml}")
             continue
