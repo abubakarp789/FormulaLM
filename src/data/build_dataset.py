@@ -40,6 +40,10 @@ from src.data.templates import (
     SheetContext,
     load_sheet_contexts,
 )
+from src.data.v2_augmentations import (
+    V2_TRAIN_EXTRA_PHRASINGS,
+    V2_TRAIN_ONLY_TEMPLATES,
+)
 from src.eval.executor import run_formula
 from src.eval.normalize import values_equal
 
@@ -220,9 +224,24 @@ def _distribute_int(total: int, keys: list[Any]) -> dict[Any, int]:
     return {k: base + (1 if i < rem else 0) for i, k in enumerate(keys)}
 
 
+def _distribute_weighted(total: int, keys: list[Any], weights: dict[Any, float]) -> dict[Any, int]:
+    """Divide ``total`` across ``keys`` proportionally to ``weights``."""
+    raw_w = [max(0.0, float(weights.get(k, 1.0))) for k in keys]
+    w_sum = sum(raw_w) or float(len(keys))
+    exact = [total * (w / w_sum) for w in raw_w]
+    floors = [int(x) for x in exact]
+    rem = total - sum(floors)
+    order = sorted(range(len(keys)), key=lambda i: (exact[i] - floors[i], -i), reverse=True)
+    for i in order[:rem]:
+        floors[i] += 1
+    return {k: floors[i] for i, k in enumerate(keys)}
+
+
 def plan_template_quotas(
     total: int,
     templates: tuple[FormulaTemplate, ...] = TEMPLATES,
+    *,
+    difficulty_weights: dict[int, float] | None = None,
 ) -> dict[str, int]:
     """Compute per-template quotas balanced by category first, then difficulty tier."""
     by_cat: dict[str, list[FormulaTemplate]] = defaultdict(list)
@@ -238,7 +257,10 @@ def plan_template_quotas(
         for tpl in by_cat[cat]:
             by_diff[tpl.difficulty].append(tpl)
         diffs = sorted(by_diff)
-        diff_quotas = _distribute_int(cat_quotas[cat], diffs)
+        if difficulty_weights is not None:
+            diff_quotas = _distribute_weighted(cat_quotas[cat], diffs, difficulty_weights)
+        else:
+            diff_quotas = _distribute_int(cat_quotas[cat], diffs)
         for d in diffs:
             tpls = sorted(by_diff[d], key=lambda t: t.id)
             per_tpl = _distribute_int(diff_quotas[d], [t.id for t in tpls])
@@ -278,7 +300,7 @@ def _verify_batch(
     """Worker function: execute each unique ``(sheet_id, formula)`` and compare to expected."""
     results: dict[tuple[str, str], tuple[bool, str | None]] = {}
     for sheet_id, xlsx_path, formula, expected_json, expected_type in batch:
-        res = run_formula(formula, xlsx_path)
+        res = run_formula(formula, xlsx_path, timeout=15.0)
         if not res.ok:
             results[(sheet_id, formula)] = (False, f"{res.error_type}: {res.error_message}")
             continue
@@ -358,9 +380,12 @@ def _generate_split_candidates(
     augment_prob: float,
     global_seen_prompts: set[str],
     templates: tuple[FormulaTemplate, ...] = TEMPLATES,
+    difficulty_weights: dict[int, float] | None = None,
+    extra_train_phrasings: dict[str, tuple[str, ...]] | None = None,
+    extra_phrasing_prob: float = 0.4,
 ) -> list[dict[str, Any]]:
     rng = random.Random(seed)
-    quotas = plan_template_quotas(target_count, templates)
+    quotas = plan_template_quotas(target_count, templates, difficulty_weights=difficulty_weights)
     schema_cache = {s.sheet_id: format_schema_text(s) for s in sheets}
 
     records: list[dict[str, Any]] = []
@@ -371,6 +396,13 @@ def _generate_split_candidates(
         if not matching or count <= 0:
             return 0
         allowed_idxs = phrasing_plan[tpl.id][split_name]
+        if not allowed_idxs:
+            return 0
+        extra_pool = (
+            extra_train_phrasings.get(tpl.id, ())
+            if (split_name == "train" and extra_train_phrasings is not None)
+            else ()
+        )
         emitted = 0
         max_attempts = max(count * 25, 250)
         attempts = 0
@@ -381,11 +413,23 @@ def _generate_split_candidates(
             p_idx = rng.choice(allowed_idxs)
             built = tpl.instantiate(ctx, rng, phrasing_idx=p_idx)
 
-            request = built.request
             aug_tag = "none"
+            if extra_pool and rng.random() < extra_phrasing_prob:
+                request = rng.choice(extra_pool).format(**built.slots)
+                p_idx_out = -1  # distinct from any reserved val/test phrasing index
+                aug_tag = "v2_extra"
+            else:
+                request = built.request
+                p_idx_out = p_idx
+                if tpl.id.startswith("v2_"):
+                    aug_tag = "v2_template"
+
             use_aug = allow_augmentation and (rng.random() < augment_prob or attempts > count * 4)
             if use_aug:
-                request, aug_tag = apply_rewrite_rule(request, rng)
+                rewritten, rule_tag = apply_rewrite_rule(request, rng)
+                if rule_tag != "none":
+                    request = rewritten
+                    aug_tag = rule_tag if aug_tag == "none" else f"{aug_tag}+{rule_tag}"
 
             schema_text = schema_cache[ctx.sheet_id]
             user_prompt = build_user_prompt(schema_text, request)
@@ -402,7 +446,7 @@ def _generate_split_candidates(
                     "category": tpl.category,
                     "difficulty": tpl.difficulty,
                     "sheet_id": ctx.sheet_id,
-                    "phrasing_idx": p_idx,
+                    "phrasing_idx": p_idx_out,
                     "augmentation": aug_tag,
                     "schema_text": schema_text,
                     "request": request,
@@ -469,8 +513,19 @@ def build_dataset(
     reserved_val_phrasings: int = 1,
     augment_prob: float = 0.25,
     workers: int = 1,
+    version: str = "v1",
 ) -> dict[str, Any]:
-    """Generate, verify and write ``train.jsonl``, ``val.jsonl``, ``test_synthetic.jsonl``."""
+    """Generate, verify and write processed JSONL splits.
+
+    - ``version="v1"`` writes ``train.jsonl``, ``val.jsonl``, ``test_synthetic.jsonl``,
+      and ``stats.json``.
+    - ``version="v2"`` keeps ``val.jsonl`` and ``test_synthetic.jsonl`` bit-for-bit identical to v1
+      and writes ``train_v2.jsonl`` + ``stats_v2.json`` with v2 train-only phrasings, 2 new ratio
+      templates, and difficulty rebalancing (~30% D1 / 35% D2 / 35% D3).
+    """
+    if version not in ("v1", "v2"):
+        raise ValueError(f"Unsupported dataset version: {version!r}")
+
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
@@ -484,8 +539,19 @@ def build_dataset(
         reserved_test=reserved_test_phrasings,
         reserved_val=reserved_val_phrasings,
     )
+    train_templates = TEMPLATES
+    train_plan = dict(phrasing_plan)
+    diff_weights: dict[int, float] | None = None
+    extra_phrasings: dict[str, tuple[str, ...]] | None = None
+    if version == "v2":
+        train_templates = TEMPLATES + V2_TRAIN_ONLY_TEMPLATES
+        for t in V2_TRAIN_ONLY_TEMPLATES:
+            train_plan[t.id] = {"train": tuple(range(len(t.phrasings))), "val": (), "test": ()}
+        diff_weights = {1: 0.28, 2: 0.36, 3: 0.36}
+        extra_phrasings = V2_TRAIN_EXTRA_PHRASINGS
 
     # Generate test -> val -> train so global_seen_prompts blocks any cross-split collision.
+    # val and test ALWAYS use the frozen v1 templates & seeds so they stay bit-for-bit identical.
     global_seen_prompts: set[str] = set()
     raw_splits = {
         "test": _generate_split_candidates(
@@ -512,16 +578,19 @@ def build_dataset(
             "train",
             n_train,
             train_sheets,
-            phrasing_plan,
-            seed=seed + 100,
+            train_plan,
+            seed=seed + (1100 if version == "v2" else 100),
             allow_augmentation=True,
             augment_prob=augment_prob,
             global_seen_prompts=global_seen_prompts,
+            templates=train_templates,
+            difficulty_weights=diff_weights,
+            extra_train_phrasings=extra_phrasings,
         ),
     }
 
     filenames = {
-        "train": "train.jsonl",
+        "train": "train_v2.jsonl" if version == "v2" else "train.jsonl",
         "val": "val.jsonl",
         "test": "test_synthetic.jsonl",
     }
@@ -536,7 +605,12 @@ def build_dataset(
         total_checked += len(cands)
         total_dropped += len(dropped)
 
-        prefix = "test_syn" if split_key == "test" else split_key
+        if split_key == "test":
+            prefix = "test_syn"
+        elif split_key == "train" and version == "v2":
+            prefix = "train_v2"
+        else:
+            prefix = split_key
         for idx, rec in enumerate(kept, start=1):
             rec["id"] = f"{prefix}_{idx:05d}"
 
@@ -552,11 +626,13 @@ def build_dataset(
         split_stats[split_key] = dist
 
     summary = {
+        "version": version,
         "seed": seed,
         "system_prompt": SYSTEM_PROMPT,
         "reserved_test_phrasings": reserved_test_phrasings,
         "reserved_val_phrasings": reserved_val_phrasings,
         "train_augment_prob": augment_prob,
+        "difficulty_weights": diff_weights,
         "total_checked": total_checked,
         "total_verified": total_checked - total_dropped,
         "total_dropped": total_dropped,
@@ -565,7 +641,8 @@ def build_dataset(
         },
         "splits": split_stats,
     }
-    stats_path = out_path / "stats.json"
+    stats_name = "stats_v2.json" if version == "v2" else "stats.json"
+    stats_path = out_path / stats_name
     stats_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     return summary
 
@@ -614,12 +691,19 @@ def main() -> int:
     parser.add_argument("--val", type=int, default=None, help="Validation split target size")
     parser.add_argument("--test", type=int, default=None, help="Synthetic test target size")
     parser.add_argument("--workers", type=int, default=4, help="Parallel verification workers")
+    parser.add_argument(
+        "--version",
+        choices=("v1", "v2"),
+        default="v1",
+        help="Dataset version: v1 (8k baseline) or v2 (9k train_v2 + frozen val/test)",
+    )
     args = parser.parse_args()
 
     cfg = load_config(args.config)
     seed = cfg["seed"] if args.seed is None else args.seed
     out_dir = cfg["paths"]["processed_dir"] if args.out_dir is None else Path(args.out_dir)
-    n_train = cfg["splits"]["train"] if args.train is None else args.train
+    default_train = 9000 if args.version == "v2" else cfg["splits"]["train"]
+    n_train = default_train if args.train is None else args.train
     n_val = cfg["splits"]["valid"] if args.val is None else args.val
     n_test = cfg["splits"]["test_synthetic"] if args.test is None else args.test
     res_test = cfg["splits"].get("reserved_test_phrasings", 2)
@@ -627,7 +711,8 @@ def main() -> int:
 
     log = get_logger("formulalm.dataset", log_file=cfg["paths"]["logs_dir"] / "build_dataset.log")
     log.info(
-        "Building dataset into %s (seed=%d, targets=%d/%d/%d, workers=%d)",
+        "Building dataset (%s) into %s (seed=%d, targets=%d/%d/%d, workers=%d)",
+        args.version,
         out_dir,
         seed,
         n_train,
@@ -645,6 +730,7 @@ def main() -> int:
         reserved_test_phrasings=res_test,
         reserved_val_phrasings=res_val,
         workers=args.workers,
+        version=args.version,
     )
     report = format_distribution_report(summary)
     log.info("\n%s", report)

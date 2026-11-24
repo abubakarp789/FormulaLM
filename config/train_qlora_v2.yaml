@@ -1,0 +1,70 @@
+# FormulaLM QLoRA v2 fine-tuning configuration (Qwen3-1.7B, non-thinking, T4 16 GB VRAM).
+# Frozen v1 config remains untouched at config/train_qlora.yaml (tagged v1-frozen).
+# All checkpoint selection and stopping decisions use val.jsonl (never test_real / test_synthetic).
+
+run_name: qlora_v2
+seed: 42
+
+model:
+  base_id: Qwen/Qwen3-1.7B
+  base_revision: 70d244cc86ccca08cf5af4e1e306ecf908b1ad5e
+  load_in_4bit: true
+  enable_thinking: false
+  max_seq_length: 512
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.0
+  bias: none
+  use_rslora: false
+  use_gradient_checkpointing: unsloth
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+training:
+  # Hyperparameter changes vs v1 (informed by v1 val_loss curve peaking at step 200 / 0.40 ep):
+  # - num_train_epochs: 2 -> 1 (9,000 / 16 = 563 steps; avoids Epoch-2 overfitting)
+  # - learning_rate: 2.0e-4 -> 1.0e-4 (gentler adapter updates)
+  # - weight_decay: 0.01 -> 0.05 (stronger regularization)
+  # - warmup_ratio: 0.05 -> 0.08
+  # - eval_steps / save_steps: 100 -> 50 (finer validation checkpoint selection on val.jsonl)
+  num_train_epochs: 1
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4
+  per_device_eval_batch_size: 4
+  learning_rate: 1.0e-4
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.08
+  weight_decay: 0.05
+  optim: adamw_8bit
+  max_grad_norm: 1.0
+  logging_steps: 20
+  eval_steps: 50
+  save_steps: 50
+  save_total_limit: 4
+  load_best_model_at_end: true
+  metric_for_best_model: eval_loss
+  packing: false
+
+smoke_test:
+  train_examples: 200
+  val_examples: 50
+  num_train_epochs: 1
+  logging_steps: 2
+  eval_steps: 6
+  save_steps: 12
+
+data:
+  train_file: data/processed/train_v2.jsonl
+  val_file: data/processed/val.jsonl
+
+hub:
+  hf_repo_id: abubakar56/formulalm-qwen3-1.7b-lora-v2
+  private: false

@@ -24,9 +24,13 @@ The FormulaLM dataset pairs a spreadsheet schema and a plain-English request wit
 
 | Split | File | Examples | Sheets | Templates | Augmented | Dropped | Size | SHA-256 (first 16 hex) |
 |---|---|---:|---:|---:|---:|---:|---:|---|
-| `train` | `data/processed/train.jsonl` | **8,000** | 20 (train) | 60 | 2,168 | 0 | 9,422.8 KB | `7f3d8e5ebeb4019a` |
-| `val` | `data/processed/val.jsonl` | **500** | 20 (train) | 60 | 0 | 0 | 577.4 KB | `f2cf0d3181baee06` |
-| `test_synthetic` | `data/processed/test_synthetic.jsonl` | **500** | 5 (held-out) | 60 | 0 | 0 | 588.2 KB | `ec6348fef4ca3b6a` |
+| `train` (v1, frozen) | `data/processed/train.jsonl` | **8,000** | 20 (train) | 60 | 2,168 | 0 | 9,422.8 KB | `7f3d8e5ebeb4019a` |
+| `train_v2` (v2) | `data/processed/train_v2.jsonl` | **9,000** | 20 (train) | 62 | 3,420 | 0 | 10,625.3 KB | `0cca0eb9d2748c0f` |
+| `val` (frozen) | `data/processed/val.jsonl` | **500** | 20 (train) | 60 | 0 | 0 | 577.4 KB | `f2cf0d3181baee06` |
+| `test_synthetic` (frozen) | `data/processed/test_synthetic.jsonl` | **500** | 5 (held-out) | 60 | 0 | 0 | 588.2 KB | `ec6348fef4ca3b6a` |
+
+- **v2 train split (`train_v2.jsonl`, `stats_v2.json`):** generated strictly on the 20 training sheets using `src/data/v2_augmentations.py` (58 train-only phrasings + 2 ratio templates; difficulty rebalanced to 30.2% D1 / 38.9% D2 / 30.9% D3; 10,000/10,000 verified, 0 dropped). Both `val.jsonl` and `test_synthetic.jsonl` remain **bit-for-bit identical** to v1. See [`docs/v2_changelog.md`](../docs/v2_changelog.md).
+- **Blind fresh real-world set (`data/test_real_v2/`):** placeholder reserved for ~50 new hand-written requests authored independently by Abubakar and evaluated only after v2 training finishes.
 
 - **Zero schema leakage:** `test_synthetic` uses only the 5 held-out test sheets (`sales_retail_store`, `hr_employee_roster`, `inventory_stock_movements`, `grades_course_scores`, `orders_ecommerce`), which never appear in `train` or `val`.
 - **Zero phrasing leakage:** for every template, phrasing pattern indices are partitioned disjointly across splits: **2 reserved for `test_synthetic`**, **1 reserved for `val`**, and the remaining **4–5 for `train`**.

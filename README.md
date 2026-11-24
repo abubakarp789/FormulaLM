@@ -28,36 +28,40 @@ Output:  =SUMIF(A:A,"North",C:C)      <- illustrative format only, not a model o
 
 ## Data
 
-- Fully synthetic, generated from formula templates, random schemas and random values across ~20–30 sample sheets (sales, HR, inventory, grades, expenses, …).
-- Request paraphrases: hand-written patterns and/or Qwen itself. No other vendors' model outputs. No private or personal data.
-- Scope: ~30 Excel functions (SUM/COUNT/AVERAGE families with IF/IFS variants, MIN, MAX, IF, IFS, AND, OR, VLOOKUP, XLOOKUP, INDEX+MATCH, text functions, DATE/YEAR/MONTH/DAY, ROUND, IFERROR). Volatile functions excluded.
-- Splits, sizes and leakage checks: _TBD_. Dataset card: _TBD_ (`docs/DATASET_CARD.md`).
+- Fully synthetic, generated from formula templates, random schemas and random values across 25 sample sheets (11 domains: sales, HR, inventory, grades, expenses, orders, project tracking, attendance, subscriptions, support tickets, marketing).
+- Request paraphrases: hand-written patterns and semantic-preserving rewrite rules only. No other vendors' model outputs. No private or personal data.
+- Scope: 36 Excel functions (`SUM`/`COUNT`/`AVERAGE` families with `IF`/`IFS` variants, `MIN`, `MAX`, `IF`, `IFS`, `AND`, `OR`, `VLOOKUP`, `XLOOKUP`, `INDEX`+`MATCH`, text functions, `DATE`/`YEAR`/`MONTH`/`DAY`, `ROUND`, `IFERROR`). Volatile functions excluded.
+- Splits: v1 (`train`: 8,000, `val`: 500, `test_synthetic`: 500 on 5 held-out sheets + 2 reserved phrasings/template); v2 (`train_v2`: 9,000 on the 20 training sheets only, with `val` and `test_synthetic` bit-for-bit frozen). See [`data/DATASET_CARD.md`](data/DATASET_CARD.md) and [`docs/v2_changelog.md`](docs/v2_changelog.md).
 
 ## Method
 
-- QLoRA with [Unsloth](https://github.com/unslothai/unsloth); loss on assistant responses only.
-- Hyperparameters, training time and loss curves: _TBD_ (from `results/`).
-- One improvement iteration after error analysis: _TBD_.
-- Export to GGUF (Q4_K_M, Q8_0) with llama.cpp; run with Ollama / llama.cpp.
+- QLoRA with [Unsloth](https://github.com/unslothai/unsloth) (`r=16`, `alpha=32`, `dropout=0`, all 7 linear layers, `max_seq_length=512`, non-thinking mode, loss on assistant responses only).
+- **Frozen v1 (`v1-frozen`, `checkpoint-200`):** 2 epochs, `lr=2e-4`, peak VRAM 1.65 GB on Colab Tesla T4 (34.5 min), best `val` loss `0.004240` at step 200 (`results/train_qlora_v1/`).
+- **Iteration v2 (`config/train_qlora_v2.yaml`):** 1 epoch, `lr=1e-4`, `weight_decay=0.05`, `eval_steps=50` on `val.jsonl`, plus train-only v2 phrasings/ratio templates logged in [`docs/v2_changelog.md`](docs/v2_changelog.md).
+- Export to GGUF (`Q4_K_M`, `Q8_0`) with llama.cpp; run locally via Ollama / llama.cpp (_TBD_).
 
 ## Evaluation
 
-Executable: each predicted formula is computed in a spreadsheet engine on the test sheet and compared with the expected value computed independently with pandas.
+Executable: each predicted formula is computed in Python `formulas` 1.3.4 on the test sheet and compared with the expected value computed independently with pandas (`tol=1e-6`, type-aware).
 
 - Metrics: syntax validity rate, execution accuracy, normalized exact match; breakdowns by function category and difficulty.
-- Test sets: (a) held-out synthetic set (unseen phrasings, unseen schemas); (b) ~80 hand-written realistic requests.
+- Test sets:
+  - `test_synthetic` (500 examples: 5 unseen held-out sheets + 2 reserved phrasings per template)
+  - `test_real` (80 hand-written realistic requests on the 5 held-out sheets)
+  - `test_real_v2` (~50 fresh blind hand-written requests authored after v2 training, reported separately)
 
 ## Before / after results
 
-_TBD — filled only from `results/`._
+All filled numbers come directly from saved runs in [`results/`](results/). v2 results on `test_synthetic` and `test_real` are labeled **informed by v1 error analysis**; the fresh blind set (`test_real_v2`) is reported in its own column.
 
-| System | Syntax valid | Exec. accuracy (synthetic) | Exec. accuracy (hand-written) | Exact match |
-|---|---|---|---|---|
-| Base, zero-shot | | | | |
-| Base, few-shot | | | | |
-| Fine-tuned (16-bit) | | | | |
-| Fine-tuned Q8_0 | | | | |
-| Fine-tuned Q4_K_M | | | | |
+| System | Syntax valid (`syn` / `real`) | Exec. acc. (`test_synthetic`, 500) | Exec. acc. (`test_real`, 80) | Exact match (`syn` / `real`) | Exec. acc. (`test_real_v2` blind) |
+|---|---:|---:|---:|---:|---:|
+| Base `Qwen3-1.7B`, zero-shot | 71.8% / 81.2% | 44.6% | 50.0% | 36.6% / 42.5% | _TBD_ |
+| Base `Qwen3-1.7B`, 5-shot (from train) | 85.0% / 85.0% | 60.2% | 51.2% | 51.2% / 41.2% | _TBD_ |
+| **Fine-tuned v1 (`v1-frozen`, 16-bit)** | **99.6% / 100.0%** | **97.6%** | **91.2%** | **97.0% / 91.2%** | _TBD_ |
+| Fine-tuned v2 (16-bit, _informed by v1 error analysis_) | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
+| Fine-tuned Q8_0 GGUF | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
+| Fine-tuned Q4_K_M GGUF | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
 
 ## Hardware and local performance
 
