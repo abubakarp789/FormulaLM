@@ -439,12 +439,131 @@ def render_v1_v2_markdown(comp: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+HEADLINE_SPLITS: tuple[tuple[str, str, bool, tuple[tuple[str, str], ...]], ...] = (
+    (
+        "test_real_v2",
+        "`test_real_v2` (post-v2 fresh)",
+        False,
+        (
+            ("base_zeroshot", "baseline_zeroshot_real_v2"),
+            ("base_5shot", "baseline_5shot_real_v2"),
+            ("ft_v1", "ft_v1_real_v2"),
+            ("ft_v2", "ft_v2_real_v2"),
+        ),
+    ),
+    (
+        "test_real",
+        "`test_real` (original realistic)",
+        True,
+        (
+            ("base_zeroshot", "baseline_zeroshot_real"),
+            ("base_5shot", "baseline_5shot_real"),
+            ("ft_v1", "ft_v1_real"),
+            ("ft_v2", "ft_v2_real"),
+        ),
+    ),
+    (
+        "test_synthetic",
+        "`test_synthetic` (original synthetic)",
+        True,
+        (
+            ("base_zeroshot", "baseline_zeroshot_synthetic"),
+            ("base_5shot", "baseline_5shot_synthetic"),
+            ("ft_v1", "ft_v1_synthetic"),
+            ("ft_v2", "ft_v2_synthetic"),
+        ),
+    ),
+)
+
+_SYSTEM_DISPLAY: dict[str, str] = {
+    "base_zeroshot": "Base `Qwen3-1.7B` (0-shot)",
+    "base_5shot": "Base `Qwen3-1.7B` (5-shot, train)",
+    "ft_v1": "Fine-tuned v1 (`v1-frozen`)",
+    "ft_v2": "Fine-tuned v2 (`v2-ship`)",
+}
+
+
+def build_headline_summary(results_dir: str | Path = "results") -> dict[str, Any]:
+    """Collect Base 0-shot, Base 5-shot, v1 and v2 on test_real_v2, test_real, test_synthetic."""
+    root = Path(results_dir)
+    splits_out: dict[str, dict[str, Any]] = {}
+    for split_key, title, v2_informed, run_specs in HEADLINE_SPLITS:
+        systems: dict[str, dict[str, Any] | None] = {}
+        for sys_key, run_name in run_specs:
+            systems[sys_key] = _load_run_stats(root / run_name)
+        splits_out[split_key] = {
+            "title": title,
+            "v2_informed_by_v1": v2_informed,
+            "systems": systems,
+        }
+    return {"splits": splits_out}
+
+
+def render_headline_markdown(headline: dict[str, Any]) -> str:
+    """Render one unified headline table across test_real_v2, test_real and test_synthetic."""
+    lines = [
+        "# FormulaLM — Final Headline Results (Base vs QLoRA v1 vs QLoRA v2)",
+        "",
+        (
+            "Base model: `Qwen/Qwen3-1.7B` (`70d244cc`, Apache-2.0, fp16, `enable_thinking=False`, "
+            "`temperature=0`, `max_tokens=96`, `seed=42`). "
+            "95% confidence intervals are exact Wilson score intervals."
+        ),
+        "",
+        (
+            f"Note: Fine-tuned v2 results on `test_real` and `test_synthetic` are labeled "
+            f"**'{INFORMED_LABEL}'** because v2 data additions targeted v1 error clusters on "
+            "those sets."
+        ),
+        "",
+        (
+            "| Test Set | System | N | Correct | **Exec. Accuracy** | "
+            "95% Wilson CI | Δ vs Base 0-shot | Syntax Valid | Exact Match |"
+        ),
+        "|---|---|---:|---:|---:|---|---:|---:|---:|",
+    ]
+
+    for split_key, title, v2_informed, run_specs in HEADLINE_SPLITS:
+        systems = headline["splits"][split_key]["systems"]
+        base0 = systems.get("base_zeroshot")
+        for sys_key, _ in run_specs:
+            st = systems.get(sys_key)
+            label = _SYSTEM_DISPLAY[sys_key]
+            if sys_key == "ft_v2" and v2_informed:
+                label = f"{label} ({INFORMED_LABEL})"
+            if st is None:
+                lines.append(f"| {title} | {label} | — | — | _pending_ | — | — | — | — |")
+                continue
+            if sys_key == "base_zeroshot" or base0 is None:
+                delta_s = "—"
+            else:
+                delta_s = _fmt_delta(st["execution_accuracy"], base0["execution_accuracy"])
+            bold_label = f"**{label}**" if sys_key == "ft_v2" else label
+            lines.append(
+                f"| {title} | {bold_label} | {st['n']} | {st['k']}/{st['n']} | "
+                f"**{_pct(st['execution_accuracy'])}** | {_fmt_ci(st['wilson_95_ci'])} | "
+                f"{delta_s} | {_pct(st['syntax_valid_rate'])} | {_pct(st['exact_match_rate'])} |"
+            )
+
+    return "\n".join(lines) + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--results-dir", default="results", help="Directory containing run folders")
     parser.add_argument("--out", default="results/ft_v2_comparison.md", help="Output markdown path")
     parser.add_argument(
         "--json-out", default="results/ft_v2_comparison.json", help="Output JSON path"
+    )
+    parser.add_argument(
+        "--headline-out",
+        default=None,
+        help="Optional path for unified headline markdown (e.g. results/final_headline.md)",
+    )
+    parser.add_argument(
+        "--headline-json",
+        default=None,
+        help="Optional path for unified headline JSON (e.g. results/final_headline.json)",
     )
     parser.add_argument(
         "--real-drop-tolerance",
@@ -468,6 +587,19 @@ def main(argv: list[str] | None = None) -> int:
         jp.parent.mkdir(parents=True, exist_ok=True)
         jp.write_text(json.dumps(comp, indent=2) + "\n", encoding="utf-8")
     print(md)
+
+    if args.headline_out or args.headline_json:
+        headline = build_headline_summary(results_dir=args.results_dir)
+        h_md = render_headline_markdown(headline)
+        if args.headline_out:
+            hp = Path(args.headline_out)
+            hp.parent.mkdir(parents=True, exist_ok=True)
+            hp.write_text(h_md, encoding="utf-8")
+        if args.headline_json:
+            hjp = Path(args.headline_json)
+            hjp.parent.mkdir(parents=True, exist_ok=True)
+            hjp.write_text(json.dumps(headline, indent=2) + "\n", encoding="utf-8")
+        print(h_md)
     return 0
 
 

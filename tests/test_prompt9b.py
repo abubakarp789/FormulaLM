@@ -13,7 +13,9 @@ from formulalm.config import REPO_ROOT
 from src.eval.compare_v1_v2 import (
     DECISION_RULE_TEXT,
     INFORMED_LABEL,
+    build_headline_summary,
     build_v1_v2_comparison,
+    render_headline_markdown,
     render_v1_v2_markdown,
     wilson_ci,
 )
@@ -241,3 +243,26 @@ def test_committed_test_real_v2_raw_and_annotated_verify_cleanly():
     assert ann_rep["total_rows"] == 50
     assert ann_rep["error_count"] == 0
     assert ann_rep["flagged_unresolved"] == []
+
+
+def test_headline_summary_decision_doc_and_base_real_v2_notebook():
+    headline = build_headline_summary(REPO_ROOT / "results")
+    md = render_headline_markdown(headline)
+    assert "95% Wilson CI" in md
+    assert INFORMED_LABEL in md
+    assert "test_real_v2" in md and "test_real" in md and "test_synthetic" in md
+
+    dec = (REPO_ROOT / "docs" / "DECISION.md").read_text(encoding="utf-8")
+    assert "SHIP_V2" in dec
+    assert "v1-frozen" in dec
+    assert "e2dd7e8115406ffcdbbdfa60d6f2f10b4aaf2595" in dec
+    assert "statistically indistinguishable" in dec.lower()
+
+    nb = json.loads(
+        (REPO_ROOT / "notebooks" / "04_eval_base_real_v2.ipynb").read_text(encoding="utf-8")
+    )
+    src = "\n".join("".join(c["source"]) for c in nb["cells"])
+    assert "baseline_zeroshot_real_v2" in src
+    assert "baseline_5shot_real_v2" in src
+    assert "data/processed/train.jsonl" in src
+    assert "final_headline.md" in src
