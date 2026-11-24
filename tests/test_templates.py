@@ -18,6 +18,8 @@ from src.eval.executor import ALLOWED_FUNCTIONS, run_formula
 from src.eval.normalize import values_equal
 
 VOLATILE_FUNCTIONS = {"TODAY", "NOW", "RAND", "RANDBETWEEN"}
+# Test-only wall-clock budget (cold sheet cache on a loaded laptop); production keeps 5 s.
+TEST_FORMULA_TIMEOUT = 30.0
 _FUNC_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_.]*)\s*\(")
 
 
@@ -82,7 +84,7 @@ def test_template_matches_pandas_gt_on_at_least_three_sheets(
         assert used.issubset(ALLOWED_FUNCTIONS)
 
         # Execute the formula in our safe spreadsheet engine and compare to pandas ground truth.
-        res = run_formula(built.formula, ctx.xlsx_path)
+        res = run_formula(built.formula, ctx.xlsx_path, timeout=TEST_FORMULA_TIMEOUT)
         assert res.ok, (
             f"{tpl.id} on {ctx.sheet_id}: executor failed on {built.formula!r}: "
             f"{res.error_type}: {res.error_message}"

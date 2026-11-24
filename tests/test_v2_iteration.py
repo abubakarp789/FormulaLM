@@ -17,6 +17,10 @@ from src.eval.executor import ALLOWED_FUNCTIONS, run_formula
 from src.eval.normalize import values_equal
 from src.eval.verify_csv import verify_csv
 
+# Test-only wall-clock budget: the first formula on a cold sheet cache can exceed the
+# production 5 s default on a loaded 8 GB laptop. Production evaluation keeps 5 s.
+TEST_FORMULA_TIMEOUT = 30.0
+
 
 def test_v2_extra_phrasings_render_cleanly_for_every_template():
     train_sheets = load_sheet_contexts(split="train")
@@ -42,7 +46,7 @@ def test_v2_new_templates_match_pandas_gt_on_three_train_sheets(tpl):
     rng = random.Random(101)
     for ctx in rng.sample(train_sheets, k=3):
         built = tpl.instantiate(ctx, rng)
-        res = run_formula(built.formula, ctx.xlsx_path)
+        res = run_formula(built.formula, ctx.xlsx_path, timeout=TEST_FORMULA_TIMEOUT)
         assert res.ok, f"{tpl.id} failed on {ctx.sheet_id}: {res.error_message}"
         assert values_equal(res.value, built.expected)
 
