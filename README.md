@@ -24,14 +24,21 @@ Output:  =SUMIF(A:A,"North",C:C)      <- illustrative format only, not a model o
 
 - [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B), revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`, Apache-2.0.
 - Used in **non-thinking mode** (`enable_thinking=False`) so the output is only the formula.
+- Full base/mirror/adapter provenance: [`docs/MODEL_PROVENANCE.md`](docs/MODEL_PROVENANCE.md).
 - Why this size: _TBD_.
 
 ## Data
 
 - Fully synthetic, generated from formula templates, random schemas and random values across 25 sample sheets (11 domains: sales, HR, inventory, grades, expenses, orders, project tracking, attendance, subscriptions, support tickets, marketing).
-- Request paraphrases: hand-written patterns and semantic-preserving rewrite rules only. No other vendors' model outputs. No private or personal data.
+- Request paraphrases: phrasing patterns and semantic-preserving rewrite rules only. No other vendors' model outputs were used to generate training data via API, and no private or personal data is included.
 - Scope: 36 Excel functions (`SUM`/`COUNT`/`AVERAGE` families with `IF`/`IFS` variants, `MIN`, `MAX`, `IF`, `IFS`, `AND`, `OR`, `VLOOKUP`, `XLOOKUP`, `INDEX`+`MATCH`, text functions, `DATE`/`YEAR`/`MONTH`/`DAY`, `ROUND`, `IFERROR`). Volatile functions excluded.
 - Splits: v1 (`train`: 8,000, `val`: 500, `test_synthetic`: 500 on 5 held-out sheets + 2 reserved phrasings/template); v2 (`train_v2`: 9,000 on the 20 training sheets only, with `val` and `test_synthetic` bit-for-bit frozen). See [`data/DATASET_CARD.md`](data/DATASET_CARD.md) and [`docs/v2_changelog.md`](docs/v2_changelog.md).
+
+### Authorship and evaluation provenance
+
+- The 60 formula templates, their phrasing patterns, the v2 train-only phrasings/templates (`src/data/v2_augmentations.py`), and the initial draft of `data/test_real/test_real_DRAFT.csv` were drafted with an AI assistant and reviewed by Abubakar.
+- Because the v2 data additions were informed by v1 error analysis on `test_synthetic` and `test_real`, any v2 metric on those two original test sets is labeled **informed by v1 error analysis**.
+- `data/test_real_v2/` is reserved for fresh requests authored directly by Abubakar and evaluated separately to provide an unbiased v1-vs-v2 comparison alongside `val.jsonl`.
 
 ## Method
 

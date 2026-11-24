@@ -93,6 +93,11 @@ def test_evaluate_oracle_and_markdown_oracle_on_real_draft(tmp_path: Path):
     for fname in ("predictions.jsonl", "metrics.json", "report.md", "run_config.json"):
         assert (run_dir / fname).is_file()
 
+    rc = json.loads((run_dir / "run_config.json").read_text(encoding="utf-8"))
+    assert rc["config"]["base_model_id"] == "mock:oracle"
+    assert "base_revision" in rc["config"]
+    assert rc["config"]["model_provenance"]["base_model_id"] == "mock:oracle"
+
     # Markdown-wrapped outputs still achieve 100% after extraction, 0% raw_format_ok.
     m_md = evaluate(
         MockBackend(mode="markdown_oracle"),

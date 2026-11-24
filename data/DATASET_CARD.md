@@ -98,8 +98,14 @@ The `.jsonl` files are git-ignored as regenerable build artifacts (`data/process
 make data ARGS="--workers 4"
 ```
 
+## Authorship and Provenance
+
+- **AI-assisted drafting, human review:** The 60 formula templates (`src/data/templates.py`), their phrasing patterns, the v2 train-only phrasings and ratio templates (`src/data/v2_augmentations.py`), and the initial draft of `data/test_real/test_real_DRAFT.csv` were drafted with an AI assistant and reviewed by Abubakar.
+- **v2 test-set caveat:** v2 data additions (`train_v2.jsonl`) were informed by v1 error analysis on `test_synthetic` and `test_real` (`results/ft_v1_comparison.md`). Neither test set was included in training or used for checkpoint selection (selection uses `val.jsonl` only), and both frozen test sets remain bit-for-bit unchanged, but any v2 score on `test_synthetic` or `test_real` must be labeled **"informed by v1 error analysis"**.
+- **Fresh blind set (`data/test_real_v2/`):** Raw requests (`data/test_real_v2/requests.csv`) are authored directly by Abubakar, then annotated with executor-verified reference formulas and expected values (`data/test_real_v2/test_real_v2.csv`) and reported separately.
+
 ## Privacy, Licensing and Limitations
 
 - **Privacy:** 100% synthetic; contains zero real people, companies, emails, or personal records.
 - **License:** MIT (matching the repository code license).
-- **Limitations:** Synthetic prompts follow structured template patterns and bounded ranges (`2..N`). To measure real-world generalization beyond templates, FormulaLM is also evaluated on a separate hand-written realistic test set (`data/handwritten/`).
+- **Limitations:** Synthetic prompts follow structured template patterns and bounded ranges (`2..N`). To measure real-world generalization beyond templates, FormulaLM is also evaluated on separate realistic test sets (`data/test_real/` and `data/test_real_v2/`).

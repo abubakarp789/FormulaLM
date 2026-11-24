@@ -388,6 +388,9 @@ class OllamaBackend:
         self.timeout = timeout
         self.name = f"ollama:{model}"
 
+    def provenance(self) -> dict[str, Any]:
+        return {"base_model_id": f"ollama:{self.model}", "base_revision": None, "adapter": None}
+
     def generate(
         self,
         messages: list[dict[str, str]],
@@ -429,6 +432,9 @@ class LlamaCppBackend:
         self.timeout = timeout
         self.name = f"llamacpp:{model}"
 
+    def provenance(self) -> dict[str, Any]:
+        return {"base_model_id": f"llamacpp:{self.model}", "base_revision": None, "adapter": None}
+
     def generate(
         self,
         messages: list[dict[str, str]],
@@ -465,6 +471,7 @@ class TransformersBackend:
         *,
         adapter_path: str | None = None,
         revision: str | None = None,
+        adapter_revision: str | None = None,
         load_in_4bit: bool = False,
         enable_thinking: bool = False,
     ) -> None:
@@ -473,11 +480,18 @@ class TransformersBackend:
 
         self.torch = torch
         self.enable_thinking = enable_thinking
+        self.model_id = model_id
+        self.revision = revision
+        self.adapter_path = adapter_path
+        self.adapter_revision = adapter_revision
+        self.load_in_4bit = load_in_4bit
         self.name = f"transformers:{model_id}" + (f"+{adapter_path}" if adapter_path else "")
 
         tok_source = adapter_path if adapter_path else model_id
         tok_kwargs: dict[str, Any] = {}
-        if revision and not adapter_path:
+        if adapter_path and adapter_revision:
+            tok_kwargs["revision"] = adapter_revision
+        elif revision and not adapter_path:
             tok_kwargs["revision"] = revision
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(tok_source, **tok_kwargs)
@@ -498,12 +512,43 @@ class TransformersBackend:
             model_kwargs["torch_dtype"] = "auto"
 
         model = AutoModelForCausalLM.from_pretrained(model_id, **model_kwargs)
+        self.adapter_base_model: str | None = None
         if adapter_path:
             from peft import PeftModel  # type: ignore[import-not-found]
 
-            model = PeftModel.from_pretrained(model, adapter_path)
+            peft_kwargs: dict[str, Any] = {}
+            if adapter_revision:
+                peft_kwargs["revision"] = adapter_revision
+            model = PeftModel.from_pretrained(model, adapter_path, **peft_kwargs)
+            try:
+                self.adapter_base_model = str(model.peft_config["default"].base_model_name_or_path)
+            except Exception:
+                self.adapter_base_model = None
         model.eval()
         self.model = model
+        self.dtype = str(getattr(model, "dtype", "unknown"))
+
+    def provenance(self) -> dict[str, Any]:
+        """Model identity written into ``run_config.json`` (base id/revision, adapter source)."""
+        adapter_commit: str | None = self.adapter_revision
+        if self.adapter_path and not Path(self.adapter_path).is_dir():
+            try:
+                from huggingface_hub import HfApi  # type: ignore[import-not-found]
+
+                info = HfApi().model_info(self.adapter_path, revision=self.adapter_revision)
+                adapter_commit = str(info.sha)
+            except Exception:
+                pass
+        return {
+            "base_model_id": self.model_id,
+            "base_revision": self.revision,
+            "adapter": self.adapter_path,
+            "adapter_revision": adapter_commit,
+            "adapter_config_base_model": self.adapter_base_model,
+            "load_in_4bit": self.load_in_4bit,
+            "dtype": self.dtype,
+            "enable_thinking": self.enable_thinking,
+        }
 
     def _render_prompt(self, messages: list[dict[str, str]]) -> str:
         return str(
@@ -566,6 +611,9 @@ class MockBackend:
         self.custom_fn = custom_fn
         self.name = f"mock:{mode}"
         self.call_count = 0
+
+    def provenance(self) -> dict[str, Any]:
+        return {"base_model_id": f"mock:{self.mode}", "base_revision": None, "adapter": None}
 
     def generate(
         self,
@@ -812,10 +860,15 @@ def evaluate(
                 rec = json.loads(line)
                 existing_by_id[str(rec["id"])] = rec
 
+    prov_fn = getattr(backend, "provenance", None)
+    provenance: dict[str, Any] = prov_fn() if callable(prov_fn) else {}
     save_run_config(
         {
             "run_name": run_name,
             "backend": backend.name,
+            "base_model_id": provenance.get("base_model_id"),
+            "base_revision": provenance.get("base_revision"),
+            "model_provenance": provenance,
             "dataset": str(dataset_path),
             "seed": seed,
             "temperature": 0.0,
@@ -961,6 +1014,7 @@ def _make_backend(args: argparse.Namespace) -> ModelBackend:
             args.model,
             adapter_path=args.adapter,
             revision=args.revision,
+            adapter_revision=args.adapter_revision,
             load_in_4bit=args.load_in_4bit,
             enable_thinking=False,
         )
@@ -981,6 +1035,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", default=None, help="Model name/id for ollama/transformers")
     parser.add_argument("--revision", default=None, help="Optional HF revision commit hash")
     parser.add_argument("--adapter", default=None, help="Optional PEFT adapter path")
+    parser.add_argument(
+        "--adapter-revision", default=None, help="Optional HF commit hash for a Hub adapter"
+    )
     parser.add_argument("--load-in-4bit", action="store_true", help="4-bit load for transformers")
     parser.add_argument(
         "--base-url",
