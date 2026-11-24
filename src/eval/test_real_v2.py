@@ -273,6 +273,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Annotated mode only: populate expected_value & expected_type from executor",
     )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=5.0,
+        help="Per-formula timeout in seconds for annotated mode (default 5.0)",
+    )
     args = parser.parse_args(argv)
 
     default_path = (
@@ -285,7 +291,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.mode == "raw":
         report = validate_raw_requests(target)
     else:
-        report = validate_annotated_test_real_v2(target, fill_expected=args.fill_expected)
+        report = validate_annotated_test_real_v2(
+            target, fill_expected=args.fill_expected, timeout=args.timeout
+        )
 
     print(json.dumps(report, indent=2))
     return 1 if report["error_count"] > 0 else 0

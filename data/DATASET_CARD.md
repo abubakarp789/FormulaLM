@@ -30,7 +30,7 @@ The FormulaLM dataset pairs a spreadsheet schema and a plain-English request wit
 | `test_synthetic` (frozen) | `data/processed/test_synthetic.jsonl` | **500** | 5 (held-out) | 60 | 0 | 0 | 588.2 KB | `ec6348fef4ca3b6a` |
 
 - **v2 train split (`train_v2.jsonl`, `stats_v2.json`):** generated strictly on the 20 training sheets using `src/data/v2_augmentations.py` (58 train-only phrasings + 2 ratio templates; difficulty rebalanced to 30.2% D1 / 38.9% D2 / 30.9% D3; 10,000/10,000 verified, 0 dropped). Both `val.jsonl` and `test_synthetic.jsonl` remain **bit-for-bit identical** to v1. See [`docs/v2_changelog.md`](../docs/v2_changelog.md).
-- **Blind fresh real-world set (`data/test_real_v2/`):** placeholder reserved for ~50 new hand-written requests authored independently by Abubakar and evaluated only after v2 training finishes.
+- **Post-v2 fresh real-world set (`data/test_real_v2/`):** 50 executor-verified requests across the 5 held-out sheets (`requests.csv` + `test_real_v2.csv`), drafted with an AI assistant after v2 training finished and reported separately.
 
 - **Zero schema leakage:** `test_synthetic` uses only the 5 held-out test sheets (`sales_retail_store`, `hr_employee_roster`, `inventory_stock_movements`, `grades_course_scores`, `orders_ecommerce`), which never appear in `train` or `val`.
 - **Zero phrasing leakage:** for every template, phrasing pattern indices are partitioned disjointly across splits: **2 reserved for `test_synthetic`**, **1 reserved for `val`**, and the remaining **4–5 for `train`**.
@@ -100,9 +100,9 @@ make data ARGS="--workers 4"
 
 ## Authorship and Provenance
 
-- **AI-assisted drafting, human review:** The 60 formula templates (`src/data/templates.py`), their phrasing patterns, the v2 train-only phrasings and ratio templates (`src/data/v2_augmentations.py`), and the initial draft of `data/test_real/test_real_DRAFT.csv` were drafted with an AI assistant and reviewed by Abubakar.
+- **AI-assisted drafting, human review:** The 60 formula templates (`src/data/templates.py`), their phrasing patterns, the v2 train-only phrasings and ratio templates (`src/data/v2_augmentations.py`), the initial draft of `data/test_real/test_real_DRAFT.csv`, and the 50 post-v2 fresh requests in `data/test_real_v2/` were drafted with an AI assistant and reviewed/run by Abubakar.
 - **v2 test-set caveat:** v2 data additions (`train_v2.jsonl`) were informed by v1 error analysis on `test_synthetic` and `test_real` (`results/ft_v1_comparison.md`). Neither test set was included in training or used for checkpoint selection (selection uses `val.jsonl` only), and both frozen test sets remain bit-for-bit unchanged, but any v2 score on `test_synthetic` or `test_real` must be labeled **"informed by v1 error analysis"**.
-- **Fresh blind set (`data/test_real_v2/`):** Raw requests (`data/test_real_v2/requests.csv`) are authored directly by Abubakar, then annotated with executor-verified reference formulas and expected values (`data/test_real_v2/test_real_v2.csv`) and reported separately.
+- **Post-v2 fresh set (`data/test_real_v2/`):** `requests.csv` and `test_real_v2.csv` (50 rows, 10 per held-out sheet, zero overlap with `test_real`, executor-verified) were created after v2 training finished and are reported separately (transparently noted as AI-drafted post-v2 rather than an independent human-only set).
 
 ## Privacy, Licensing and Limitations
 

@@ -36,9 +36,9 @@ Output:  =SUMIF(A:A,"North",C:C)      <- illustrative format only, not a model o
 
 ### Authorship and evaluation provenance
 
-- The 60 formula templates, their phrasing patterns, the v2 train-only phrasings/templates (`src/data/v2_augmentations.py`), and the initial draft of `data/test_real/test_real_DRAFT.csv` were drafted with an AI assistant and reviewed by Abubakar.
+- The 60 formula templates, their phrasing patterns, the v2 train-only phrasings/templates (`src/data/v2_augmentations.py`), the initial draft of `data/test_real/test_real_DRAFT.csv`, and the 50 post-v2 fresh requests in `data/test_real_v2/` (created after v2 training finished) were drafted with an AI assistant and reviewed/run by Abubakar.
 - Because the v2 data additions were informed by v1 error analysis on `test_synthetic` and `test_real`, any v2 metric on those two original test sets is labeled **informed by v1 error analysis**.
-- `data/test_real_v2/` is reserved for fresh requests authored directly by Abubakar and evaluated separately to provide an unbiased v1-vs-v2 comparison alongside `val.jsonl`.
+- `data/test_real_v2/test_real_v2.csv` (50 executor-verified requests on the 5 held-out sheets, zero overlap with `test_real`) is evaluated identically on both v1 and v2 alongside `val.jsonl` and reported separately (noting transparently that it is AI-drafted post-v2 rather than independently human-authored).
 
 ## Method
 
@@ -55,7 +55,7 @@ Executable: each predicted formula is computed in Python `formulas` 1.3.4 on the
 - Test sets:
   - `test_synthetic` (500 examples: 5 unseen held-out sheets + 2 reserved phrasings per template)
   - `test_real` (80 hand-written realistic requests on the 5 held-out sheets)
-  - `test_real_v2` (~50 fresh blind hand-written requests authored after v2 training, reported separately)
+  - `test_real_v2` (50 post-v2 fresh requests authored with an AI assistant after v2 training finished, reported separately)
 
 ## Before / after results
 

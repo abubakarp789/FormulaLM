@@ -1,0 +1,51 @@
+sheet_id,request
+sales_retail_store,What is the smallest Net Amount recorded?
+sales_retail_store,Total Quantity sold across all receipts
+sales_retail_store,Total Net Amount for the Mirehaven branch
+sales_retail_store,Average Quantity for receipts from Ashvale
+sales_retail_store,How many Brinport sales had Quantity of at least 15?
+sales_retail_store,"On row 10, return 'Bulk High' if Quantity >= 20 and Net Amount > 500, otherwise 'Standard'"
+sales_retail_store,Look up the Item Name for receipt RC-1012 using VLOOKUP
+sales_retail_store,Extract the last 4 characters of Receipt Code in row 6
+sales_retail_store,Sum Net Amount for sales on or after 2026-01-01
+sales_retail_store,"Average Net Amount per unit on row 10 (Net Amount / Quantity), rounded to 2 decimals, 0 on error"
+hr_employee_roster,Highest Annual Salary on the roster
+hr_employee_roster,Average Years Service across all employees
+hr_employee_roster,Total Annual Salary for the Operations department
+hr_employee_roster,How many employees have Annual Salary above 100000?
+hr_employee_roster,Total Annual Salary for Design staff based in Stonewick
+hr_employee_roster,"Row 21 Annual Salary may be empty: show 0 if blank, otherwise return Annual Salary"
+hr_employee_roster,Find the Work Hub for employee EMP-1010 using INDEX and MATCH
+hr_employee_roster,Combine Full Name and Department on row 6 as 'Name (Department)' using CONCAT
+hr_employee_roster,Month number of Hire Date on row 10
+hr_employee_roster,Check if total Support Annual Salary exceeds 2000000: return 'Over Budget' else 'Within Budget'
+inventory_stock_movements,How many stock movements have a numeric Valuation recorded?
+inventory_stock_movements,Difference between the maximum and minimum Units Moved
+inventory_stock_movements,How many movements took place in Cold Bay?
+inventory_stock_movements,Average Valuation for Inbound movements
+inventory_stock_movements,Average Units Moved for Adjustment records in Zone A
+inventory_stock_movements,"Categorize row 7 Units Moved with IFS: >=150 'Large', >=50 'Medium', else 'Small'"
+inventory_stock_movements,Look up the Valuation for MOV-1010 using XLOOKUP
+inventory_stock_movements,Convert Part Name on row 8 to lowercase
+inventory_stock_movements,How many Inbound movements happened before 2025-07-01?
+inventory_stock_movements,Round the total Valuation to the nearest whole number
+grades_course_scores,Lowest Final Score across all students
+grades_course_scores,Total Assignments Done across the entire sheet
+grades_course_scores,Count how many students are in Economics
+grades_course_scores,How many students are NOT in Sec C?
+grades_course_scores,Average Final Score for Computing students in Sec A
+grades_course_scores,"On row 10, return 'Pass' if Final Score >= 50 else 'Fail'"
+grades_course_scores,"Look up Final Score for STU-9999 with XLOOKUP, returning 'Not Found' if missing"
+grades_course_scores,Join Student Names in rows 6 to 9 separated by ' | ' ignoring empty cells
+grades_course_scores,Calendar year of Exam Date in row 6
+grades_course_scores,"Share of total Assignments Done completed by Physics students, rounded to 3 decimals (0 on error)"
+orders_ecommerce,Average Shipping Fee across all orders
+orders_ecommerce,Maximum Order Total in the sheet
+orders_ecommerce,Total Order Total for Mobile App orders
+orders_ecommerce,How many orders have Item Count of 10 or more?
+orders_ecommerce,Total Shipping Fee for Marketplace orders that are Shipped
+orders_ecommerce,"On row 11, return TRUE if Channel is Mobile App or Web, else FALSE"
+orders_ecommerce,Find the position of ORD-1010 inside the Order ID data range using MATCH
+orders_ecommerce,First 3 characters of Order ID on row 5
+orders_ecommerce,Day of month of Order Date in row 10
+orders_ecommerce,"VLOOKUP Order Total for ORD-1015 rounded to 1 decimal, returning 0 if not found"

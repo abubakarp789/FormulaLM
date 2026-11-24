@@ -225,3 +225,19 @@ def test_provenance_doc_authorship_notes_and_eval_notebook():
     assert "ft_v2_real_v2" in src and "ft_v1_real_v2" in src
     assert "compare_v1_v2" in src
     assert "EVAL_KWARGS" in src
+
+
+def test_committed_test_real_v2_raw_and_annotated_verify_cleanly():
+    raw_rep = validate_raw_requests(REPO_ROOT / "data" / "test_real_v2" / "requests.csv")
+    assert raw_rep["total_rows"] == 50
+    assert raw_rep["error_count"] == 0
+    assert raw_rep["warnings"] == []
+    assert raw_rep["missing_heldout_sheets"] == []
+
+    ann_rep = validate_annotated_test_real_v2(
+        REPO_ROOT / "data" / "test_real_v2" / "test_real_v2.csv",
+        timeout=30.0,
+    )
+    assert ann_rep["total_rows"] == 50
+    assert ann_rep["error_count"] == 0
+    assert ann_rep["flagged_unresolved"] == []
