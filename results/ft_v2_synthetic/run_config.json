@@ -1,0 +1,32 @@
+{
+  "config": {
+    "run_name": "ft_v2_synthetic",
+    "backend": "transformers:Qwen/Qwen3-1.7B+abubakar56/formulalm-qwen3-1.7b-lora-v2",
+    "base_model_id": "Qwen/Qwen3-1.7B",
+    "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "model_provenance": {
+      "base_model_id": "Qwen/Qwen3-1.7B",
+      "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+      "adapter": "abubakar56/formulalm-qwen3-1.7b-lora-v2",
+      "adapter_revision": "e2dd7e8115406ffcdbbdfa60d6f2f10b4aaf2595",
+      "adapter_config_base_model": "unsloth/Qwen3-1.7B-unsloth-bnb-4bit",
+      "load_in_4bit": false,
+      "dtype": "torch.bfloat16",
+      "enable_thinking": false
+    },
+    "dataset": "data/processed/test_synthetic.jsonl",
+    "seed": 42,
+    "temperature": 0.0,
+    "max_tokens": 96,
+    "few_shot": 0,
+    "few_shot_source": null,
+    "few_shot_ids": [],
+    "batch_size": 8,
+    "limit": null,
+    "resume": true
+  },
+  "git_commit": "8bbf75aa5986b555a1b340a549c06cdf095b4720",
+  "python": "3.13.16",
+  "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "created_utc": "2026-11-24T22:54:23+00:00"
+}
