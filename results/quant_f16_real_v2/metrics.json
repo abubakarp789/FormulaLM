@@ -1,0 +1,138 @@
+{
+  "run_name": "quant_f16_real_v2",
+  "backend": "llamacpp:formulalm-qwen3-1.7b-v2-f16.gguf",
+  "dataset": "data/test_real_v2/test_real_v2.csv",
+  "seed": 42,
+  "few_shot": 0,
+  "few_shot_ids": [],
+  "max_tokens": 96,
+  "overall": {
+    "n": 50,
+    "syntax_valid_rate": 1.0,
+    "exec_ok_rate": 0.96,
+    "execution_accuracy": 0.88,
+    "exact_match_rate": 0.86,
+    "raw_format_ok_rate": 1.0,
+    "avg_latency_ms": 321.9,
+    "p50_latency_ms": 292.27,
+    "p95_latency_ms": 585.73
+  },
+  "by_category": {
+    "aggregation": {
+      "n": 10,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 1.0,
+      "exact_match_rate": 1.0,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 203.46,
+      "p50_latency_ms": 191.77,
+      "p95_latency_ms": 311.74
+    },
+    "conditional_aggregation": {
+      "n": 15,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 0.8667,
+      "execution_accuracy": 0.8,
+      "exact_match_rate": 0.7333,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 362.09,
+      "p50_latency_ms": 363.26,
+      "p95_latency_ms": 558.93
+    },
+    "date": {
+      "n": 5,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 0.8,
+      "exact_match_rate": 0.8,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 303.03,
+      "p50_latency_ms": 129.71,
+      "p95_latency_ms": 585.73
+    },
+    "logic": {
+      "n": 5,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 0.8,
+      "exact_match_rate": 0.8,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 324.2,
+      "p50_latency_ms": 280.33,
+      "p95_latency_ms": 425.41
+    },
+    "lookup": {
+      "n": 5,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 1.0,
+      "exact_match_rate": 1.0,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 444.45,
+      "p50_latency_ms": 454.68,
+      "p95_latency_ms": 518.95
+    },
+    "math_and_composition": {
+      "n": 5,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 0.8,
+      "exact_match_rate": 0.8,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 478.68,
+      "p50_latency_ms": 540.04,
+      "p95_latency_ms": 649.48
+    },
+    "text": {
+      "n": 5,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 1.0,
+      "exact_match_rate": 1.0,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 175.41,
+      "p50_latency_ms": 146.4,
+      "p95_latency_ms": 246.15
+    }
+  },
+  "by_difficulty": {
+    "1": {
+      "n": 20,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 1.0,
+      "exact_match_rate": 0.95,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 209.19,
+      "p50_latency_ms": 191.77,
+      "p95_latency_ms": 363.26
+    },
+    "2": {
+      "n": 18,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 1.0,
+      "execution_accuracy": 0.8889,
+      "exact_match_rate": 0.8889,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 334.58,
+      "p50_latency_ms": 322.73,
+      "p95_latency_ms": 561.19
+    },
+    "3": {
+      "n": 12,
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 0.8333,
+      "execution_accuracy": 0.6667,
+      "exact_match_rate": 0.6667,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 490.7,
+      "p50_latency_ms": 496.45,
+      "p95_latency_ms": 649.48
+    }
+  },
+  "error_breakdown": {
+    "runtime_error": 2,
+    "wrong_value": 4
+  }
+}

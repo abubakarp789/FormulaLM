@@ -1,6 +1,57 @@
 {
-  "artifacts": {},
-  "parity_f16": null,
+  "artifacts": {
+    "base_model_id": "Qwen/Qwen3-1.7B",
+    "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "adapter_repo": "abubakar56/formulalm-qwen3-1.7b-lora-v2",
+    "adapter_revision": "e2dd7e8115406ffcdbbdfa60d6f2f10b4aaf2595",
+    "llama_cpp_release": "b12728",
+    "llama_cpp_commit": "244640b7f26e2a7301b27a24edc4f7feaf97d52f",
+    "files": {
+      "f16": {
+        "quant_type": "F16",
+        "filename": "formulalm-qwen3-1.7b-v2-f16.gguf",
+        "size_bytes": 3447349120,
+        "size_mb": 3287.65,
+        "sha256": "af920c6319798df4c0a2f3fb5e314fb3f2856fd9a49229dc422100c112f4c116"
+      },
+      "q8_0": {
+        "quant_type": "Q8_0",
+        "filename": "formulalm-qwen3-1.7b-v2-q8_0.gguf",
+        "size_bytes": 1834426240,
+        "size_mb": 1749.45,
+        "sha256": "56dee17960b60da354a70dddf5863b8b84572823da1e0c854e0c1661a3264abc"
+      },
+      "q5_k_m": {
+        "quant_type": "Q5_K_M",
+        "filename": "formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+        "size_bytes": 1257879424,
+        "size_mb": 1199.61,
+        "sha256": "ca91c683279434a83839e7fd8ad98c25d4374b34c49b9d6b805b94749ad77b24"
+      },
+      "q4_k_m": {
+        "quant_type": "Q4_K_M",
+        "filename": "formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+        "size_bytes": 1107408768,
+        "size_mb": 1056.11,
+        "sha256": "aebb66e3b210d25183db38e5d5536ecfeb38b1dd6135954c291f99e02df65cb7"
+      }
+    }
+  },
+  "parity_f16": {
+    "ref_label": "HF Merged FP16",
+    "cand_label": "GGUF F16",
+    "n": 20,
+    "raw_match_count": 20,
+    "raw_match_rate": 1.0,
+    "formula_match_count": 20,
+    "formula_match_rate": 1.0,
+    "value_match_count": 20,
+    "value_match_rate": 1.0,
+    "ref_exec_correct": 19,
+    "cand_exec_correct": 19,
+    "diff_count": 0,
+    "diffs": []
+  },
   "local_environment": null,
   "systems": {
     "base_zeroshot": {
@@ -636,56 +687,1752 @@
     "quant_f16": {
       "label": "v2-ship Merged `F16` GGUF",
       "quant_key": "f16",
-      "size_mb": null,
+      "size_mb": 3287.65,
       "local": null,
       "splits": {
-        "val": null,
-        "real_v2": null,
-        "real": null,
-        "synthetic": null
+        "val": {
+          "run_name": "quant_f16_val",
+          "n": 500,
+          "k": 499,
+          "execution_accuracy": 0.998,
+          "wilson_95_ci": [
+            0.9888,
+            0.9996
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.986,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 321.01,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "date": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9444
+            },
+            "logic": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 71,
+              "k": 70,
+              "execution_accuracy": 0.9859,
+              "wilson_95_ci": [
+                0.9244,
+                0.9975
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9718
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9859
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-f16.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "F16",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real_v2": {
+          "run_name": "quant_f16_real_v2",
+          "n": 50,
+          "k": 44,
+          "execution_accuracy": 0.88,
+          "wilson_95_ci": [
+            0.762,
+            0.9438
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.86,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 321.9,
+          "by_category": {
+            "aggregation": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 15,
+              "k": 12,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.5481,
+                0.9295
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.7333
+            },
+            "date": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "logic": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "lookup": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "math_and_composition": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "text": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-f16.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "F16",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real": {
+          "run_name": "quant_f16_real",
+          "n": 80,
+          "k": 75,
+          "execution_accuracy": 0.9375,
+          "wilson_95_ci": [
+            0.8619,
+            0.973
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.9375,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 374.18,
+          "by_category": {
+            "aggregation": {
+              "n": 12,
+              "k": 11,
+              "execution_accuracy": 0.9167,
+              "wilson_95_ci": [
+                0.6461,
+                0.9851
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9167
+            },
+            "conditional_aggregation": {
+              "n": 21,
+              "k": 19,
+              "execution_accuracy": 0.9048,
+              "wilson_95_ci": [
+                0.7109,
+                0.9735
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9048
+            },
+            "date": {
+              "n": 9,
+              "k": 9,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7009,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "logic": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 9,
+              "k": 8,
+              "execution_accuracy": 0.8889,
+              "wilson_95_ci": [
+                0.565,
+                0.9801
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8889
+            },
+            "math_and_composition": {
+              "n": 8,
+              "k": 8,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.6756,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 11,
+              "k": 10,
+              "execution_accuracy": 0.9091,
+              "wilson_95_ci": [
+                0.6226,
+                0.9838
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9091
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-f16.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "F16",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "synthetic": {
+          "run_name": "quant_f16_synthetic",
+          "n": 500,
+          "k": 494,
+          "execution_accuracy": 0.988,
+          "wilson_95_ci": [
+            0.9741,
+            0.9945
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.976,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 340.44,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 69,
+              "execution_accuracy": 0.9583,
+              "wilson_95_ci": [
+                0.8845,
+                0.9857
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9583
+            },
+            "date": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "logic": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9859
+            },
+            "lookup": {
+              "n": 71,
+              "k": 70,
+              "execution_accuracy": 0.9859,
+              "wilson_95_ci": [
+                0.9244,
+                0.9975
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9155
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 71,
+              "k": 69,
+              "execution_accuracy": 0.9718,
+              "wilson_95_ci": [
+                0.903,
+                0.9922
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9718
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-f16.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "F16",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        }
       }
     },
     "quant_q8_0": {
       "label": "v2-ship `Q8_0` GGUF",
       "quant_key": "q8_0",
-      "size_mb": null,
+      "size_mb": 1749.45,
       "local": null,
       "splits": {
-        "val": null,
-        "real_v2": null,
-        "real": null,
-        "synthetic": null
+        "val": {
+          "run_name": "quant_q8_0_val",
+          "n": 500,
+          "k": 499,
+          "execution_accuracy": 0.998,
+          "wilson_95_ci": [
+            0.9888,
+            0.9996
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.986,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 266.29,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "date": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9444
+            },
+            "logic": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 71,
+              "k": 70,
+              "execution_accuracy": 0.9859,
+              "wilson_95_ci": [
+                0.9244,
+                0.9975
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9718
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9859
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q8_0.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q8_0",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real_v2": {
+          "run_name": "quant_q8_0_real_v2",
+          "n": 50,
+          "k": 43,
+          "execution_accuracy": 0.86,
+          "wilson_95_ci": [
+            0.7381,
+            0.9305
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.82,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 215.66,
+          "by_category": {
+            "aggregation": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 15,
+              "k": 12,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.5481,
+                0.9295
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.7333
+            },
+            "date": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.6
+            },
+            "logic": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "lookup": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "math_and_composition": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "text": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q8_0.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q8_0",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real": {
+          "run_name": "quant_q8_0_real",
+          "n": 80,
+          "k": 75,
+          "execution_accuracy": 0.9375,
+          "wilson_95_ci": [
+            0.8619,
+            0.973
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.9375,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 216.11,
+          "by_category": {
+            "aggregation": {
+              "n": 12,
+              "k": 11,
+              "execution_accuracy": 0.9167,
+              "wilson_95_ci": [
+                0.6461,
+                0.9851
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9167
+            },
+            "conditional_aggregation": {
+              "n": 21,
+              "k": 19,
+              "execution_accuracy": 0.9048,
+              "wilson_95_ci": [
+                0.7109,
+                0.9735
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9048
+            },
+            "date": {
+              "n": 9,
+              "k": 9,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7009,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "logic": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 9,
+              "k": 8,
+              "execution_accuracy": 0.8889,
+              "wilson_95_ci": [
+                0.565,
+                0.9801
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8889
+            },
+            "math_and_composition": {
+              "n": 8,
+              "k": 8,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.6756,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 11,
+              "k": 10,
+              "execution_accuracy": 0.9091,
+              "wilson_95_ci": [
+                0.6226,
+                0.9838
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9091
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q8_0.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q8_0",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "synthetic": {
+          "run_name": "quant_q8_0_synthetic",
+          "n": 500,
+          "k": 493,
+          "execution_accuracy": 0.986,
+          "wilson_95_ci": [
+            0.9714,
+            0.9932
+          ],
+          "syntax_valid_rate": 0.998,
+          "exact_match_rate": 0.974,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 223.65,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 69,
+              "execution_accuracy": 0.9583,
+              "wilson_95_ci": [
+                0.8845,
+                0.9857
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9583
+            },
+            "date": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "logic": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 71,
+              "k": 70,
+              "execution_accuracy": 0.9859,
+              "wilson_95_ci": [
+                0.9244,
+                0.9975
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9155
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9859
+            },
+            "text": {
+              "n": 71,
+              "k": 68,
+              "execution_accuracy": 0.9577,
+              "wilson_95_ci": [
+                0.883,
+                0.9855
+              ],
+              "syntax_valid_rate": 0.9859,
+              "exact_match_rate": 0.9577
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q8_0.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q8_0",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        }
       }
     },
     "quant_q5_k_m": {
       "label": "v2-ship `Q5_K_M` GGUF",
       "quant_key": "q5_k_m",
-      "size_mb": null,
+      "size_mb": 1199.61,
       "local": null,
       "splits": {
-        "val": null,
-        "real_v2": null,
-        "real": null,
-        "synthetic": null
+        "val": {
+          "run_name": "quant_q5_k_m_val",
+          "n": 500,
+          "k": 498,
+          "execution_accuracy": 0.996,
+          "wilson_95_ci": [
+            0.9855,
+            0.9989
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.972,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 242.73,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "date": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9028
+            },
+            "logic": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 71,
+              "k": 69,
+              "execution_accuracy": 0.9718,
+              "wilson_95_ci": [
+                0.903,
+                0.9922
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9577
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9437
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q5_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real_v2": {
+          "run_name": "quant_q5_k_m_real_v2",
+          "n": 50,
+          "k": 45,
+          "execution_accuracy": 0.9,
+          "wilson_95_ci": [
+            0.7864,
+            0.9565
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.88,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 191.07,
+          "by_category": {
+            "aggregation": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 15,
+              "k": 12,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.5481,
+                0.9295
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.7333
+            },
+            "date": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "logic": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "lookup": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "math_and_composition": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "text": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q5_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real": {
+          "run_name": "quant_q5_k_m_real",
+          "n": 80,
+          "k": 75,
+          "execution_accuracy": 0.9375,
+          "wilson_95_ci": [
+            0.8619,
+            0.973
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.9375,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 190.53,
+          "by_category": {
+            "aggregation": {
+              "n": 12,
+              "k": 11,
+              "execution_accuracy": 0.9167,
+              "wilson_95_ci": [
+                0.6461,
+                0.9851
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9167
+            },
+            "conditional_aggregation": {
+              "n": 21,
+              "k": 19,
+              "execution_accuracy": 0.9048,
+              "wilson_95_ci": [
+                0.7109,
+                0.9735
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9048
+            },
+            "date": {
+              "n": 9,
+              "k": 9,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7009,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "logic": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 9,
+              "k": 8,
+              "execution_accuracy": 0.8889,
+              "wilson_95_ci": [
+                0.565,
+                0.9801
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8889
+            },
+            "math_and_composition": {
+              "n": 8,
+              "k": 8,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.6756,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 11,
+              "k": 10,
+              "execution_accuracy": 0.9091,
+              "wilson_95_ci": [
+                0.6226,
+                0.9838
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9091
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q5_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "synthetic": {
+          "run_name": "quant_q5_k_m_synthetic",
+          "n": 500,
+          "k": 492,
+          "execution_accuracy": 0.984,
+          "wilson_95_ci": [
+            0.9687,
+            0.9919
+          ],
+          "syntax_valid_rate": 0.996,
+          "exact_match_rate": 0.964,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 192.33,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 70,
+              "execution_accuracy": 0.9722,
+              "wilson_95_ci": [
+                0.9043,
+                0.9923
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9722
+            },
+            "date": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "logic": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 71,
+              "k": 69,
+              "execution_accuracy": 0.9718,
+              "wilson_95_ci": [
+                0.903,
+                0.9922
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8451
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9859
+            },
+            "text": {
+              "n": 71,
+              "k": 67,
+              "execution_accuracy": 0.9437,
+              "wilson_95_ci": [
+                0.8639,
+                0.9779
+              ],
+              "syntax_valid_rate": 0.9718,
+              "exact_match_rate": 0.9437
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q5_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        }
       }
     },
     "quant_q4_k_m": {
       "label": "v2-ship `Q4_K_M` GGUF",
       "quant_key": "q4_k_m",
-      "size_mb": null,
+      "size_mb": 1056.11,
       "local": null,
       "splits": {
-        "val": null,
-        "real_v2": null,
-        "real": null,
-        "synthetic": null
+        "val": {
+          "run_name": "quant_q4_k_m_val",
+          "n": 500,
+          "k": 487,
+          "execution_accuracy": 0.974,
+          "wilson_95_ci": [
+            0.956,
+            0.9847
+          ],
+          "syntax_valid_rate": 0.996,
+          "exact_match_rate": 0.954,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 178.11,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 68,
+              "execution_accuracy": 0.9444,
+              "wilson_95_ci": [
+                0.8657,
+                0.9782
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9444
+            },
+            "date": {
+              "n": 72,
+              "k": 66,
+              "execution_accuracy": 0.9167,
+              "wilson_95_ci": [
+                0.8299,
+                0.9612
+              ],
+              "syntax_valid_rate": 0.9722,
+              "exact_match_rate": 0.8333
+            },
+            "logic": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 71,
+              "k": 68,
+              "execution_accuracy": 0.9577,
+              "wilson_95_ci": [
+                0.883,
+                0.9855
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9437
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "text": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9577
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q4_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real_v2": {
+          "run_name": "quant_q4_k_m_real_v2",
+          "n": 50,
+          "k": 45,
+          "execution_accuracy": 0.9,
+          "wilson_95_ci": [
+            0.7864,
+            0.9565
+          ],
+          "syntax_valid_rate": 1.0,
+          "exact_match_rate": 0.86,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 172.99,
+          "by_category": {
+            "aggregation": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9
+            },
+            "conditional_aggregation": {
+              "n": 15,
+              "k": 13,
+              "execution_accuracy": 0.8667,
+              "wilson_95_ci": [
+                0.6212,
+                0.9626
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8667
+            },
+            "date": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.6
+            },
+            "logic": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "lookup": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "math_and_composition": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            },
+            "text": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q4_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real": {
+          "run_name": "quant_q4_k_m_real",
+          "n": 80,
+          "k": 71,
+          "execution_accuracy": 0.8875,
+          "wilson_95_ci": [
+            0.7998,
+            0.9397
+          ],
+          "syntax_valid_rate": 0.9875,
+          "exact_match_rate": 0.8875,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 173.82,
+          "by_category": {
+            "aggregation": {
+              "n": 12,
+              "k": 11,
+              "execution_accuracy": 0.9167,
+              "wilson_95_ci": [
+                0.6461,
+                0.9851
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9167
+            },
+            "conditional_aggregation": {
+              "n": 21,
+              "k": 16,
+              "execution_accuracy": 0.7619,
+              "wilson_95_ci": [
+                0.5491,
+                0.8937
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.7619
+            },
+            "date": {
+              "n": 9,
+              "k": 8,
+              "execution_accuracy": 0.8889,
+              "wilson_95_ci": [
+                0.565,
+                0.9801
+              ],
+              "syntax_valid_rate": 0.8889,
+              "exact_match_rate": 0.8889
+            },
+            "logic": {
+              "n": 10,
+              "k": 10,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7225,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "lookup": {
+              "n": 9,
+              "k": 8,
+              "execution_accuracy": 0.8889,
+              "wilson_95_ci": [
+                0.565,
+                0.9801
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8889
+            },
+            "math_and_composition": {
+              "n": 8,
+              "k": 7,
+              "execution_accuracy": 0.875,
+              "wilson_95_ci": [
+                0.5291,
+                0.9776
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.875
+            },
+            "text": {
+              "n": 11,
+              "k": 11,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.7412,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q4_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        },
+        "synthetic": {
+          "run_name": "quant_q4_k_m_synthetic",
+          "n": 500,
+          "k": 477,
+          "execution_accuracy": 0.954,
+          "wilson_95_ci": [
+            0.9319,
+            0.9692
+          ],
+          "syntax_valid_rate": 0.994,
+          "exact_match_rate": 0.918,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 178.62,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 72,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9493,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 1.0
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 65,
+              "execution_accuracy": 0.9028,
+              "wilson_95_ci": [
+                0.8126,
+                0.9521
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8889
+            },
+            "date": {
+              "n": 72,
+              "k": 69,
+              "execution_accuracy": 0.9583,
+              "wilson_95_ci": [
+                0.8845,
+                0.9857
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9583
+            },
+            "logic": {
+              "n": 71,
+              "k": 69,
+              "execution_accuracy": 0.9718,
+              "wilson_95_ci": [
+                0.903,
+                0.9922
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8592
+            },
+            "lookup": {
+              "n": 71,
+              "k": 65,
+              "execution_accuracy": 0.9155,
+              "wilson_95_ci": [
+                0.8276,
+                0.9607
+              ],
+              "syntax_valid_rate": 0.9577,
+              "exact_match_rate": 0.8169
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 71,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.9487,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9859
+            },
+            "text": {
+              "n": 71,
+              "k": 66,
+              "execution_accuracy": 0.9296,
+              "wilson_95_ci": [
+                0.8455,
+                0.9695
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.9155
+            }
+          },
+          "provenance": {
+            "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "quantization": "Q4_K_M",
+              "prompt_mode": "raw_qwen3_non_thinking",
+              "enable_thinking": false
+            }
+          }
+        }
       }
     }
   },
   "recommendation": {
-    "status": "PENDING",
-    "recommended": null,
-    "rationale": "Missing F16 reference runs (val, real_v2, real, synthetic). Run notebooks/05_merge_quantize.ipynb first.",
-    "evaluated_candidates": {}
+    "status": "RECOMMENDED",
+    "recommended": "quant_q5_k_m",
+    "recommended_label": "v2-ship `Q5_K_M` GGUF",
+    "rationale": "v2-ship `Q5_K_M` GGUF is the smallest quantization within sampling noise of F16 on all 4 splits (pending local laptop RAM/speed confirmation via scripts/benchmark_local.py).",
+    "evaluated_candidates": {
+      "quant_q4_k_m": {
+        "eligible": false,
+        "reason": "degraded vs F16 on val (drop +2.4 pp, tol 1.5 pp, ci_overlap=False); real (drop +5.0 pp, tol 2.5 pp, ci_overlap=True); synthetic (drop +3.4 pp, tol 1.5 pp, ci_overlap=False)"
+      },
+      "quant_q5_k_m": {
+        "eligible": true,
+        "size_mb": 1199.61,
+        "reason": "within noise of F16 across all 4 splits"
+      },
+      "quant_q8_0": {
+        "eligible": true,
+        "size_mb": 1749.45,
+        "reason": "within noise of F16 across all 4 splits"
+      }
+    }
   }
 }

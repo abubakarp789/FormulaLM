@@ -1,0 +1,30 @@
+{
+  "config": {
+    "run_name": "quant_q8_0_real",
+    "backend": "llamacpp:formulalm-qwen3-1.7b-v2-q8_0.gguf",
+    "base_model_id": "Qwen/Qwen3-1.7B",
+    "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "model_provenance": {
+      "base_model_id": "Qwen/Qwen3-1.7B",
+      "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+      "adapter": null,
+      "quantization": "Q8_0",
+      "prompt_mode": "raw_qwen3_non_thinking",
+      "enable_thinking": false
+    },
+    "dataset": "data/test_real/test_real_DRAFT.csv",
+    "seed": 42,
+    "temperature": 0.0,
+    "max_tokens": 96,
+    "few_shot": 0,
+    "few_shot_source": null,
+    "few_shot_ids": [],
+    "batch_size": 1,
+    "limit": null,
+    "resume": true
+  },
+  "git_commit": "66c456a0a2de258093327ef9b489979e67c2c7fd",
+  "python": "3.13.16",
+  "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "created_utc": "2026-11-25T18:48:39+00:00"
+}

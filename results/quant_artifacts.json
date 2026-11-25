@@ -1,0 +1,38 @@
+{
+  "base_model_id": "Qwen/Qwen3-1.7B",
+  "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "adapter_repo": "abubakar56/formulalm-qwen3-1.7b-lora-v2",
+  "adapter_revision": "e2dd7e8115406ffcdbbdfa60d6f2f10b4aaf2595",
+  "llama_cpp_release": "b12728",
+  "llama_cpp_commit": "244640b7f26e2a7301b27a24edc4f7feaf97d52f",
+  "files": {
+    "f16": {
+      "quant_type": "F16",
+      "filename": "formulalm-qwen3-1.7b-v2-f16.gguf",
+      "size_bytes": 3447349120,
+      "size_mb": 3287.65,
+      "sha256": "af920c6319798df4c0a2f3fb5e314fb3f2856fd9a49229dc422100c112f4c116"
+    },
+    "q8_0": {
+      "quant_type": "Q8_0",
+      "filename": "formulalm-qwen3-1.7b-v2-q8_0.gguf",
+      "size_bytes": 1834426240,
+      "size_mb": 1749.45,
+      "sha256": "56dee17960b60da354a70dddf5863b8b84572823da1e0c854e0c1661a3264abc"
+    },
+    "q5_k_m": {
+      "quant_type": "Q5_K_M",
+      "filename": "formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+      "size_bytes": 1257879424,
+      "size_mb": 1199.61,
+      "sha256": "ca91c683279434a83839e7fd8ad98c25d4374b34c49b9d6b805b94749ad77b24"
+    },
+    "q4_k_m": {
+      "quant_type": "Q4_K_M",
+      "filename": "formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+      "size_bytes": 1107408768,
+      "size_mb": 1056.11,
+      "sha256": "aebb66e3b210d25183db38e5d5536ecfeb38b1dd6135954c291f99e02df65cb7"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "ref_label": "HF Merged FP16",
+  "cand_label": "GGUF Q4_K_M",
+  "n": 20,
+  "raw_match_count": 19,
+  "raw_match_rate": 0.95,
+  "formula_match_count": 19,
+  "formula_match_rate": 0.95,
+  "value_match_count": 20,
+  "value_match_rate": 1.0,
+  "ref_exec_correct": 19,
+  "cand_exec_correct": 19,
+  "diff_count": 1,
+  "diffs": [
+    {
+      "id": "real_v2_009",
+      "sheet_id": "sales_retail_store",
+      "request": "Sum Net Amount for sales on or after 2026-01-01",
+      "reference_formula": "=SUMIF(B2:B115,\">=\"&DATE(2026,1,1),F2:F115)",
+      "ref_raw": "=SUMIF(B2:B115,\">=\"&DATE(2026,1,1),F2:F115)",
+      "cand_raw": "=SUMIF(B2:B115,\">=2026-01-01\",F2:F115)",
+      "ref_formula": "=SUMIF(B2:B115,\">=\"&DATE(2026,1,1),F2:F115)",
+      "cand_formula": "=SUMIF(B2:B115,\">=2026-01-01\",F2:F115)",
+      "ref_exec_correct": true,
+      "cand_exec_correct": true,
+      "raw_eq": false,
+      "formula_eq": false,
+      "value_eq": true
+    }
+  ]
+}

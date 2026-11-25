@@ -1,0 +1,15 @@
+{
+  "ref_label": "HF Merged FP16",
+  "cand_label": "GGUF F16",
+  "n": 20,
+  "raw_match_count": 20,
+  "raw_match_rate": 1.0,
+  "formula_match_count": 20,
+  "formula_match_rate": 1.0,
+  "value_match_count": 20,
+  "value_match_rate": 1.0,
+  "ref_exec_correct": 19,
+  "cand_exec_correct": 19,
+  "diff_count": 0,
+  "diffs": []
+}
