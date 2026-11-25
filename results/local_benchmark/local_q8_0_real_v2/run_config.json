@@ -1,0 +1,27 @@
+{
+  "config": {
+    "run_name": "local_q8_0_real_v2",
+    "backend": "ollama:formulalm-v2-q8_0",
+    "base_model_id": "ollama:formulalm-v2-q8_0",
+    "base_revision": null,
+    "model_provenance": {
+      "base_model_id": "ollama:formulalm-v2-q8_0",
+      "base_revision": null,
+      "adapter": null
+    },
+    "dataset": "data/test_real_v2/test_real_v2.csv",
+    "seed": 42,
+    "temperature": 0.0,
+    "max_tokens": 96,
+    "few_shot": 0,
+    "few_shot_source": null,
+    "few_shot_ids": [],
+    "batch_size": 1,
+    "limit": null,
+    "resume": true
+  },
+  "git_commit": "4e9ac9995c8a51436f28464825b5b85c8764700a",
+  "python": "3.12.12",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "created_utc": "2026-11-25T19:42:13+00:00"
+}

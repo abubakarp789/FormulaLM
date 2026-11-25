@@ -457,17 +457,24 @@ def _benchmark_with_ollama(
     ollama_exe = shutil.which("ollama")
     assert ollama_exe is not None
     tag = f"formulalm-v2-{qkey}"
-    modelfile_p = gguf_path.parent / f"Modelfile.{qkey}.tmp"
-    modelfile_p.write_text(render_modelfile(gguf_path.name), encoding="utf-8")
-    try:
+    # Isolate this single GGUF in its own temp dir via zero-copy hardlink so Ollama does not
+    # accidentally bundle sibling .gguf files in models_dir during `ollama create`.
+    import tempfile
+
+    with tempfile.TemporaryDirectory(prefix=f"ollama_{qkey}_", dir=str(gguf_path.parent)) as tdir:
+        tpath = Path(tdir)
+        link_gguf = tpath / gguf_path.name
+        try:
+            os.link(gguf_path, link_gguf)
+        except OSError:
+            shutil.copy2(gguf_path, link_gguf)
+        modelfile_p = tpath / "Modelfile"
+        modelfile_p.write_text(render_modelfile(gguf_path.name), encoding="utf-8")
         subprocess.run(
             [ollama_exe, "create", tag, "-f", str(modelfile_p)],
-            cwd=str(gguf_path.parent),
+            cwd=str(tpath),
             check=True,
         )
-    finally:
-        if modelfile_p.exists():
-            modelfile_p.unlink()
 
     mem_before = get_memory_mb()["available_mb"]
     t0 = time.perf_counter()

@@ -4,7 +4,7 @@
 
 - **Status:** **`RECOMMENDED`**
 - **Selected:** `v2-ship `Q5_K_M` GGUF`
-- **Rationale:** v2-ship `Q5_K_M` GGUF is the smallest quantization within sampling noise of F16 on all 4 splits (pending local laptop RAM/speed confirmation via scripts/benchmark_local.py).
+- **Rationale:** v2-ship `Q5_K_M` GGUF is the smallest quantization within sampling noise of F16 on all 4 splits.
 - **Rule:** ship the smallest quantization whose execution accuracy stays within sampling noise of merged `F16` (95% Wilson CIs overlap `F16`, drop ≤ 1.5 pp on `val`/`test_synthetic` and ≤ 2.5 pp on `test_real_v2`/`test_real`) and fits safely in laptop RAM.
 
 ## 1. Execution Accuracy Across Splits (with 95% Wilson CIs)
@@ -32,9 +32,9 @@
 
 | Quantization | Status | Size (MB) | Load (s) | Peak RAM (MB) | Gen tok/s | Local 130-ex Exec. Acc (95% CI) |
 |---|---|---:|---:|---:|---:|---|
-| v2-ship `Q4_K_M` GGUF | _pending_ | — | — | — | — | _pending_ |
-| v2-ship `Q5_K_M` GGUF | _pending_ | — | — | — | — | _pending_ |
-| v2-ship `Q8_0` GGUF | _pending_ | — | — | — | — | _pending_ |
+| v2-ship `Q4_K_M` GGUF | ok (ollama) | 1056.1 | 4.60 | 1333 | 12.7 | **89.2%** (116/130, [82.7%, 93.5%]) |
+| v2-ship `Q5_K_M` GGUF | ok (ollama) | 1199.6 | 2.64 | 1476 | 11.3 | **90.8%** (118/130, [84.6%, 94.6%]) |
+| v2-ship `Q8_0` GGUF | ok (ollama) | 1749.5 | 5.93 | 2026 | 7.8 | **91.5%** (119/130, [85.5%, 95.2%]) |
 
 ## 4. Prompt-Format Parity (HF Merged FP16 vs GGUF F16, 20 fixed examples)
 

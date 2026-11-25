@@ -52,7 +52,32 @@
     "diff_count": 0,
     "diffs": []
   },
-  "local_environment": null,
+  "local_environment": {
+    "os": "Windows 11 (10.0.26300)",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+    "cpu_threads": 8,
+    "ram_total_mb": 7998.3,
+    "ram_available_mb": 3210.8,
+    "disk_free_gb": 44.2,
+    "runtimes": {
+      "ollama": {
+        "installed": true,
+        "path": "C:\\Users\\abuba\\AppData\\Local\\Programs\\Ollama\\ollama.EXE",
+        "version": "ollama version is 0.40.18"
+      },
+      "llama_server": {
+        "installed": false,
+        "path": null,
+        "version": null
+      },
+      "llama_cli": {
+        "installed": false,
+        "path": null,
+        "version": null
+      }
+    }
+  },
   "systems": {
     "base_zeroshot": {
       "label": "Base `Qwen3-1.7B` (0-shot, fp16)",
@@ -1120,7 +1145,51 @@
       "label": "v2-ship `Q8_0` GGUF",
       "quant_key": "q8_0",
       "size_mb": 1749.45,
-      "local": null,
+      "local": {
+        "status": "ok",
+        "engine": "ollama",
+        "quant_key": "q8_0",
+        "quant_type": "Q8_0",
+        "filename": "formulalm-qwen3-1.7b-v2-q8_0.gguf",
+        "file_size_mb": 1749.45,
+        "load_time_s": 5.93,
+        "peak_ram_mb": 2026.4,
+        "gen_tokens_per_s": 7.82,
+        "prompt_tokens_per_s": 232.71,
+        "subset_n": 130,
+        "subset_k": 119,
+        "subset_execution_accuracy": 0.9154,
+        "subset_wilson_95_ci": [
+          0.8548,
+          0.9521
+        ],
+        "splits": {
+          "real_v2": {
+            "n": 50,
+            "k": 44,
+            "execution_accuracy": 0.88,
+            "wilson_95_ci": [
+              0.762,
+              0.9438
+            ],
+            "syntax_valid_rate": 1.0,
+            "exact_match_rate": 0.86,
+            "avg_latency_ms": 5203.77
+          },
+          "real": {
+            "n": 80,
+            "k": 75,
+            "execution_accuracy": 0.9375,
+            "wilson_95_ci": [
+              0.8619,
+              0.973
+            ],
+            "syntax_valid_rate": 1.0,
+            "exact_match_rate": 0.9375,
+            "avg_latency_ms": 5019.36
+          }
+        }
+      },
       "splits": {
         "val": {
           "run_name": "quant_q8_0_val",
@@ -1552,7 +1621,51 @@
       "label": "v2-ship `Q5_K_M` GGUF",
       "quant_key": "q5_k_m",
       "size_mb": 1199.61,
-      "local": null,
+      "local": {
+        "status": "ok",
+        "engine": "ollama",
+        "quant_key": "q5_k_m",
+        "quant_type": "Q5_K_M",
+        "filename": "formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+        "file_size_mb": 1199.61,
+        "load_time_s": 2.64,
+        "peak_ram_mb": 1476.5,
+        "gen_tokens_per_s": 11.31,
+        "prompt_tokens_per_s": 278.09,
+        "subset_n": 130,
+        "subset_k": 118,
+        "subset_execution_accuracy": 0.9077,
+        "subset_wilson_95_ci": [
+          0.8456,
+          0.9464
+        ],
+        "splits": {
+          "real_v2": {
+            "n": 50,
+            "k": 43,
+            "execution_accuracy": 0.86,
+            "wilson_95_ci": [
+              0.7381,
+              0.9305
+            ],
+            "syntax_valid_rate": 1.0,
+            "exact_match_rate": 0.84,
+            "avg_latency_ms": 4294.58
+          },
+          "real": {
+            "n": 80,
+            "k": 75,
+            "execution_accuracy": 0.9375,
+            "wilson_95_ci": [
+              0.8619,
+              0.973
+            ],
+            "syntax_valid_rate": 1.0,
+            "exact_match_rate": 0.9375,
+            "avg_latency_ms": 4206.51
+          }
+        }
+      },
       "splits": {
         "val": {
           "run_name": "quant_q5_k_m_val",
@@ -1984,7 +2097,51 @@
       "label": "v2-ship `Q4_K_M` GGUF",
       "quant_key": "q4_k_m",
       "size_mb": 1056.11,
-      "local": null,
+      "local": {
+        "status": "ok",
+        "engine": "ollama",
+        "quant_key": "q4_k_m",
+        "quant_type": "Q4_K_M",
+        "filename": "formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+        "file_size_mb": 1056.11,
+        "load_time_s": 4.6,
+        "peak_ram_mb": 1333.0,
+        "gen_tokens_per_s": 12.7,
+        "prompt_tokens_per_s": 392.83,
+        "subset_n": 130,
+        "subset_k": 116,
+        "subset_execution_accuracy": 0.8923,
+        "subset_wilson_95_ci": [
+          0.8273,
+          0.9348
+        ],
+        "splits": {
+          "real_v2": {
+            "n": 50,
+            "k": 44,
+            "execution_accuracy": 0.88,
+            "wilson_95_ci": [
+              0.762,
+              0.9438
+            ],
+            "syntax_valid_rate": 0.98,
+            "exact_match_rate": 0.84,
+            "avg_latency_ms": 3953.77
+          },
+          "real": {
+            "n": 80,
+            "k": 72,
+            "execution_accuracy": 0.9,
+            "wilson_95_ci": [
+              0.8149,
+              0.9485
+            ],
+            "syntax_valid_rate": 0.9875,
+            "exact_match_rate": 0.9,
+            "avg_latency_ms": 3897.46
+          }
+        }
+      },
       "splits": {
         "val": {
           "run_name": "quant_q4_k_m_val",
@@ -2417,7 +2574,7 @@
     "status": "RECOMMENDED",
     "recommended": "quant_q5_k_m",
     "recommended_label": "v2-ship `Q5_K_M` GGUF",
-    "rationale": "v2-ship `Q5_K_M` GGUF is the smallest quantization within sampling noise of F16 on all 4 splits (pending local laptop RAM/speed confirmation via scripts/benchmark_local.py).",
+    "rationale": "v2-ship `Q5_K_M` GGUF is the smallest quantization within sampling noise of F16 on all 4 splits.",
     "evaluated_candidates": {
       "quant_q4_k_m": {
         "eligible": false,

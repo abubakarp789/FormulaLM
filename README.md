@@ -66,20 +66,24 @@ All filled numbers come directly from saved runs in [`results/`](results/). v2 r
 | Base `Qwen3-1.7B`, zero-shot | 71.8% / 81.2% | 44.6% `[40.3%, 49.0%]` | 50.0% `[39.3%, 60.7%]` | 36.6% / 42.5% | _n/a_ | 46.0% `[33.0%, 59.6%]` |
 | Base `Qwen3-1.7B`, 5-shot (from train) | 85.0% / 85.0% | 60.2% `[55.9%, 64.4%]` | 51.2% `[40.5%, 61.9%]` | 51.2% / 41.2% | _n/a_ | 58.0% `[44.2%, 70.6%]` |
 | Fine-tuned v1 (`v1-frozen`, 16-bit) | 99.6% / 100.0% | 97.6% `[95.9%, 98.6%]` | 91.2% `[83.0%, 95.7%]` | 97.0% / 91.2% | 99.6% `[98.6%, 99.9%]` | 88.0% `[76.2%, 94.4%]` |
-| **Fine-tuned v2 (`v2-ship`, 16-bit)**\* | **99.8% / 100.0%** | **98.8%** `[97.4%, 99.5%]`\* | **93.8%** `[86.2%, 97.3%]`\* | **97.6% / 93.8%**\* | **99.6%** `[98.6%, 99.9%]` | **88.0%** `[76.2%, 94.4%]` |
-| Fine-tuned Q8_0 GGUF | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| Fine-tuned Q4_K_M GGUF | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
+| **Fine-tuned v2 (`v2-ship`, 16-bit adapter)**\* | **99.8% / 100.0%** | **98.8%** `[97.4%, 99.5%]`\* | **93.8%** `[86.2%, 97.3%]`\* | **97.6% / 93.8%**\* | **99.6%** `[98.6%, 99.9%]` | **88.0%** `[76.2%, 94.4%]` |
+| Fine-tuned v2 Merged `F16` GGUF\* | 100.0% / 100.0% | 98.8% `[97.4%, 99.5%]`\* | 93.8% `[86.2%, 97.3%]`\* | 97.6% / 93.8%\* | 99.8% `[98.9%, 100.0%]` | 88.0% `[76.2%, 94.4%]` |
+| Fine-tuned v2 `Q8_0` GGUF\* | 99.8% / 100.0% | 98.6% `[97.1%, 99.3%]`\* | 93.8% `[86.2%, 97.3%]`\* | 97.4% / 93.8%\* | 99.8% `[98.9%, 100.0%]` | 86.0% `[73.8%, 93.0%]` |
+| **Fine-tuned v2 `Q5_K_M` GGUF (Recommended)**\* | **99.6% / 100.0%** | **98.4%** `[96.9%, 99.2%]`\* | **93.8%** `[86.2%, 97.3%]`\* | **96.4% / 93.8%**\* | **99.6%** `[98.6%, 99.9%]` | **90.0%** `[78.6%, 95.7%]` |
+| Fine-tuned v2 `Q4_K_M` GGUF\* | 99.4% / 98.8% | 95.4% `[93.2%, 96.9%]`\* | 88.8% `[80.0%, 94.0%]`\* | 91.8% / 88.8%\* | 97.4% `[95.6%, 98.5%]` | 90.0% `[78.6%, 95.7%]` |
 
-\* _Fine-tuned v2 results on `test_synthetic` and `test_real` are **informed by v1 error analysis** (v2 data additions targeted v1 failure clusters). Brackets show 95% Wilson confidence intervals. Full v1-vs-v2 comparison and decision-rule evaluation: [`results/ft_v2_comparison.md`](results/ft_v2_comparison.md)._
+\* _Fine-tuned v2 results on `test_synthetic` and `test_real` are **informed by v1 error analysis** (v2 data additions targeted v1 failure clusters). Brackets show 95% Wilson confidence intervals. Full comparisons: [`results/ft_v2_comparison.md`](results/ft_v2_comparison.md) and [`results/quant_comparison.md`](results/quant_comparison.md)._
 
 ## Hardware and local performance
 
-- Training: _TBD_ (free Colab/Kaggle T4).
-- Local inference: Windows 11 laptop, Intel Core i5-8365U, 8 GB RAM, **no GPU**.
+- Training: Google Colab Tesla T4 (14.56 GB VRAM) — `qlora_v1`: 34.5 min, peak 1.65 GB VRAM; `qlora_v2`: 19.0 min, peak 4.19 GB VRAM.
+- Local inference: Windows 11 laptop, Intel Core i5-8365U (4 cores / 8 threads), 8 GB RAM, **no GPU** (Ollama `0.40.18`).
 
-| Model file | Size on disk | Peak RAM | Tokens/s | Measured on |
-|---|---|---|---|---|
-| _TBD_ | | | | |
+| Model file | Size on disk | Load time | Peak RAM | Tokens/s | Local 130-ex Exec. Acc (95% CI) | Measured on |
+|---|---:|---:|---:|---:|---|---|
+| `formulalm-qwen3-1.7b-v2-q4_k_m.gguf` | 1,056.1 MB | 4.60 s | 1,333 MB | 12.7 tok/s | 89.2% (116/130, `[82.7%, 93.5%]`) | i5-8365U CPU, 8 GB RAM (Ollama) |
+| **`formulalm-qwen3-1.7b-v2-q5_k_m.gguf` (Recommended)** | **1,199.6 MB** | **2.64 s** | **1,476 MB** | **11.3 tok/s** | **90.8%** (118/130, `[84.6%, 94.6%]`) | i5-8365U CPU, 8 GB RAM (Ollama) |
+| `formulalm-qwen3-1.7b-v2-q8_0.gguf` | 1,749.5 MB | 5.93 s | 2,026 MB | 7.8 tok/s | 91.5% (119/130, `[85.5%, 95.2%]`) | i5-8365U CPU, 8 GB RAM (Ollama) |
 
 ## Demo
 
