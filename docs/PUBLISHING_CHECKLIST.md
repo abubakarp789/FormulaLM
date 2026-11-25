@@ -56,9 +56,9 @@ $env:MODELSCOPE_API_TOKEN = "<your_modelscope_token>"
   - `https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora-v2`
   - `https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora`
 - [ ] Verify all 3 ModelScope repos are **public** with **`Apache-2.0`** license metadata:
-  - `https://modelscope.cn/models/abubakar56/formulalm-qwen3-1.7b-gguf`
-  - `https://modelscope.cn/models/abubakar56/formulalm-qwen3-1.7b-lora-v2`
-  - `https://modelscope.cn/models/abubakar56/formulalm-qwen3-1.7b-lora`
+  - `https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf`
+  - `https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora-v2`
+  - `https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora`
 - [ ] Verify GitHub repo has `MIT` code license (`LICENSE`), then make it public (ONLY after confirming the secrets scan is clean):
   ```powershell
   gh repo edit abubakarp789/FormulaLM --visibility public --accept-visibility-change-consequences

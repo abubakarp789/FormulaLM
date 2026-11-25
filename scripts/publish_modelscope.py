@@ -161,12 +161,14 @@ def execute_modelscope_plans(
     *,
     token: str,
     assume_yes: bool = False,
+    endpoint: str | None = None,
 ) -> dict[str, Any]:
     """Upload planned files/adapters to ModelScope after per-repo confirmation."""
     from huggingface_hub import snapshot_download  # type: ignore[import-not-found]
     from modelscope.hub.api import HubApi  # type: ignore[import-not-found]
 
-    api = HubApi()
+    ep = endpoint or os.environ.get("MODELSCOPE_ENDPOINT", "https://www.modelscope.ai")
+    api = HubApi(endpoint=ep)
     api.login(token)
     summary: dict[str, Any] = {"uploaded": [], "skipped": []}
 
@@ -250,6 +252,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Include the 3.29 GB F16 GGUF (skipped by default)",
     )
     parser.add_argument(
+        "--endpoint",
+        default=os.environ.get("MODELSCOPE_ENDPOINT", "https://www.modelscope.ai"),
+        help="ModelScope Hub endpoint (default: https://www.modelscope.ai)",
+    )
+    parser.add_argument(
         "--execute",
         action="store_true",
         help="Actually upload to ModelScope (without this flag, dry-run only)",
@@ -277,7 +284,7 @@ def main(argv: list[str] | None = None) -> int:
         print("ERROR: MODELSCOPE_API_TOKEN environment variable is not set.", file=sys.stderr)
         return 2
 
-    execute_modelscope_plans(plans, token=token, assume_yes=args.yes)
+    execute_modelscope_plans(plans, token=token, assume_yes=args.yes, endpoint=args.endpoint)
     return 0
 
 

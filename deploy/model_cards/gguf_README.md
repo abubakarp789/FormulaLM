@@ -61,7 +61,7 @@ Request: Total Net Amount for the Mirehaven branch"
 # Expected output: =SUMIF(C2:C115,"Mirehaven",F2:F115)
 ```
 
-*(ModelScope users can download `formulalm-qwen3-1.7b-v2-q5_k_m.gguf` and `Modelfile` from `https://modelscope.cn/models/abubakar56/formulalm-qwen3-1.7b-gguf` and run the exact same `ollama create formulalm -f Modelfile` step.)*
+*(ModelScope users can download `formulalm-qwen3-1.7b-v2-q5_k_m.gguf` and `Modelfile` from `https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf` and run the exact same `ollama create formulalm -f Modelfile` step.)*
 
 ## Quick Start — Run Locally with `llama.cpp`
 

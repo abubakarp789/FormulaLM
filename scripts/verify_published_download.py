@@ -88,7 +88,7 @@ def verify_clean_download(
             _download_url(f"{base}/{PRIMARY_GGUF}", gguf_dst)
             _download_url(f"{base}/Modelfile", mf_dst)
         elif source == "modelscope":
-            base = f"https://modelscope.cn/models/{repo_id}/resolve/master"
+            base = f"https://www.modelscope.ai/models/{repo_id}/resolve/master"
             _download_url(f"{base}/{PRIMARY_GGUF}", gguf_dst)
             _download_url(f"{base}/Modelfile", mf_dst)
         else:

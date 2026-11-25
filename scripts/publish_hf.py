@@ -216,7 +216,10 @@ def execute_hf_plans(
                 continue
 
         api.create_repo(plan.repo_id, repo_type="model", exist_ok=True, private=False)
-        api.update_repo_visibility(plan.repo_id, private=False, repo_type="model")
+        if hasattr(api, "update_repo_settings"):
+            api.update_repo_settings(plan.repo_id, private=False, repo_type="model")
+        elif hasattr(api, "update_repo_visibility"):
+            api.update_repo_visibility(plan.repo_id, private=False, repo_type="model")
         for f in plan.files:
             if not f.exists:
                 continue
