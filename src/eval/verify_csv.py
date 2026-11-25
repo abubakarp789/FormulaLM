@@ -6,7 +6,7 @@ Checks that:
 - ``expected_value`` matches the executed value (or populates ``expected_value`` / ``expected_type``
   when ``--fill-expected`` is passed).
 
-Usage (e.g., to self-verify your blind test_real_v2.csv locally):
+Usage (e.g., to self-verify your fresh held-out test_real_v2.csv locally):
     uv run python -m src.eval.verify_csv data/test_real_v2/test_real_v2.csv --fill-expected
 """
 

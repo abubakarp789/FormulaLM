@@ -1,4 +1,4 @@
-"""Loader and validator for the fresh blind test set (`data/test_real_v2/`).
+"""Loader and validator for the fresh held-out set (`data/test_real_v2/`).
 
 Workflow:
 1. Abubakar authors raw requests in ``data/test_real_v2/requests.csv`` with columns

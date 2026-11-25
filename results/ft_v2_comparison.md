@@ -21,8 +21,8 @@ Note: Any v2 result on the original test sets (`test_synthetic`, `test_real`) is
 |---|---|---:|---:|---:|---|---:|---:|---:|---:|
 | `val` (validation) | Fine-tuned v1 (`v1-frozen`) | 500 | 498/500 | **99.6%** | [98.6%, 99.9%] | — | 99.8% | 99.4% | 717.2 ms |
 | `val` (validation) | **Fine-tuned v2** | 500 | 498/500 | **99.6%** | [98.6%, 99.9%] | +0.0 pp | 100.0% | 98.2% | 700.6 ms |
-| `test_real_v2` (fresh blind) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | — | 100.0% | 82.0% | 731.2 ms |
-| `test_real_v2` (fresh blind) | **Fine-tuned v2** | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | +0.0 pp | 100.0% | 86.0% | 751.6 ms |
+| `test_real_v2` (fresh held-out set) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | — | 100.0% | 82.0% | 731.2 ms |
+| `test_real_v2` (fresh held-out set) | **Fine-tuned v2** | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | +0.0 pp | 100.0% | 86.0% | 751.6 ms |
 | `test_synthetic` (original synthetic) | Fine-tuned v1 (`v1-frozen`) | 500 | 488/500 | **97.6%** | [95.9%, 98.6%] | — | 99.6% | 97.0% | 794.7 ms |
 | `test_synthetic` (original synthetic) | **Fine-tuned v2 (informed by v1 error analysis)** | 500 | 494/500 | **98.8%** | [97.4%, 99.5%] | +1.2 pp | 99.8% | 97.6% | 739.6 ms |
 | `test_real` (original realistic) | Fine-tuned v1 (`v1-frozen`) | 80 | 73/80 | **91.2%** | [83.0%, 95.7%] | — | 100.0% | 91.2% | 789.9 ms |
@@ -42,7 +42,7 @@ Note: Any v2 result on the original test sets (`test_synthetic`, `test_real`) is
 | `math_and_composition` | 71 | 98.6% (70/71, [92.4%, 99.8%]) | 100.0% (71/71, [94.9%, 100.0%]) | +1.4 pp |
 | `text` | 71 | 98.6% (70/71, [92.4%, 99.8%]) | 100.0% (71/71, [94.9%, 100.0%]) | +1.4 pp |
 
-### `test_real_v2` (fresh blind)
+### `test_real_v2` (fresh held-out set)
 
 | Category | N | v1 Exec. Acc (95% Wilson CI) | v2 Exec. Acc (95% Wilson CI) | Δ (v2 − v1) |
 |---|---:|---|---|---:|

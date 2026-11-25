@@ -1,7 +1,7 @@
 {
   "splits": {
     "test_real_v2": {
-      "title": "`test_real_v2` (post-v2 fresh)",
+      "title": "`test_real_v2` (fresh held-out set)",
       "v2_informed_by_v1": false,
       "systems": {
         "base_zeroshot": {

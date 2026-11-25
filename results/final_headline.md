@@ -6,10 +6,10 @@ Note: Fine-tuned v2 results on `test_real` and `test_synthetic` are labeled **'i
 
 | Test Set | System | N | Correct | **Exec. Accuracy** | 95% Wilson CI | Δ vs Base 0-shot | Syntax Valid | Exact Match |
 |---|---|---:|---:|---:|---|---:|---:|---:|
-| `test_real_v2` (post-v2 fresh) | Base `Qwen3-1.7B` (0-shot) | 50 | 23/50 | **46.0%** | [33.0%, 59.6%] | — | 76.0% | 40.0% |
-| `test_real_v2` (post-v2 fresh) | Base `Qwen3-1.7B` (5-shot, train) | 50 | 29/50 | **58.0%** | [44.2%, 70.6%] | +12.0 pp | 88.0% | 46.0% |
-| `test_real_v2` (post-v2 fresh) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | +42.0 pp | 100.0% | 82.0% |
-| `test_real_v2` (post-v2 fresh) | **Fine-tuned v2 (`v2-ship`)** | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | +42.0 pp | 100.0% | 86.0% |
+| `test_real_v2` (fresh held-out set) | Base `Qwen3-1.7B` (0-shot) | 50 | 23/50 | **46.0%** | [33.0%, 59.6%] | — | 76.0% | 40.0% |
+| `test_real_v2` (fresh held-out set) | Base `Qwen3-1.7B` (5-shot, train) | 50 | 29/50 | **58.0%** | [44.2%, 70.6%] | +12.0 pp | 88.0% | 46.0% |
+| `test_real_v2` (fresh held-out set) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | +42.0 pp | 100.0% | 82.0% |
+| `test_real_v2` (fresh held-out set) | **Fine-tuned v2 (`v2-ship`)** | 50 | 44/50 | **88.0%** | [76.2%, 94.4%] | +42.0 pp | 100.0% | 86.0% |
 | `test_real` (original realistic) | Base `Qwen3-1.7B` (0-shot) | 80 | 40/80 | **50.0%** | [39.3%, 60.7%] | — | 81.2% | 42.5% |
 | `test_real` (original realistic) | Base `Qwen3-1.7B` (5-shot, train) | 80 | 41/80 | **51.2%** | [40.5%, 61.9%] | +1.2 pp | 85.0% | 41.2% |
 | `test_real` (original realistic) | Fine-tuned v1 (`v1-frozen`) | 80 | 73/80 | **91.2%** | [83.0%, 95.7%] | +41.2 pp | 100.0% | 91.2% |

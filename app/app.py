@@ -829,9 +829,9 @@ LIMITS_MARKDOWN = "\n".join(
         ),
         (
             "- **Short formulas & synthetic training:** trained on 9,000 synthetic examples "
-            "(`max_new_tokens=96`). Reaches **88.0%–90.8%** execution accuracy on held-out "
-            "realistic sets (`N=50` blind set) — can still miscount `VLOOKUP` column indices "
-            "(see Built-in Example #8). Always verify critical financial formulas."
+            "(`max_new_tokens=96`). Reaches **86.0%–93.8%** execution accuracy on held-out "
+            "realistic sets (`N=50` fresh held-out set) — can still miscount `VLOOKUP` column "
+            "indices (see Built-in Example #8). Always verify critical financial formulas."
         ),
     ]
 )

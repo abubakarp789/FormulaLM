@@ -28,7 +28,7 @@ tags:
 - **LoRA adapter (v2-ship):** [`abubakar56/formulalm-qwen3-1.7b-lora-v2`](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora-v2) (commit `e2dd7e8115406ffcdbbdfa60d6f2f10b4aaf2595`)
 - **Frozen fallback (v1-frozen):** [`abubakar56/formulalm-qwen3-1.7b-lora`](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora) (commit `d9909249c496134ecc72e1d77bdc22e6e0461537`)
 - **Source code & evaluation harness:** [`abubakarp789/FormulaLM`](https://github.com/abubakarp789/FormulaLM) (MIT code license)
-- **License:** **Apache-2.0**, inherited from [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B). Full credit to the Qwen team for Qwen3 and to [`junaiddshaukat/finetune-anywhere`](https://github.com/junaiddshaukat/finetune-anywhere) (Qwen Pakistan) for the hackathon starter approach.
+- **License:** **Apache-2.0**, inherited from [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B). Full credit to the Qwen team for Qwen3 and to Junaid Shaukat & Qwen Pakistan ([`junaiddshaukat/finetune-anywhere`](https://github.com/junaiddshaukat/finetune-anywhere)) for the hackathon starter approach.
 
 ---
 
@@ -112,10 +112,10 @@ The model was trained with `enable_thinking=False` and loss computed on assistan
 
 ## Training Data & Method
 
-- **Synthetic dataset:** 100% synthetic across 25 generated spreadsheets (11 business/academic domains; 20 training sheets, 5 held-out test sheets) covering 36 in-scope Excel functions (volatile functions `TODAY`, `NOW`, `RAND` excluded). Zero real/personal data; zero API outputs from other vendors' models.
+- **Synthetic dataset:** 100% synthetic across 25 generated spreadsheets (11 business/academic domains; 20 training sheets, 5 held-out test sheets) covering 36 in-scope Excel functions (volatile functions `TODAY`, `NOW`, `RAND` excluded) with zero real/personal data. No model-generated paraphrase augmentation or scraped data was used; templates, phrasing patterns, and code were written with an AI coding assistant.
   - **v1 (`train.jsonl`):** 8,000 verified examples (60 templates, 422 phrasing patterns + 10 deterministic rewrite rules; 0 dropped).
   - **v2 (`train_v2.jsonl`):** 9,000 verified examples on the 20 training sheets only (adds 58 train-only phrasings + 2 ratio templates targeting v1 error clusters; `val.jsonl` 500 and `test_synthetic.jsonl` 500 stay bit-for-bit frozen; 0 dropped).
-  - **Authorship disclosure:** The formula templates, phrasing patterns, v2 augmentations, initial draft of `test_real` (80 requests), and post-v2 `test_real_v2` (50 requests, created after v2 training finished) were drafted with an AI assistant and reviewed/run by Abubakar.
+  - **Authorship disclosure:** Templates, phrasing patterns, v2 augmentations, code, and `test_real_DRAFT.csv` (80 executor-verified requests, kept as an unreviewed AI-assisted draft) were written with an AI coding assistant. For the fresh held-out set `test_real_v2` (50 requests, created after v2 training finished), the requests were drafted by an AI assistant with access to the repo, including the v1 error analysis; the set is therefore not fully independent.
 - **QLoRA training (`v2-ship`, Unsloth):** 4-bit QLoRA (`r=16`, `lora_alpha=32`, `lora_dropout=0.0`, all 7 linear layers `q/k/v/o/gate/up/down_proj`), `max_seq_length=512`, `train_on_responses_only`, 1 epoch (563 steps), effective batch 16 (`4 × 4`), `lr=1e-4` cosine, `warmup_ratio=0.08`, `weight_decay=0.05`, `adamw_8bit`, `seed=42`, `eval_steps=50` on `val.jsonl` only. Best checkpoint: `checkpoint-400` (`val` loss `0.003975`).
 - **Merge & GGUF export:** LoRA adapter (`e2dd7e81`) merged explicitly into pinned fp16 `Qwen/Qwen3-1.7B@70d244cc` (overriding the 4-bit mirror in `adapter_config.json`), then converted and quantized with `llama.cpp` release `b12728`.
 - **Training hardware:** Free Google Colab Tesla T4 (14.56 GB VRAM) — `qlora_v2` took **19.0 min** (peak **4.19 GB VRAM**); `qlora_v1` took **34.5 min** (peak **1.65 GB VRAM**).
@@ -137,10 +137,10 @@ Every formula is executed in Python `formulas` 1.3.4 on the target `.xlsx` sheet
 
 | Test Set | System | N | Correct | **Exec. Accuracy** | 95% Wilson CI | Δ vs Base 0-shot | Syntax Valid | Exact Match |
 |---|---|---:|---:|---:|---|---:|---:|---:|
-| `test_real_v2` (post-v2 fresh) | Base `Qwen3-1.7B` (0-shot) | 50 | 23/50 | **46.0%** | `[33.0%, 59.6%]` | — | 76.0% | 40.0% |
-| `test_real_v2` (post-v2 fresh) | Base `Qwen3-1.7B` (5-shot, train) | 50 | 29/50 | **58.0%** | `[44.2%, 70.6%]` | +12.0 pp | 88.0% | 46.0% |
-| `test_real_v2` (post-v2 fresh) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | +42.0 pp | 100.0% | 82.0% |
-| `test_real_v2` (post-v2 fresh) | **Fine-tuned v2 (`v2-ship`)** | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | +42.0 pp | 100.0% | 86.0% |
+| `test_real_v2` (fresh held-out set) | Base `Qwen3-1.7B` (0-shot) | 50 | 23/50 | **46.0%** | `[33.0%, 59.6%]` | — | 76.0% | 40.0% |
+| `test_real_v2` (fresh held-out set) | Base `Qwen3-1.7B` (5-shot, train) | 50 | 29/50 | **58.0%** | `[44.2%, 70.6%]` | +12.0 pp | 88.0% | 46.0% |
+| `test_real_v2` (fresh held-out set) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | +42.0 pp | 100.0% | 82.0% |
+| `test_real_v2` (fresh held-out set) | **Fine-tuned v2 (`v2-ship`)** | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | +42.0 pp | 100.0% | 86.0% |
 | `test_real` (original realistic) | Base `Qwen3-1.7B` (0-shot) | 80 | 40/80 | **50.0%** | `[39.3%, 60.7%]` | — | 81.2% | 42.5% |
 | `test_real` (original realistic) | Base `Qwen3-1.7B` (5-shot, train) | 80 | 41/80 | **51.2%** | `[40.5%, 61.9%]` | +1.2 pp | 85.0% | 41.2% |
 | `test_real` (original realistic) | Fine-tuned v1 (`v1-frozen`) | 80 | 73/80 | **91.2%** | `[83.0%, 95.7%]` | +41.2 pp | 100.0% | 91.2% |
@@ -184,4 +184,4 @@ Measured locally on **Windows 11 (10.0.26300), Intel Core i5-8365U (4 cores / 8 
   - **Excel dialect only:** Not trained for Google Sheets-specific functions (`QUERY`, `FILTER`, `ARRAYFORMULA`, `REGEXMATCH`) or VBA/PowerQuery.
   - **~35 in-scope functions (36 exact):** Covers `SUM`, `SUMIF`, `SUMIFS`, `COUNT`, `COUNTIF`, `COUNTIFS`, `AVERAGE`, `AVERAGEIF`, `AVERAGEIFS`, `MIN`, `MAX`, `IF`, `IFS`, `AND`, `OR`, `VLOOKUP`, `XLOOKUP`, `INDEX`, `MATCH`, `LEFT`, `RIGHT`, `MID`, `LEN`, `CONCAT`, `TEXTJOIN`, `UPPER`, `LOWER`, `PROPER`, `TRIM`, `TEXT`, `DATE`, `YEAR`, `MONTH`, `DAY`, `ROUND`, `IFERROR`. Volatile functions (`TODAY`, `NOW`, `RAND`) and pivot/dynamic-array functions are excluded.
   - **Synthetic training data:** Trained on synthetic single-sheet schemas with bounded data ranges (`2..N`). Multi-sheet workbook references, merged cells, or deeply ambiguous business jargon can fail.
-  - **Small post-v2 evaluation set (`N=50`):** `test_real_v2` has 50 AI-drafted post-v2 requests (95% Wilson CI width ~±9 pp), and v2 scores on `test_real` (`N=80`) and `test_synthetic` (`N=500`) are informed by v1 error analysis. Always verify generated formulas before using them in financial or compliance-critical spreadsheets.
+  - **Small fresh held-out set (`N=50`):** `test_real_v2` has 50 post-v2 requests (95% Wilson CI width ~±9 pp) drafted by an AI assistant with repo access (including v1 error analysis), so it is not fully independent; v2 scores on `test_real` (`N=80`) and `test_synthetic` (`N=500`) are also informed by v1 error analysis. Always verify generated formulas before using them in financial or compliance-critical spreadsheets.

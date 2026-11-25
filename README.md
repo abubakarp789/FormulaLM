@@ -2,7 +2,7 @@
 
 **One-line pitch:** A QLoRA-tuned, `Q5_K_M`-quantized `Qwen3-1.7B` model that turns a spreadsheet schema and plain-English request into an executable Excel formula (`=...`), verified by running every formula against the sheet — locally on a CPU-only laptop.
 
-- **Fresh blind-set headline (`test_real_v2`, `N = 50`, 95% Wilson CIs):** Base `Qwen3-1.7B` 0-shot **46.0%** `[33.0%, 59.6%]` (23/50) and 5-shot **58.0%** `[44.2%, 70.6%]` (29/50) → **Fine-tuned `v2-ship` 88.0%** `[76.2%, 94.4%]` (44/50, 16-bit fp16; **90.0%** `[78.6%, 95.7%]` Colab `Q5_K_M`, **86.0%** `[73.8%, 93.0%]` local Ollama `Q5_K_M`).
+- **Fresh held-out set (`test_real_v2`, `N = 50`, 95% Wilson CIs):** Shipped **`Q5_K_M` GGUF** scores **45/50 (90.0%, `[78.6%, 95.7%]`)** on Colab `llama-server` and **43/50 (86.0%, `[73.8%, 93.0%]`)** on local Ollama, against base `Qwen3-1.7B` **23/50 (46.0%, `[33.0%, 59.6%]`)** zero-shot and **29/50 (58.0%, `[44.2%, 70.6%]`)** five-shot (16-bit `v2-ship` adapter: **44/50, 88.0%**, `[76.2%, 94.4%]`).
 - **Local CPU footprint (`results/local_benchmark/`):** **`Q5_K_M` GGUF** is **1,199.6 MB (~1.20 GB)** on disk, loads in **2.64 s**, uses **1,476.5 MB (~1.48 GB) peak RAM**, and generates at **11.3 tok/s** on an **Intel Core i5-8365U, 8 GB RAM, CPU-only** Windows 11 laptop (`Ollama 0.40.18`).
 - **Links:** [GitHub Repo](https://github.com/abubakarp789/FormulaLM) · [Hugging Face GGUF](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-gguf) ([v2 LoRA](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora-v2) · [v1 LoRA fallback](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora)) · [ModelScope GGUF](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf) ([v2 LoRA](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora-v2) · [v1 LoRA fallback](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora)) · **Demo video:** _TODO: [2–3 min local demo video link — placeholder until uploaded]_
 
@@ -20,7 +20,7 @@ Spreadsheet users usually know the question they want answered (*"Total Shipping
 
 ---
 
-## Quick-Start (Run Locally in 4 Commands)
+## Quick-Start (5 Steps)
 
 Exact workflow verified from a clean temporary folder by [`scripts/verify_published_download.py`](scripts/verify_published_download.py):
 
@@ -30,7 +30,9 @@ Exact workflow verified from a clean temporary folder by [`scripts/verify_publis
    # Option A — Hugging Face:
    curl -LO https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-gguf/resolve/main/formulalm-qwen3-1.7b-v2-q5_k_m.gguf
    curl -LO https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-gguf/resolve/main/Modelfile
-   # Option B — ModelScope (replace base URL with https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf/resolve/master)
+   # Option B — ModelScope:
+   curl -LO https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf/resolve/master/formulalm-qwen3-1.7b-v2-q5_k_m.gguf
+   curl -LO https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf/resolve/master/Modelfile
    ```
 3. **Create the local Ollama model:**
    ```bash
@@ -77,7 +79,7 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
 | `Q8_0` GGUF | 1,749.5 MB | 5.93 s | 2,026.4 MB | 7.8 tok/s | 88.0% (44/50, exact 86.0%) | 93.8% (75/80, exact 93.8%)\* | **91.5%** `[85.5%, 95.2%]` |
 
 **Key findings & honest caveats (not buried):**
-- **`v1` and `v2` are statistically tied:** on unbiased splits, `v1` and `v2` tie at **99.6%** (498/500) on `val` and **88.0%** (44/50) on `test_real_v2`. `v2` ships (`SHIP_V2`, [`docs/DECISION.md`](docs/DECISION.md)) because it passed all pre-registered gates with zero regressions and lower validation loss (`0.003975` vs `0.004240`). Frozen `v1` stays public as `v1-frozen`.
+- **`v1` and `v2` are statistically tied:** on `val` (`99.6%`, 498/500) and the fresh held-out set `test_real_v2` (`88.0%`, 44/50), `v1` and `v2` tie exactly. `v2` ships (`SHIP_V2`, [`docs/DECISION.md`](docs/DECISION.md)) because it passed all pre-registered gates and achieved lower validation loss (`0.003975` vs `0.004240`). Frozen `v1` stays public as `v1-frozen`.
 - **\*Analysis-informed v2 splits:** `v2`'s small gains on `test_real` (+2.5 pp) and `test_synthetic` (+1.2 pp) have overlapping 95% Wilson CIs and are **informed by v1 error analysis** (v2 train-only data targeted v1 error clusters on those splits).
 - **Why `Q5_K_M` over `Q4_K_M`:** 4-bit `Q4_K_M` loses **2.4–5.0 pp** vs `F16` (`-2.4 pp` on `val`, `-3.4 pp` on `test_synthetic`, `-5.0 pp` on `test_real`), whereas `Q5_K_M` stays within **-0.4 to +2.0 pp** (sampling noise) of `F16` for only **+143.5 MB** extra disk/RAM.
 - **Colab vs local Ollama variance:** local CPU Ollama (`0.40.18`) and Colab CUDA `llama-server` (`b12728`) can differ by **1–2 examples** (`Q5_K_M` scores 45/50 = 90.0% on Colab vs 43/50 = 86.0% on local Ollama on `test_real_v2`; both score 75/80 = 93.8% on `test_real`).
@@ -87,16 +89,16 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
 ## Base Model, Data & Authorship
 
 - **Base model:** [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B) pinned at revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e` (`Apache-2.0`), run strictly in **non-thinking mode** (`enable_thinking=False`) so output is only `=...` ([`docs/MODEL_PROVENANCE.md`](docs/MODEL_PROVENANCE.md)).
-- **Synthetic dataset ([`data/DATASET_CARD.md`](data/DATASET_CARD.md)):** 100% synthetic across **25 generated `.xlsx` sheets** spanning 11 domains (**20 training sheets**, **5 held-out test sheets**: `sales_retail_store`, `hr_employee_roster`, `inventory_stock_movements`, `grades_course_scores`, `orders_ecommerce`), covering **36 non-volatile Excel functions**. Zero personal/private data and zero third-party vendor LLM outputs.
-  - **Splits:** `train.jsonl` (8,000), `train_v2.jsonl` (9,000, train sheets only), frozen `val.jsonl` (500), frozen `test_synthetic.jsonl` (500 on the 5 held-out sheets + 2 reserved phrasings/template), `test_real_DRAFT.csv` (80 realistic requests), and `test_real_v2.csv` (50 post-v2 requests).
+- **Synthetic dataset ([`data/DATASET_CARD.md`](data/DATASET_CARD.md)):** 100% synthetic across **25 generated `.xlsx` sheets** spanning 11 domains (**20 training sheets**, **5 held-out test sheets**: `sales_retail_store`, `hr_employee_roster`, `inventory_stock_movements`, `grades_course_scores`, `orders_ecommerce`), covering **36 non-volatile Excel functions** with zero personal/private data. No model-generated paraphrase augmentation or scraped data was used; templates, phrasing patterns, and code were written with an AI coding assistant.
+  - **Splits:** `train.jsonl` (8,000), `train_v2.jsonl` (9,000, train sheets only), frozen `val.jsonl` (500), frozen `test_synthetic.jsonl` (500 on the 5 held-out sheets + 2 reserved phrasings/template), `data/test_real/test_real_DRAFT.csv` (80 realistic requests), and `data/test_real_v2/test_real_v2.csv` (50 fresh held-out requests).
   - **Leakage checks:** automated tests (`tests/test_dataset.py`, `tests/test_v2_iteration.py`) enforce zero sheet overlap between train/val and held-out test splits, zero phrasing-template leakage, zero exact prompt duplicates, and 100% executor ground-truth agreement (`0` dropped rows).
-- **Authorship statement:** Abubakar specified the task, architecture, constraints, and step-by-step prompts, ran all Google Colab T4 training/evaluation/quantization notebooks and local Windows 11 benchmarks, published the artifacts, and spot-checked outputs. The Python codebase, 60+2 formula templates, phrasing patterns, `data/test_real/test_real_DRAFT.csv` (80 executor-verified requests, kept as an unreviewed AI-assisted draft), and `data/test_real_v2/test_real_v2.csv` (50 post-v2 requests drafted with an AI assistant at Abubakar's direction after `qlora_v2` training finished and verified via `src.eval.test_real_v2`) were produced with AI pair-programming assistance.
+- **Authorship statement:** Abubakar specified the task, architecture, constraints, and step-by-step prompts, ran all Google Colab T4 training/evaluation/quantization notebooks and local Windows 11 benchmarks, published the artifacts, and spot-checked outputs. Templates, phrasing patterns, code, and `data/test_real/test_real_DRAFT.csv` (80 executor-verified requests, kept as an unreviewed AI-assisted draft) were written with an AI coding assistant. For the fresh held-out set `data/test_real_v2/test_real_v2.csv` (`N = 50`, created after `qlora_v2` training finished), the requests were drafted by an AI assistant with access to the repo, including the v1 error analysis; the set is therefore not fully independent.
 
 ---
 
 ## Method, Evaluation & Error Analysis
 
-- **QLoRA training (`notebooks/02_train_qlora.ipynb`, Unsloth `2026.11.10`, Google Colab Tesla T4 14.56 GB VRAM):** 4-bit QLoRA (`r=16`, `lora_alpha=32`, `lora_dropout=0.0`, all 7 linear projections `q/k/v/o/gate/up/down_proj`), `max_seq_length=512`, `train_on_responses_only=True`, effective batch size 16 (`4 × 4`), `adamw_8bit`, cosine schedule, `seed=42`.
+- **QLoRA training (`notebooks/train_qlora.ipynb`, Unsloth `2026.11.10`, Google Colab Tesla T4 14.56 GB VRAM):** 4-bit QLoRA (`r=16`, `lora_alpha=32`, `lora_dropout=0.0`, all 7 linear projections `q/k/v/o/gate/up/down_proj`), `max_seq_length=512`, `train_on_responses_only=True`, effective batch size 16 (`4 × 4`), `adamw_8bit`, cosine schedule, `seed=42`.
   - **`qlora_v1` (`results/train_qlora_v1/run_summary.json`):** 2 epochs (1,000 steps), `lr=2e-4`, **34.6 min** (`2,073 s`) on Colab T4, peak **1.65 GB VRAM**, best `checkpoint-200` (`val_loss = 0.004240`).
   - **`qlora_v2` (`v2-ship`, `results/train_qlora_v2/run_summary.json`):** 1 epoch (563 steps), `lr=1e-4`, `weight_decay=0.05`, `warmup_ratio=0.08`, `eval_steps=50`, **19.0 min** (`1,138 s`) on Colab T4, peak **4.19 GB VRAM**, best `checkpoint-400` (`val_loss = 0.003975`).
 - **Merge & GGUF quantization (`notebooks/05_merge_quantize.ipynb`):** `v2-ship` adapter merged explicitly into fp16 `Qwen/Qwen3-1.7B@70d244cc` and quantized via `llama.cpp` `b12728`. Prompt-format parity check (`results/quant_parity/parity_report.md`) confirmed **20/20 (100.0%)** exact output agreement between HF FP16 and GGUF F16.
@@ -127,7 +129,7 @@ git clone https://github.com/abubakarp789/FormulaLM.git
 cd FormulaLM
 uv sync
 
-# 1. Run full unit & leakage test suite (212 tests, CPU-only, ~25 s)
+# 1. Run full unit & leakage test suite (216 tests, CPU-only, ~30 s)
 uv run pytest
 
 # 2. Regenerate synthetic sheets (25 .xlsx) and verified JSONL splits (train/train_v2/val/test_synthetic)
@@ -136,7 +138,7 @@ uv run python scripts/generate_data.py
 uv run python -m src.data.build_dataset --version v2
 uv run python -m src.eval.test_real_v2 --mode annotated data/test_real_v2/test_real_v2.csv
 
-# 3. Smoke-test evaluator offline, or run local Ollama benchmark (requires Q5_K_M GGUF)
+# 3. Smoke-test evaluator offline, or run clean-download Ollama verifier
 uv run python -m src.eval.run_eval --run-name repro_mock --backend mock --dataset data/test_real_v2/test_real_v2.csv --limit 10
 uv run python scripts/verify_published_download.py --source hf
 
@@ -145,7 +147,7 @@ uv run python -m src.eval.compare_v1_v2
 uv run python -m src.eval.compare_quant
 ```
 
-**GPU stages (run on free Google Colab Tesla T4, 14.56 GB VRAM):** `notebooks/01_eval_baselines.ipynb` (~12 min), `notebooks/02_train_qlora.ipynb` (`v1`: 34.6 min; `v2`: 19.0 min), `notebooks/03_eval_ft_v2.ipynb` (~15 min), `notebooks/04_eval_base_real_v2.ipynb` (~5 min), and `notebooks/05_merge_quantize.ipynb` (merge + `llama.cpp` GGUF export + 16-run quantization eval, ~25 min).
+**GPU stages (run on free Google Colab Tesla T4, 14.56 GB VRAM):** `notebooks/01_baseline_eval.ipynb` (~12 min), `notebooks/train_qlora.ipynb` (`v1`: 34.6 min; `v2`: 19.0 min), `notebooks/02_eval_ft_v1.ipynb` (~12 min), `notebooks/03_eval_ft_v2.ipynb` (~15 min), `notebooks/04_eval_base_real_v2.ipynb` (~5 min), and `notebooks/05_merge_quantize.ipynb` (merge + `llama.cpp` GGUF export + 16-run quantization eval, ~25 min).
 
 ---
 
@@ -153,12 +155,12 @@ uv run python -m src.eval.compare_quant
 
 - **Excel dialect & ~35 functions only (36 exact):** single-sheet, single-cell formulas (`<= 96` tokens). No multi-sheet joins, no `SUMPRODUCT` / `FILTER` / `LET` / `LAMBDA`, no Google Sheets `QUERY` / `ARRAYFORMULA`, and no volatile `TODAY` / `NOW` / `RAND`.
 - **Concrete failure case (`real_v2_050`):** on `orders_ecommerce`, asked to `VLOOKUP Order Total for ORD-1015`, `Q5_K_M` outputs syntactically valid `=IFERROR(ROUND(VLOOKUP("ORD-1015",A2:H57,6,FALSE),1),0)`, counting `col_index_num=6` (`Discount %`, returning `11.0`) instead of `7` (`Order Total`, `533.0`). Other remaining errors on `test_real_v2` involve inequality direction (`>` vs `<` on `real_v2_029`) and abbreviated category strings (`"<>C"` vs `"<>Sec C"` on `real_v2_034`).
-- **Benchmark constraints:** `test_real_v2` has `N = 50` examples (95% Wilson CI width ~17–20 pp), training data is 100% synthetic, and test requests were drafted with AI assistance rather than collected from external spreadsheet users.
+- **Benchmark constraints:** the fresh held-out set `test_real_v2` has `N = 50` examples (95% Wilson CI width ~17–20 pp), training data is 100% synthetic, and `test_real_v2` is not fully independent because it was drafted by an AI assistant with repo access (including v1 error analysis).
 - **Future work:** collect an independently human-authored real workbook benchmark; add explicit 1-based column indices (`G [col 7]: Order Total`) to the prompt schema to eliminate `VLOOKUP` off-by-one errors; and support modern Excel dynamic arrays (`FILTER`, `XLOOKUP` multi-column, `LET`).
 
 ---
 
 ## Credits & License
 
-- **Credits:** [Qwen Team](https://github.com/QwenLM) (`Qwen/Qwen3-1.7B`); [Unsloth](https://github.com/unslothai/unsloth) for fast T4 QLoRA; M Junaid & Qwen Pakistan for the organizer starter repo [`junaiddshaukat/finetune-anywhere`](https://github.com/junaiddshaukat/finetune-anywhere); [`llama.cpp`](https://github.com/ggml-org/llama.cpp); [Ollama](https://github.com/ollama/ollama); [`formulas`](https://github.com/vinci1it2000/formulas); and [Gradio](https://github.com/gradio-app/gradio).
+- **Credits:** [Qwen Team](https://github.com/QwenLM) (`Qwen/Qwen3-1.7B`); [Unsloth](https://github.com/unslothai/unsloth) for fast T4 QLoRA; Junaid Shaukat & Qwen Pakistan for the organizer starter repo [`junaiddshaukat/finetune-anywhere`](https://github.com/junaiddshaukat/finetune-anywhere); [`llama.cpp`](https://github.com/ggml-org/llama.cpp); [Ollama](https://github.com/ollama/ollama); [`formulas`](https://github.com/vinci1it2000/formulas); and [Gradio](https://github.com/gradio-app/gradio).
 - **Licenses:** Repository source code is licensed under **MIT** ([`LICENSE`](LICENSE)). Fine-tuned LoRA adapters and quantized GGUF weights inherit **Apache-2.0** from [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B).

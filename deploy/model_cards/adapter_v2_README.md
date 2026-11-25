@@ -24,7 +24,7 @@ PEFT LoRA adapter (`r=16`, `lora_alpha=32`, `lora_dropout=0.0`, all 7 linear lay
 - **Frozen fallback adapter (`v1-frozen`):** [`abubakar56/formulalm-qwen3-1.7b-lora`](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora)
 - **Base model:** [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B) (revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`, **Apache-2.0**)
 - **Source code:** [`abubakarp789/FormulaLM`](https://github.com/abubakarp789/FormulaLM) (MIT code license)
-- **License:** **Apache-2.0**, inherited from [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B). Credit to the Qwen team and [`junaiddshaukat/finetune-anywhere`](https://github.com/junaiddshaukat/finetune-anywhere).
+- **License:** **Apache-2.0**, inherited from [`Qwen/Qwen3-1.7B`](https://huggingface.co/Qwen/Qwen3-1.7B). Credit to the Qwen team and Junaid Shaukat & Qwen Pakistan ([`junaiddshaukat/finetune-anywhere`](https://github.com/junaiddshaukat/finetune-anywhere)).
 
 > **Base-model merge note:** Unsloth records `unsloth/Qwen3-1.7B-unsloth-bnb-4bit` (`a972f430...`) in `adapter_config.json` during 4-bit QLoRA training. For 16-bit evaluation and GGUF merging, explicitly load `Qwen/Qwen3-1.7B` at revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e` in `float16` before calling `PeftModel.from_pretrained(...)` (verified lossless: 20/20 raw parity between HF merged FP16 and GGUF F16).
 
@@ -76,7 +76,7 @@ For local CPU inference via Ollama or `llama.cpp`, use the ready-to-run `Q5_K_M`
 
 ## Training Summary & Hyperparameters
 
-- **Data:** 9,000 execution-verified synthetic examples (`train_v2.jsonl`, 0 dropped) on 20 training sheets (11 domains, 36 Excel functions, 0 personal data, 0 third-party LLM outputs); 5 held-out sheets never seen during training. Templates, phrasing patterns, v2 augmentations, draft `test_real`, and post-v2 `test_real_v2` were drafted with an AI assistant and reviewed/run by Abubakar.
+- **Data:** 9,000 execution-verified synthetic examples (`train_v2.jsonl`, 0 dropped) on 20 training sheets (11 domains, 36 Excel functions, 0 personal data); 5 held-out sheets never seen during training. No model-generated paraphrase augmentation or scraped data was used; templates, phrasing patterns, v2 augmentations, code, and `test_real_DRAFT.csv` (kept as an unreviewed AI-assisted draft) were written with an AI coding assistant. For the fresh held-out set `test_real_v2` (50 requests, created after v2 training finished), the requests were drafted by an AI assistant with access to the repo, including the v1 error analysis; the set is therefore not fully independent.
 - **Hyperparameters (`config/train_qlora_v2.yaml`):** 4-bit QLoRA, `r=16`, `lora_alpha=32`, `lora_dropout=0.0`, target modules `q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj`, `max_seq_length=512`, `train_on_responses_only` (`enable_thinking=False`), `num_train_epochs=1` (563 steps), effective batch 16 (`4 × 4`), `lr=1e-4` cosine, `warmup_ratio=0.08`, `weight_decay=0.05`, `adamw_8bit`, `eval_steps=50`, `seed=42`, best checkpoint `checkpoint-400` (`val_loss=0.003975`).
 - **Hardware:** Free Google Colab Tesla T4 (14.56 GB VRAM) — 19.0 min, peak 4.19 GB VRAM.
 
@@ -88,8 +88,8 @@ For local CPU inference via Ollama or `llama.cpp`, use the ready-to-run `Q5_K_M`
 
 | Test Set | System | N | **Exec. Accuracy** | 95% Wilson CI | Syntax Valid | Exact Match |
 |---|---|---:|---:|---|---:|---:|
-| `test_real_v2` (post-v2 fresh) | Base 0-shot / 5-shot | 50 | **46.0% / 58.0%** | `[33.0%, 59.6%]` / `[44.2%, 70.6%]` | 76.0% / 88.0% | 40.0% / 46.0% |
-| `test_real_v2` (post-v2 fresh) | v1 (`v1-frozen`) / **v2 (`v2-ship`)** | 50 | **88.0% / 88.0%** | `[76.2%, 94.4%]` / `[76.2%, 94.4%]` | 100.0% / 100.0% | 82.0% / 86.0% |
+| `test_real_v2` (fresh held-out set) | Base 0-shot / 5-shot | 50 | **46.0% / 58.0%** | `[33.0%, 59.6%]` / `[44.2%, 70.6%]` | 76.0% / 88.0% | 40.0% / 46.0% |
+| `test_real_v2` (fresh held-out set) | v1 (`v1-frozen`) / **v2 (`v2-ship`)** | 50 | **88.0% / 88.0%** | `[76.2%, 94.4%]` / `[76.2%, 94.4%]` | 100.0% / 100.0% | 82.0% / 86.0% |
 | `test_real` (original) | Base 0-shot / 5-shot | 80 | **50.0% / 51.2%** | `[39.3%, 60.7%]` / `[40.5%, 61.9%]` | 81.2% / 85.0% | 42.5% / 41.2% |
 | `test_real` (original) | v1 / **v2** *(informed by v1 error analysis)* | 80 | **91.2% / 93.8%** | `[83.0%, 95.7%]` / `[86.2%, 97.3%]` | 100.0% / 100.0% | 91.2% / 93.8% |
 | `test_synthetic` (original) | Base 0-shot / 5-shot | 500 | **44.6% / 60.2%** | `[40.3%, 49.0%]` / `[55.9%, 64.4%]` | 71.8% / 85.0% | 36.6% / 51.2% |
@@ -102,4 +102,4 @@ For local CPU inference via Ollama or `llama.cpp`, use the ready-to-run `Q5_K_M`
 
 ## Limitations
 
-Excel dialect only (~35 / 36 exact in-scope functions, no volatile functions), single-sheet bounded ranges (`2..N`), synthetic training data, and small post-v2 evaluation set (`N=50`). Always review generated formulas before relying on them in production spreadsheets.
+Excel dialect only (~35 / 36 exact in-scope functions, no volatile functions), single-sheet bounded ranges (`2..N`), synthetic training data, and small fresh held-out set (`N=50`, drafted by an AI assistant with repo access and therefore not fully independent). Always review generated formulas before relying on them in production spreadsheets.

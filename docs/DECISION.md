@@ -23,8 +23,8 @@ All v1 and v2 runs below come directly from saved files under `results/` (see [`
 |---|---|---:|---:|---:|---|---:|---:|---:|
 | `val` (validation) | Fine-tuned v1 (`v1-frozen`) | 500 | 498/500 | **99.6%** | `[98.6%, 99.9%]` | — | 99.8% | 99.4% |
 | `val` (validation) | **Fine-tuned v2 (`v2-ship`)** | 500 | 498/500 | **99.6%** | `[98.6%, 99.9%]` | +0.0 pp | **100.0%** | 98.2% |
-| `test_real_v2` (post-v2 fresh) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | — | 100.0% | 82.0% |
-| `test_real_v2` (post-v2 fresh) | **Fine-tuned v2 (`v2-ship`)** | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | +0.0 pp | 100.0% | **86.0%** |
+| `test_real_v2` (fresh held-out set) | Fine-tuned v1 (`v1-frozen`) | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | — | 100.0% | 82.0% |
+| `test_real_v2` (fresh held-out set) | **Fine-tuned v2 (`v2-ship`)** | 50 | 44/50 | **88.0%** | `[76.2%, 94.4%]` | +0.0 pp | 100.0% | **86.0%** |
 | `test_synthetic` | Fine-tuned v1 (`v1-frozen`) | 500 | 488/500 | **97.6%** | `[95.9%, 98.6%]` | — | 99.6% | 97.0% |
 | `test_synthetic` | **Fine-tuned v2** *(informed by v1 error analysis)* | 500 | 494/500 | **98.8%** | `[97.4%, 99.5%]` | +1.2 pp | **99.8%** | **97.6%** |
 | `test_real` | Fine-tuned v1 (`v1-frozen`) | 80 | 73/80 | **91.2%** | `[83.0%, 95.7%]` | — | 100.0% | 91.2% |
@@ -44,8 +44,8 @@ All v1 and v2 runs below come directly from saved files under `results/` (see [`
 
 - **Statistically indistinguishable on unbiased splits:** On `val` (498/500 vs 498/500) and `test_real_v2` (44/50 vs 44/50), v1 and v2 tie exactly on execution accuracy with identical 95% Wilson CIs (`[98.6%, 99.9%]` and `[76.2%, 94.4%]`). v2 holds small secondary advantages (lower validation loss `0.003975` vs `0.004240`, `100.0%` vs `99.8%` syntax validity on `val`, and `86.0%` vs `82.0%` normalized exact match on `test_real_v2`).
 - **Original test-set gains are within noise and analysis-informed:** v2's gains on `test_synthetic` (`+1.2 pp`, `[95.9%, 98.6%]` vs `[97.4%, 99.5%]`) and `test_real` (`+2.5 pp`, `[83.0%, 95.7%]` vs `[86.2%, 97.3%]`) have overlapping 95% Wilson CIs and were produced after v2's train-only data additions targeted v1's failure clusters on those sets (*informed by v1 error analysis*). They should not be overstated as statistically significant breakthroughs over v1.
-- **Authorship caveat on `test_real_v2`:** `data/test_real_v2/test_real_v2.csv` (50 requests) was drafted with an AI assistant after v2 training finished, rather than independently authored by a human; this is disclosed in `README.md`, `data/DATASET_CARD.md`, and `data/test_real_v2/README.md`.
-- **Why `SHIP_V2` stands:** All three pre-registered gates passed cleanly with zero regressions on any split, cleaner 1-epoch training dynamics (no Epoch-2 validation overfitting), and lower validation loss.
+- **Authorship caveat on `test_real_v2`:** For the fresh held-out set `data/test_real_v2/test_real_v2.csv` (50 requests, created after `qlora_v2` training finished), the requests were drafted by an AI assistant with access to the repo, including the v1 error analysis; the set is therefore not fully independent. This is disclosed in `README.md`, `data/DATASET_CARD.md`, and `data/test_real_v2/README.md`.
+- **Why `SHIP_V2` stands:** `v2` passed all pre-registered gates cleanly, showed cleaner 1-epoch training dynamics (no Epoch-2 validation overfitting), and achieved lower validation loss.
 
 ---
 

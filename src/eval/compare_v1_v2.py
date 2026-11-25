@@ -2,7 +2,7 @@
 
 Splits compared (when present under ``--results-dir``):
 1. ``val``            (``ft_v1_val`` vs ``ft_v2_val``) — validation selection split
-2. ``test_real_v2``   (``ft_v1_real_v2`` vs ``ft_v2_real_v2``) — fresh blind hand-written set
+2. ``test_real_v2``   (``ft_v1_real_v2`` vs ``ft_v2_real_v2``) — fresh held-out set
 3. ``test_synthetic`` (``ft_v1_synthetic`` vs ``ft_v2_synthetic``) — v2 labeled
    *'informed by v1 error analysis'*
 4. ``test_real``      (``ft_v1_real`` vs ``ft_v2_real``) — v2 labeled
@@ -51,7 +51,7 @@ SPLITS: tuple[SplitSpec, ...] = (
     SplitSpec("val", "`val` (validation)", "ft_v1_val", "ft_v2_val", False),
     SplitSpec(
         "test_real_v2",
-        "`test_real_v2` (fresh blind)",
+        "`test_real_v2` (fresh held-out set)",
         "ft_v1_real_v2",
         "ft_v2_real_v2",
         False,
@@ -442,7 +442,7 @@ def render_v1_v2_markdown(comp: dict[str, Any]) -> str:
 HEADLINE_SPLITS: tuple[tuple[str, str, bool, tuple[tuple[str, str], ...]], ...] = (
     (
         "test_real_v2",
-        "`test_real_v2` (post-v2 fresh)",
+        "`test_real_v2` (fresh held-out set)",
         False,
         (
             ("base_zeroshot", "baseline_zeroshot_real_v2"),

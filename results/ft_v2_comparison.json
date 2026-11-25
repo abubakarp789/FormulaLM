@@ -256,7 +256,7 @@
       "delta_exec_pp": 0.0
     },
     "test_real_v2": {
-      "title": "`test_real_v2` (fresh blind)",
+      "title": "`test_real_v2` (fresh held-out set)",
       "informed_by_v1": false,
       "v1_run": "ft_v1_real_v2",
       "v2_run": "ft_v2_real_v2",
