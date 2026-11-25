@@ -320,6 +320,9 @@ def _benchmark_with_llamacpp(
     assert server_exe is not None
     mem_before = get_memory_mb()["available_mb"]
     t_start = time.perf_counter()
+    out_root.mkdir(parents=True, exist_ok=True)
+    log_path = out_root / f"llama_server_{qkey}.log"
+    log_f = log_path.open("w", encoding="utf-8")
     proc = subprocess.Popen(
         [
             server_exe,
@@ -337,7 +340,7 @@ def _benchmark_with_llamacpp(
             "127.0.0.1",
         ],
         stdout=subprocess.DEVNULL,
-        stderr=subprocess.PIPE,
+        stderr=log_f,
         text=True,
     )
     sampler = _PeakSampler(pid=proc.pid)
@@ -346,8 +349,9 @@ def _benchmark_with_llamacpp(
         ready = False
         for _ in range(180):
             if proc.poll() is not None:
-                err_txt = proc.stderr.read() if proc.stderr else ""
-                raise RuntimeError(f"llama-server crashed during load: {err_txt[:400]}")
+                log_f.close()
+                err_txt = log_path.read_text(encoding="utf-8", errors="replace")[-400:]
+                raise RuntimeError(f"llama-server crashed during load: {err_txt}")
             try:
                 if requests.get(f"http://127.0.0.1:{port}/health", timeout=2).status_code == 200:
                     ready = True
@@ -411,6 +415,8 @@ def _benchmark_with_llamacpp(
             proc.wait(timeout=15)
         except subprocess.TimeoutExpired:
             proc.kill()
+        if not log_f.closed:
+            log_f.close()
 
     comb_acc = round(total_k / total_n, 4) if total_n else 0.0
     comb_ci = list(wilson_ci(total_k, total_n))
