@@ -87,7 +87,21 @@ All filled numbers come directly from saved runs in [`results/`](results/). v2 r
 
 ## Demo
 
-_TBD_ — Gradio app (`app/`): paste headers or upload a small CSV, type a request, get the formula and see it executed on sample data.
+Local Gradio web app ([`app/app.py`](app/app.py)) running 100% on `localhost` with **zero external network calls at inference time**:
+
+- **Inputs:** choose any of the 5 held-out spreadsheets, upload a small `.csv` / `.xlsx` (`<= 1.0 MB`), or paste column headers / mini-CSV rows, plus a plain-English request.
+- **Backend (8 GB RAM safe):** connects to local Ollama (`formulalm`, `Q5_K_M` GGUF from [`deploy/Modelfile`](deploy/Modelfile)) or a local `llama-server`, with `OLLAMA_MAX_LOADED_MODELS=1` so two models are never loaded simultaneously.
+- **Executable verification:** runs every generated formula on the sheet via `src.eval.executor.run_formula`, displays the computed result alongside sample rows (and ground truth for built-in examples), or surfaces structured syntax/runtime error details.
+- **Honest comparison & examples:** includes 8 built-in requests from `test_real_v2` across all 5 held-out sheets — including an honestly labeled failure case (`real_v2_050`, off-by-one `VLOOKUP` column index) — plus a toggle showing **saved** `Qwen3-1.7B` base-model predictions from `results/baseline_*` without loading a second model in RAM.
+
+```powershell
+# One-command launch on Windows PowerShell (sets OLLAMA_MAX_LOADED_MODELS=1,
+# registers 'formulalm' from deploy/Modelfile if needed, opens http://127.0.0.1:7860):
+.\scripts\run_demo.ps1
+
+# Offline smoke mode (no Ollama / llama-server needed):
+.\scripts\run_demo.ps1 -Backend mock
+```
 
 ## Reproduce
 
