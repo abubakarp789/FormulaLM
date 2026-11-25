@@ -1,0 +1,691 @@
+{
+  "artifacts": {},
+  "parity_f16": null,
+  "local_environment": null,
+  "systems": {
+    "base_zeroshot": {
+      "label": "Base `Qwen3-1.7B` (0-shot, fp16)",
+      "quant_key": null,
+      "size_mb": null,
+      "local": null,
+      "splits": {
+        "val": null,
+        "real_v2": {
+          "run_name": "baseline_zeroshot_real_v2",
+          "n": 50,
+          "k": 23,
+          "execution_accuracy": 0.46,
+          "wilson_95_ci": [
+            0.3297,
+            0.596
+          ],
+          "syntax_valid_rate": 0.76,
+          "exact_match_rate": 0.4,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 645.64,
+          "by_category": {
+            "aggregation": {
+              "n": 10,
+              "k": 7,
+              "execution_accuracy": 0.7,
+              "wilson_95_ci": [
+                0.3968,
+                0.8922
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.6
+            },
+            "conditional_aggregation": {
+              "n": 15,
+              "k": 4,
+              "execution_accuracy": 0.2667,
+              "wilson_95_ci": [
+                0.109,
+                0.5195
+              ],
+              "syntax_valid_rate": 0.8,
+              "exact_match_rate": 0.2
+            },
+            "date": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 0.8,
+              "exact_match_rate": 0.6
+            },
+            "logic": {
+              "n": 5,
+              "k": 2,
+              "execution_accuracy": 0.4,
+              "wilson_95_ci": [
+                0.1176,
+                0.7693
+              ],
+              "syntax_valid_rate": 0.6,
+              "exact_match_rate": 0.4
+            },
+            "lookup": {
+              "n": 5,
+              "k": 1,
+              "execution_accuracy": 0.2,
+              "wilson_95_ci": [
+                0.0362,
+                0.6245
+              ],
+              "syntax_valid_rate": 0.2,
+              "exact_match_rate": 0.2
+            },
+            "math_and_composition": {
+              "n": 5,
+              "k": 2,
+              "execution_accuracy": 0.4,
+              "wilson_95_ci": [
+                0.1176,
+                0.7693
+              ],
+              "syntax_valid_rate": 0.8,
+              "exact_match_rate": 0.4
+            },
+            "text": {
+              "n": 5,
+              "k": 3,
+              "execution_accuracy": 0.6,
+              "wilson_95_ci": [
+                0.2307,
+                0.8824
+              ],
+              "syntax_valid_rate": 0.8,
+              "exact_match_rate": 0.6
+            }
+          },
+          "provenance": {
+            "backend": "transformers:Qwen/Qwen3-1.7B",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "adapter_revision": null,
+              "adapter_config_base_model": null,
+              "load_in_4bit": false,
+              "dtype": "torch.bfloat16",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real": {
+          "run_name": "baseline_zeroshot_real",
+          "n": 80,
+          "k": 40,
+          "execution_accuracy": 0.5,
+          "wilson_95_ci": [
+            0.393,
+            0.607
+          ],
+          "syntax_valid_rate": 0.8125,
+          "exact_match_rate": 0.425,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 651.74,
+          "by_category": {
+            "aggregation": {
+              "n": 12,
+              "k": 10,
+              "execution_accuracy": 0.8333,
+              "wilson_95_ci": [
+                0.552,
+                0.953
+              ],
+              "syntax_valid_rate": 0.9167,
+              "exact_match_rate": 0.8333
+            },
+            "conditional_aggregation": {
+              "n": 21,
+              "k": 7,
+              "execution_accuracy": 0.3333,
+              "wilson_95_ci": [
+                0.1719,
+                0.5463
+              ],
+              "syntax_valid_rate": 0.9048,
+              "exact_match_rate": 0.2857
+            },
+            "date": {
+              "n": 9,
+              "k": 5,
+              "execution_accuracy": 0.5556,
+              "wilson_95_ci": [
+                0.2667,
+                0.8112
+              ],
+              "syntax_valid_rate": 0.7778,
+              "exact_match_rate": 0.4444
+            },
+            "logic": {
+              "n": 10,
+              "k": 6,
+              "execution_accuracy": 0.6,
+              "wilson_95_ci": [
+                0.3127,
+                0.8318
+              ],
+              "syntax_valid_rate": 0.9,
+              "exact_match_rate": 0.4
+            },
+            "lookup": {
+              "n": 9,
+              "k": 1,
+              "execution_accuracy": 0.1111,
+              "wilson_95_ci": [
+                0.0199,
+                0.435
+              ],
+              "syntax_valid_rate": 0.3333,
+              "exact_match_rate": 0.0
+            },
+            "math_and_composition": {
+              "n": 8,
+              "k": 3,
+              "execution_accuracy": 0.375,
+              "wilson_95_ci": [
+                0.1368,
+                0.6943
+              ],
+              "syntax_valid_rate": 0.625,
+              "exact_match_rate": 0.375
+            },
+            "text": {
+              "n": 11,
+              "k": 8,
+              "execution_accuracy": 0.7273,
+              "wilson_95_ci": [
+                0.4344,
+                0.9025
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.6364
+            }
+          },
+          "provenance": {
+            "backend": "transformers:Qwen/Qwen3-1.7B",
+            "base_model_id": null,
+            "base_revision": null,
+            "model_provenance": null
+          }
+        },
+        "synthetic": {
+          "run_name": "baseline_zeroshot_synthetic",
+          "n": 500,
+          "k": 223,
+          "execution_accuracy": 0.446,
+          "wilson_95_ci": [
+            0.403,
+            0.4898
+          ],
+          "syntax_valid_rate": 0.718,
+          "exact_match_rate": 0.366,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 813.95,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 47,
+              "execution_accuracy": 0.6528,
+              "wilson_95_ci": [
+                0.5376,
+                0.7525
+              ],
+              "syntax_valid_rate": 0.75,
+              "exact_match_rate": 0.6389
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 17,
+              "execution_accuracy": 0.2361,
+              "wilson_95_ci": [
+                0.153,
+                0.346
+              ],
+              "syntax_valid_rate": 0.7917,
+              "exact_match_rate": 0.1806
+            },
+            "date": {
+              "n": 72,
+              "k": 41,
+              "execution_accuracy": 0.5694,
+              "wilson_95_ci": [
+                0.4544,
+                0.6774
+              ],
+              "syntax_valid_rate": 0.7778,
+              "exact_match_rate": 0.5278
+            },
+            "logic": {
+              "n": 71,
+              "k": 49,
+              "execution_accuracy": 0.6901,
+              "wilson_95_ci": [
+                0.5752,
+                0.7856
+              ],
+              "syntax_valid_rate": 0.9155,
+              "exact_match_rate": 0.4085
+            },
+            "lookup": {
+              "n": 71,
+              "k": 3,
+              "execution_accuracy": 0.0423,
+              "wilson_95_ci": [
+                0.0145,
+                0.117
+              ],
+              "syntax_valid_rate": 0.0563,
+              "exact_match_rate": 0.0141
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 37,
+              "execution_accuracy": 0.5211,
+              "wilson_95_ci": [
+                0.4069,
+                0.6332
+              ],
+              "syntax_valid_rate": 0.831,
+              "exact_match_rate": 0.3944
+            },
+            "text": {
+              "n": 71,
+              "k": 29,
+              "execution_accuracy": 0.4085,
+              "wilson_95_ci": [
+                0.3017,
+                0.5246
+              ],
+              "syntax_valid_rate": 0.9014,
+              "exact_match_rate": 0.3944
+            }
+          },
+          "provenance": {
+            "backend": "transformers:Qwen/Qwen3-1.7B",
+            "base_model_id": null,
+            "base_revision": null,
+            "model_provenance": null
+          }
+        }
+      }
+    },
+    "base_5shot": {
+      "label": "Base `Qwen3-1.7B` (5-shot, fp16)",
+      "quant_key": null,
+      "size_mb": null,
+      "local": null,
+      "splits": {
+        "val": null,
+        "real_v2": {
+          "run_name": "baseline_5shot_real_v2",
+          "n": 50,
+          "k": 29,
+          "execution_accuracy": 0.58,
+          "wilson_95_ci": [
+            0.4423,
+            0.7062
+          ],
+          "syntax_valid_rate": 0.88,
+          "exact_match_rate": 0.46,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1493.13,
+          "by_category": {
+            "aggregation": {
+              "n": 10,
+              "k": 8,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.4902,
+                0.9433
+              ],
+              "syntax_valid_rate": 0.9,
+              "exact_match_rate": 0.8
+            },
+            "conditional_aggregation": {
+              "n": 15,
+              "k": 7,
+              "execution_accuracy": 0.4667,
+              "wilson_95_ci": [
+                0.2481,
+                0.6988
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.4667
+            },
+            "date": {
+              "n": 5,
+              "k": 4,
+              "execution_accuracy": 0.8,
+              "wilson_95_ci": [
+                0.3755,
+                0.9638
+              ],
+              "syntax_valid_rate": 0.8,
+              "exact_match_rate": 0.4
+            },
+            "logic": {
+              "n": 5,
+              "k": 2,
+              "execution_accuracy": 0.4,
+              "wilson_95_ci": [
+                0.1176,
+                0.7693
+              ],
+              "syntax_valid_rate": 0.6,
+              "exact_match_rate": 0.2
+            },
+            "lookup": {
+              "n": 5,
+              "k": 1,
+              "execution_accuracy": 0.2,
+              "wilson_95_ci": [
+                0.0362,
+                0.6245
+              ],
+              "syntax_valid_rate": 0.8,
+              "exact_match_rate": 0.0
+            },
+            "math_and_composition": {
+              "n": 5,
+              "k": 2,
+              "execution_accuracy": 0.4,
+              "wilson_95_ci": [
+                0.1176,
+                0.7693
+              ],
+              "syntax_valid_rate": 0.8,
+              "exact_match_rate": 0.2
+            },
+            "text": {
+              "n": 5,
+              "k": 5,
+              "execution_accuracy": 1.0,
+              "wilson_95_ci": [
+                0.5655,
+                1.0
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.8
+            }
+          },
+          "provenance": {
+            "backend": "transformers:Qwen/Qwen3-1.7B",
+            "base_model_id": "Qwen/Qwen3-1.7B",
+            "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "model_provenance": {
+              "base_model_id": "Qwen/Qwen3-1.7B",
+              "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+              "adapter": null,
+              "adapter_revision": null,
+              "adapter_config_base_model": null,
+              "load_in_4bit": false,
+              "dtype": "torch.bfloat16",
+              "enable_thinking": false
+            }
+          }
+        },
+        "real": {
+          "run_name": "baseline_5shot_real",
+          "n": 80,
+          "k": 41,
+          "execution_accuracy": 0.5125,
+          "wilson_95_ci": [
+            0.4049,
+            0.6189
+          ],
+          "syntax_valid_rate": 0.85,
+          "exact_match_rate": 0.4125,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1576.15,
+          "by_category": {
+            "aggregation": {
+              "n": 12,
+              "k": 7,
+              "execution_accuracy": 0.5833,
+              "wilson_95_ci": [
+                0.3195,
+                0.8067
+              ],
+              "syntax_valid_rate": 0.9167,
+              "exact_match_rate": 0.5833
+            },
+            "conditional_aggregation": {
+              "n": 21,
+              "k": 8,
+              "execution_accuracy": 0.381,
+              "wilson_95_ci": [
+                0.2075,
+                0.5912
+              ],
+              "syntax_valid_rate": 0.9524,
+              "exact_match_rate": 0.381
+            },
+            "date": {
+              "n": 9,
+              "k": 7,
+              "execution_accuracy": 0.7778,
+              "wilson_95_ci": [
+                0.4526,
+                0.9368
+              ],
+              "syntax_valid_rate": 0.8889,
+              "exact_match_rate": 0.4444
+            },
+            "logic": {
+              "n": 10,
+              "k": 6,
+              "execution_accuracy": 0.6,
+              "wilson_95_ci": [
+                0.3127,
+                0.8318
+              ],
+              "syntax_valid_rate": 0.7,
+              "exact_match_rate": 0.4
+            },
+            "lookup": {
+              "n": 9,
+              "k": 3,
+              "execution_accuracy": 0.3333,
+              "wilson_95_ci": [
+                0.1206,
+                0.6458
+              ],
+              "syntax_valid_rate": 0.5556,
+              "exact_match_rate": 0.1111
+            },
+            "math_and_composition": {
+              "n": 8,
+              "k": 2,
+              "execution_accuracy": 0.25,
+              "wilson_95_ci": [
+                0.0715,
+                0.5907
+              ],
+              "syntax_valid_rate": 0.75,
+              "exact_match_rate": 0.125
+            },
+            "text": {
+              "n": 11,
+              "k": 8,
+              "execution_accuracy": 0.7273,
+              "wilson_95_ci": [
+                0.4344,
+                0.9025
+              ],
+              "syntax_valid_rate": 1.0,
+              "exact_match_rate": 0.7273
+            }
+          },
+          "provenance": {
+            "backend": "transformers:Qwen/Qwen3-1.7B",
+            "base_model_id": null,
+            "base_revision": null,
+            "model_provenance": null
+          }
+        },
+        "synthetic": {
+          "run_name": "baseline_5shot_synthetic",
+          "n": 500,
+          "k": 301,
+          "execution_accuracy": 0.602,
+          "wilson_95_ci": [
+            0.5585,
+            0.644
+          ],
+          "syntax_valid_rate": 0.85,
+          "exact_match_rate": 0.512,
+          "raw_format_ok_rate": 1.0,
+          "avg_latency_ms": 1728.18,
+          "by_category": {
+            "aggregation": {
+              "n": 72,
+              "k": 47,
+              "execution_accuracy": 0.6528,
+              "wilson_95_ci": [
+                0.5376,
+                0.7525
+              ],
+              "syntax_valid_rate": 0.7639,
+              "exact_match_rate": 0.5
+            },
+            "conditional_aggregation": {
+              "n": 72,
+              "k": 42,
+              "execution_accuracy": 0.5833,
+              "wilson_95_ci": [
+                0.4681,
+                0.6901
+              ],
+              "syntax_valid_rate": 0.9722,
+              "exact_match_rate": 0.5556
+            },
+            "date": {
+              "n": 72,
+              "k": 57,
+              "execution_accuracy": 0.7917,
+              "wilson_95_ci": [
+                0.6843,
+                0.8695
+              ],
+              "syntax_valid_rate": 0.9583,
+              "exact_match_rate": 0.6806
+            },
+            "logic": {
+              "n": 71,
+              "k": 49,
+              "execution_accuracy": 0.6901,
+              "wilson_95_ci": [
+                0.5752,
+                0.7856
+              ],
+              "syntax_valid_rate": 0.8028,
+              "exact_match_rate": 0.5352
+            },
+            "lookup": {
+              "n": 71,
+              "k": 29,
+              "execution_accuracy": 0.4085,
+              "wilson_95_ci": [
+                0.3017,
+                0.5246
+              ],
+              "syntax_valid_rate": 0.5915,
+              "exact_match_rate": 0.3662
+            },
+            "math_and_composition": {
+              "n": 71,
+              "k": 41,
+              "execution_accuracy": 0.5775,
+              "wilson_95_ci": [
+                0.4615,
+                0.6855
+              ],
+              "syntax_valid_rate": 0.9014,
+              "exact_match_rate": 0.4789
+            },
+            "text": {
+              "n": 71,
+              "k": 36,
+              "execution_accuracy": 0.507,
+              "wilson_95_ci": [
+                0.3934,
+                0.6199
+              ],
+              "syntax_valid_rate": 0.9577,
+              "exact_match_rate": 0.4648
+            }
+          },
+          "provenance": {
+            "backend": "transformers:Qwen/Qwen3-1.7B",
+            "base_model_id": null,
+            "base_revision": null,
+            "model_provenance": null
+          }
+        }
+      }
+    },
+    "quant_f16": {
+      "label": "v2-ship Merged `F16` GGUF",
+      "quant_key": "f16",
+      "size_mb": null,
+      "local": null,
+      "splits": {
+        "val": null,
+        "real_v2": null,
+        "real": null,
+        "synthetic": null
+      }
+    },
+    "quant_q8_0": {
+      "label": "v2-ship `Q8_0` GGUF",
+      "quant_key": "q8_0",
+      "size_mb": null,
+      "local": null,
+      "splits": {
+        "val": null,
+        "real_v2": null,
+        "real": null,
+        "synthetic": null
+      }
+    },
+    "quant_q5_k_m": {
+      "label": "v2-ship `Q5_K_M` GGUF",
+      "quant_key": "q5_k_m",
+      "size_mb": null,
+      "local": null,
+      "splits": {
+        "val": null,
+        "real_v2": null,
+        "real": null,
+        "synthetic": null
+      }
+    },
+    "quant_q4_k_m": {
+      "label": "v2-ship `Q4_K_M` GGUF",
+      "quant_key": "q4_k_m",
+      "size_mb": null,
+      "local": null,
+      "splits": {
+        "val": null,
+        "real_v2": null,
+        "real": null,
+        "synthetic": null
+      }
+    }
+  },
+  "recommendation": {
+    "status": "PENDING",
+    "recommended": null,
+    "rationale": "Missing F16 reference runs (val, real_v2, real, synthetic). Run notebooks/05_merge_quantize.ipynb first.",
+    "evaluated_candidates": {}
+  }
+}
