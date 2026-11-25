@@ -388,6 +388,7 @@ class OllamaBackend:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.name = f"ollama:{model}"
+        self.last_timings: dict[str, Any] = {}
 
     def provenance(self) -> dict[str, Any]:
         return {"base_model_id": f"ollama:{self.model}", "base_revision": None, "adapter": None}
@@ -415,6 +416,18 @@ class OllamaBackend:
         resp = requests.post(f"{self.base_url}/api/chat", json=payload, timeout=self.timeout)
         resp.raise_for_status()
         data = resp.json()
+        timings: dict[str, Any] = {}
+        if data.get("eval_count") and data.get("eval_duration"):
+            timings["predicted_per_second"] = float(data["eval_count"]) / (
+                float(data["eval_duration"]) / 1e9
+            )
+        if data.get("prompt_eval_count") and data.get("prompt_eval_duration"):
+            timings["prompt_per_second"] = float(data["prompt_eval_count"]) / (
+                float(data["prompt_eval_duration"]) / 1e9
+            )
+        if data.get("load_duration"):
+            timings["load_duration_s"] = float(data["load_duration"]) / 1e9
+        self.last_timings = timings
         return str(data.get("message", {}).get("content", ""))
 
 

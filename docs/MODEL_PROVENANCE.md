@@ -51,3 +51,18 @@ Both adapters: `r=16`, `lora_alpha=32`, `lora_dropout=0.0`, targets `q,k,v,o,gat
 ## 4. Evaluation from now on
 
 `notebooks/03_eval_ft_v2.ipynb` loads **both** adapters from the Hub, pinned to the commits above, on the same `Qwen/Qwen3-1.7B@70d244c` fp16 base with identical decoding settings. The v1-vs-v2 comparison therefore does not depend on which Colab account's Drive is mounted.
+
+## 5. Merged 16-bit & Quantized GGUF Release (`v2-ship`)
+
+Exported in `notebooks/05_merge_quantize.ipynb` using `Qwen/Qwen3-1.7B@70d244cc` (fp16) + `abubakar56/formulalm-qwen3-1.7b-lora-v2@e2dd7e81` and `llama.cpp` release `b12728` (`244640b7f26e2a7301b27a24edc4f7feaf97d52f`).
+
+- **Hugging Face GGUF repo:** [`abubakar56/formulalm-qwen3-1.7b-gguf`](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-gguf) (public, commit `cbfb673ce04394d5d1cefabaf484b752cf5bf009`)
+- **HF Merged FP16 vs GGUF F16 parity (20 fixed examples):** `20/20` (100.0%) raw exact match, formula match, and executed value agreement (`results/quant_parity/parity_report.md`).
+
+| File | Quant | Size (MB) | LFS SHA-256 (first 16 hex) |
+|---|---|---:|---|
+| `formulalm-qwen3-1.7b-v2-f16.gguf` | `F16` | 3,287.65 | `af920c6319798df4` |
+| `formulalm-qwen3-1.7b-v2-q8_0.gguf` | `Q8_0` | 1,749.45 | `56dee17960b60da3` |
+| `formulalm-qwen3-1.7b-v2-q5_k_m.gguf` | `Q5_K_M` | 1,199.61 | `ca91c683279434a8` |
+| `formulalm-qwen3-1.7b-v2-q4_k_m.gguf` | `Q4_K_M` | 1,056.11 | `aebb66e3b210d251` |
+

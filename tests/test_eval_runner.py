@@ -38,7 +38,7 @@ def test_real_draft_csv_valid_heldout_and_executable():
         assert key not in seen_reqs, f"duplicate request in {ex.id}"
         seen_reqs.add(key)
 
-        res = run_formula(ex.reference_formula, xlsx_by_sheet[ex.sheet_id])
+        res = run_formula(ex.reference_formula, xlsx_by_sheet[ex.sheet_id], timeout=30.0)
         assert res.ok, f"{ex.id} reference failed: {res.error_type}: {res.error_message}"
         assert values_equal(res.value, ex.expected_value), (
             f"{ex.id}: executor={res.value!r} != expected={ex.expected_value!r}"

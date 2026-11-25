@@ -500,47 +500,71 @@ def _benchmark_with_ollama(
     if wdata.get("eval_count") and wdata.get("eval_duration"):
         gen_tps_samples.append(float(wdata["eval_count"]) / (float(wdata["eval_duration"]) / 1e9))
 
-    # Measure loaded model RAM via `ollama ps` / available RAM delta.
-    mem_loaded = get_memory_mb()["available_mb"]
-    peak_ram_mb = round(max(0.0, mem_before - mem_loaded), 1)
+    # Measure loaded model RAM via Ollama /api/ps (`size` in bytes) or RAM delta fallback.
+    peak_ram_mb = 0.0
+    try:
+        ps_resp = requests.get("http://localhost:11434/api/ps", timeout=5)
+        if ps_resp.status_code == 200:
+            for item in ps_resp.json().get("models", []):
+                if str(item.get("name", "")).startswith(tag):
+                    peak_ram_mb = round(float(item.get("size", 0)) / (1024 * 1024), 1)
+                    break
+    except Exception:
+        pass
+    if peak_ram_mb <= 0:
+        mem_loaded = get_memory_mb()["available_mb"]
+        peak_ram_mb = round(max(0.0, mem_before - mem_loaded), 1)
 
-    backend = OllamaBackend(tag)
+    backend = _TimingWrapperBackend(OllamaBackend(tag))
     split_metrics: dict[str, Any] = {}
     total_k = 0
     total_n = 0
-    for split_key, ds_path in (
-        ("real_v2", "data/test_real_v2/test_real_v2.csv"),
-        ("real", "data/test_real/test_real_DRAFT.csv"),
-    ):
-        m = evaluate(
-            backend=backend,
-            dataset_path=ds_path,
-            run_name=f"local_{qkey}_{split_key}",
-            results_root=out_root,
-            seed=42,
-            max_tokens=96,
-            few_shot=0,
-            batch_size=1,
-            limit=limit,
-            resume=True,
-            formula_timeout=formula_timeout,
-        )
-        ov = m["overall"]
-        n = int(ov["n"])
-        k = round(float(ov["execution_accuracy"]) * n)
-        lo, hi = wilson_ci(k, n)
-        split_metrics[split_key] = {
-            "n": n,
-            "k": k,
-            "execution_accuracy": ov["execution_accuracy"],
-            "wilson_95_ci": [lo, hi],
-            "syntax_valid_rate": ov["syntax_valid_rate"],
-            "exact_match_rate": ov["exact_match_rate"],
-            "avg_latency_ms": ov["avg_latency_ms"],
-        }
-        total_k += k
-        total_n += n
+    try:
+        for split_key, ds_path in (
+            ("real_v2", "data/test_real_v2/test_real_v2.csv"),
+            ("real", "data/test_real/test_real_DRAFT.csv"),
+        ):
+            m = evaluate(
+                backend=backend,
+                dataset_path=ds_path,
+                run_name=f"local_{qkey}_{split_key}",
+                results_root=out_root,
+                seed=42,
+                max_tokens=96,
+                few_shot=0,
+                batch_size=1,
+                limit=limit,
+                resume=True,
+                formula_timeout=formula_timeout,
+            )
+            ov = m["overall"]
+            n = int(ov["n"])
+            k = round(float(ov["execution_accuracy"]) * n)
+            lo, hi = wilson_ci(k, n)
+            split_metrics[split_key] = {
+                "n": n,
+                "k": k,
+                "execution_accuracy": ov["execution_accuracy"],
+                "wilson_95_ci": [lo, hi],
+                "syntax_valid_rate": ov["syntax_valid_rate"],
+                "exact_match_rate": ov["exact_match_rate"],
+                "avg_latency_ms": ov["avg_latency_ms"],
+            }
+            total_k += k
+            total_n += n
+    finally:
+        # Unload model cleanly from Ollama so RAM is freed before checking the next quantization.
+        try:
+            requests.post(
+                "http://localhost:11434/api/generate",
+                json={"model": tag, "keep_alive": 0},
+                timeout=15,
+            )
+            time.sleep(2)
+        except Exception:
+            pass
 
+    all_gen_tps = backend.gen_tps or gen_tps_samples
     comb_acc = round(total_k / total_n, 4) if total_n else 0.0
     comb_ci = list(wilson_ci(total_k, total_n))
     return {
@@ -552,8 +576,10 @@ def _benchmark_with_ollama(
         "file_size_mb": round(gguf_path.stat().st_size / (1024 * 1024), 2),
         "load_time_s": load_time_s,
         "peak_ram_mb": peak_ram_mb,
-        "gen_tokens_per_s": round(statistics.mean(gen_tps_samples), 2) if gen_tps_samples else None,
-        "prompt_tokens_per_s": None,
+        "gen_tokens_per_s": round(statistics.mean(all_gen_tps), 2) if all_gen_tps else None,
+        "prompt_tokens_per_s": (
+            round(statistics.mean(backend.prompt_tps), 2) if backend.prompt_tps else None
+        ),
         "subset_n": total_n,
         "subset_k": total_k,
         "subset_execution_accuracy": comb_acc,
