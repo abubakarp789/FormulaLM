@@ -44,6 +44,10 @@ from openpyxl.utils import (  # noqa: E402
     get_column_letter,
 )
 
+# Pre-warm formulas' lazy function-module loader once at import time so a brand-new
+# Windows .venv does not spend the first formula's 5 s timeout on .pyc / AV scanning.
+formulas.Parser().ast("=SUM(1,2)")[1].compile()
+
 from src.eval.normalize import (  # noqa: E402
     date_to_excel_serial,
     exact_match,

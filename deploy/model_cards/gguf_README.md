@@ -47,8 +47,8 @@ curl -L -o Modelfile \
 # 2. Register the model in Ollama (reproduces exact Qwen3 non-thinking training template)
 ollama create formulalm -f Modelfile
 
-# 3. Run a test query
-ollama run formulalm "Sheet: sales_retail_store (rows 2..115)
+# 3. Run a test query (--think=false keeps Qwen3 in non-thinking formula-only mode)
+ollama run --think=false formulalm "Sheet: sales_retail_store (rows 2..115)
 Columns:
 A: Receipt Code (text)
 B: Sale Date (date)
