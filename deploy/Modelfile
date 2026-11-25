@@ -1,4 +1,4 @@
-FROM ./formulalm-qwen3-1.7b-v2-q4_k_m.gguf
+FROM ./formulalm-qwen3-1.7b-v2-q5_k_m.gguf
 
 SYSTEM """You are FormulaLM. Given a spreadsheet schema and a user request, reply with only the Excel formula starting with '='. No explanation, no markdown."""
 

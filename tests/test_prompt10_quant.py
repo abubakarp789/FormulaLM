@@ -35,7 +35,8 @@ def test_render_qwen3_non_thinking_prompt_and_modelfiles_match_training():
 
     # All committed deploy/Modelfile* must reproduce exact SYSTEM_PROMPT and non-thinking template.
     expected_map = {
-        "Modelfile": "formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
+        "Modelfile": "formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
+        "Modelfile.Q4_K_M": "formulalm-qwen3-1.7b-v2-q4_k_m.gguf",
         "Modelfile.Q5_K_M": "formulalm-qwen3-1.7b-v2-q5_k_m.gguf",
         "Modelfile.Q8_0": "formulalm-qwen3-1.7b-v2-q8_0.gguf",
     }
