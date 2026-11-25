@@ -1,0 +1,32 @@
+FROM ./formulalm-qwen3-1.7b-v2-q5_k_m.gguf
+
+SYSTEM """You are FormulaLM. Given a spreadsheet schema and a user request, reply with only the Excel formula starting with '='. No explanation, no markdown."""
+
+TEMPLATE """{{- range $i, $_ := .Messages }}
+{{- $last := eq (len (slice $.Messages $i)) 1 -}}
+{{- if eq .Role "system" }}<|im_start|>system
+{{ .Content }}<|im_end|>
+{{ else if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{ else if eq .Role "assistant" }}<|im_start|>assistant
+<think>
+
+</think>
+
+{{ .Content }}{{ if not $last }}<|im_end|>
+{{ end }}
+{{- end }}
+{{- if and $last (ne .Role "assistant") }}<|im_start|>assistant
+<think>
+
+</think>
+
+{{ end }}
+{{- end }}"""
+
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+PARAMETER temperature 0
+PARAMETER num_ctx 2048
+PARAMETER num_predict 96

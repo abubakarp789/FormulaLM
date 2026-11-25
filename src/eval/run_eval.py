@@ -46,6 +46,7 @@ from src.data.build_dataset import (
 from src.data.templates import load_sheet_contexts
 from src.eval.executor import run_formula
 from src.eval.normalize import exact_match, values_equal
+from src.eval.prompt_parity import STOP_TOKENS, render_qwen3_non_thinking_prompt
 
 # ---------------------------------------------------------------------------
 # Fixed non-test few-shot demonstrations (for base few-shot baseline)
@@ -418,7 +419,14 @@ class OllamaBackend:
 
 
 class LlamaCppBackend:
-    """Calls a local llama.cpp server OpenAI-compatible /v1/chat/completions endpoint."""
+    """Calls a local ``llama-server`` with exact Qwen3 non-thinking prompt parity.
+
+    By default (``use_raw_prompt=True``), sends the exact Qwen3 non-thinking ChatML prompt
+    (``<|im_start|>assistant\\n<think>\\n\\n</think>\\n\\n``) to ``/completion`` so prompt
+    formatting matches Hugging Face training byte-for-byte regardless of server template
+    version. With ``use_raw_prompt=False``, calls ``/v1/chat/completions`` with
+    ``chat_template_kwargs={"enable_thinking": False}``.
+    """
 
     def __init__(
         self,
@@ -426,14 +434,30 @@ class LlamaCppBackend:
         base_url: str = "http://localhost:8080",
         model: str = "local",
         timeout: float = 120.0,
+        use_raw_prompt: bool = True,
+        base_model_id: str | None = None,
+        base_revision: str | None = None,
+        quantization: str | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.timeout = timeout
+        self.use_raw_prompt = use_raw_prompt
+        self.base_model_id = base_model_id or f"llamacpp:{model}"
+        self.base_revision = base_revision
+        self.quantization = quantization
         self.name = f"llamacpp:{model}"
+        self.last_timings: dict[str, Any] = {}
 
     def provenance(self) -> dict[str, Any]:
-        return {"base_model_id": f"llamacpp:{self.model}", "base_revision": None, "adapter": None}
+        return {
+            "base_model_id": self.base_model_id,
+            "base_revision": self.base_revision,
+            "adapter": None,
+            "quantization": self.quantization,
+            "prompt_mode": "raw_qwen3_non_thinking" if self.use_raw_prompt else "chat_completions",
+            "enable_thinking": False,
+        }
 
     def generate(
         self,
@@ -444,22 +468,114 @@ class LlamaCppBackend:
         example: EvalExample | None = None,
     ) -> str:
         del example
+        if self.use_raw_prompt:
+            prompt = render_qwen3_non_thinking_prompt(messages)
+            payload: dict[str, Any] = {
+                "prompt": prompt,
+                "temperature": 0.0,
+                "n_predict": max_tokens,
+                "seed": seed,
+                "stop": list(STOP_TOKENS),
+                "cache_prompt": True,
+            }
+            resp = requests.post(f"{self.base_url}/completion", json=payload, timeout=self.timeout)
+            resp.raise_for_status()
+            data = resp.json()
+            self.last_timings = dict(data.get("timings") or {})
+            return str(data.get("content", "")).strip()
+
         payload = {
             "model": self.model,
             "messages": messages,
             "temperature": 0.0,
             "max_tokens": max_tokens,
             "seed": seed,
+            "stop": list(STOP_TOKENS),
+            "chat_template_kwargs": {"enable_thinking": False},
         }
         resp = requests.post(
             f"{self.base_url}/v1/chat/completions", json=payload, timeout=self.timeout
         )
         resp.raise_for_status()
         data = resp.json()
+        self.last_timings = dict(data.get("timings") or {})
         choices = data.get("choices") or []
         if not choices:
             return ""
-        return str(choices[0].get("message", {}).get("content", ""))
+        return str(choices[0].get("message", {}).get("content", "")).strip()
+
+
+class LlamaCppPythonBackend:
+    """In-process ``llama-cpp-python`` backend using exact Qwen3 non-thinking prompts."""
+
+    def __init__(
+        self,
+        model_path: str | Path,
+        *,
+        n_ctx: int = 2048,
+        n_gpu_layers: int = -1,
+        n_threads: int | None = None,
+        quantization: str | None = None,
+        base_model_id: str | None = None,
+        base_revision: str | None = None,
+    ) -> None:
+        from llama_cpp import Llama  # type: ignore[import-not-found]
+
+        self.model_path = Path(model_path)
+        self.n_ctx = n_ctx
+        self.n_gpu_layers = n_gpu_layers
+        self.quantization = quantization
+        self.base_model_id = base_model_id or f"gguf:{self.model_path.name}"
+        self.base_revision = base_revision
+        self.name = f"llama_cpp_python:{self.model_path.name}"
+
+        kwargs: dict[str, Any] = {
+            "model_path": str(self.model_path),
+            "n_ctx": n_ctx,
+            "n_gpu_layers": n_gpu_layers,
+            "verbose": False,
+        }
+        if n_threads is not None:
+            kwargs["n_threads"] = n_threads
+        self.llm = Llama(**kwargs)
+
+    def provenance(self) -> dict[str, Any]:
+        return {
+            "base_model_id": self.base_model_id,
+            "base_revision": self.base_revision,
+            "adapter": None,
+            "gguf_file": self.model_path.name,
+            "gguf_size_bytes": self.model_path.stat().st_size
+            if self.model_path.is_file()
+            else None,
+            "quantization": self.quantization,
+            "n_ctx": self.n_ctx,
+            "n_gpu_layers": self.n_gpu_layers,
+            "prompt_mode": "raw_qwen3_non_thinking",
+            "enable_thinking": False,
+        }
+
+    def generate(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        max_tokens: int,
+        seed: int,
+        example: EvalExample | None = None,
+    ) -> str:
+        del example
+        prompt = render_qwen3_non_thinking_prompt(messages)
+        out = self.llm.create_completion(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=0.0,
+            seed=seed,
+            stop=list(STOP_TOKENS),
+        )
+        choices = out.get("choices") or []
+        if not choices:
+            return ""
+        return str(choices[0].get("text", "")).strip()
 
 
 class TransformersBackend:
@@ -1005,7 +1121,18 @@ def _make_backend(args: argparse.Namespace) -> ModelBackend:
         return OllamaBackend(args.model, base_url=args.base_url, timeout=args.timeout)
     if args.backend == "llamacpp":
         return LlamaCppBackend(
-            base_url=args.base_url, model=args.model or "local", timeout=args.timeout
+            base_url=args.base_url,
+            model=args.model or "local",
+            timeout=args.timeout,
+            base_revision=args.revision,
+        )
+    if args.backend == "llama_cpp_python":
+        if not args.model:
+            raise ValueError("--model (path to .gguf) is required for backend=llama_cpp_python")
+        return LlamaCppPythonBackend(
+            args.model,
+            n_gpu_layers=args.n_gpu_layers,
+            base_revision=args.revision,
         )
     if args.backend == "transformers":
         if not args.model:
@@ -1028,7 +1155,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-name", required=True, help="Output folder name under results/")
     parser.add_argument(
         "--backend",
-        choices=("ollama", "llamacpp", "transformers", "mock"),
+        choices=("ollama", "llamacpp", "llama_cpp_python", "transformers", "mock"),
         required=True,
     )
     parser.add_argument("--dataset", required=True, help="Path to JSONL or CSV dataset")
@@ -1039,6 +1166,12 @@ def main(argv: list[str] | None = None) -> int:
         "--adapter-revision", default=None, help="Optional HF commit hash for a Hub adapter"
     )
     parser.add_argument("--load-in-4bit", action="store_true", help="4-bit load for transformers")
+    parser.add_argument(
+        "--n-gpu-layers",
+        type=int,
+        default=-1,
+        help="GPU offload layers for llama_cpp_python (-1 = all, 0 = CPU only)",
+    )
     parser.add_argument(
         "--base-url",
         default=None,
