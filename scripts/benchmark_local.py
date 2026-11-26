@@ -208,7 +208,7 @@ def _probe_binary(name: str, args: list[str]) -> dict[str, Any]:
         first_line = next((ln.strip() for ln in out.splitlines() if ln.strip()), "")
     except Exception as exc:
         first_line = f"error probing version: {exc}"
-    return {"installed": True, "path": exe, "version": first_line}
+    return {"installed": True, "path": name, "version": first_line}
 
 
 def check_local_environment(work_dir: Path | None = None) -> dict[str, Any]:

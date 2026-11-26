@@ -5,6 +5,7 @@
 - **Fresh held-out set (`test_real_v2`, `N = 50`, 95% Wilson CIs):** Shipped **`Q5_K_M` GGUF** scores **45/50 (90.0%, `[78.6%, 95.7%]`)** on Colab `llama-server` and **43/50 (86.0%, `[73.8%, 93.0%]`)** on local Ollama, against base `Qwen3-1.7B` **23/50 (46.0%, `[33.0%, 59.6%]`)** zero-shot and **29/50 (58.0%, `[44.2%, 70.6%]`)** five-shot (16-bit `v2-ship` adapter: **44/50, 88.0%**, `[76.2%, 94.4%]`).
 - **Local CPU footprint (`results/local_benchmark/`):** **`Q5_K_M` GGUF** is **1,199.6 MB (~1.20 GB)** on disk, loads in **2.64 s**, uses **1,476.5 MB (~1.48 GB) peak RAM**, and generates at **11.3 tok/s** on an **Intel Core i5-8365U, 8 GB RAM, CPU-only** Windows 11 laptop (`Ollama 0.40.18`).
 - **Links:** [GitHub Repo](https://github.com/abubakarp789/FormulaLM) · [Hugging Face GGUF](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-gguf) ([v2 LoRA](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora-v2) · [v1 LoRA fallback](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora)) · [ModelScope GGUF](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf) ([v2 LoRA](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora-v2) · [v1 LoRA fallback](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora)) · **Demo video:** _TODO: [2–3 min local demo video link — placeholder until uploaded]_
+- **Model weights:** Large files (GGUF weights and LoRA adapters) are hosted on Hugging Face and ModelScope and are not stored in this repository.
 
 | Hackathon Deliverable | Status | Location |
 |---|---|---|

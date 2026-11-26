@@ -180,6 +180,30 @@ def select_shipping_quant(
     }
 
 
+def _sanitize_environment(env: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Strip directory components from recorded runtime executable paths."""
+    if not isinstance(env, dict):
+        return env
+    out = dict(env)
+    runtimes = env.get("runtimes")
+    if isinstance(runtimes, dict):
+        clean_rt: dict[str, Any] = {}
+        for rname, info in runtimes.items():
+            if isinstance(info, dict):
+                item = dict(info)
+                p = item.get("path")
+                if isinstance(p, str) and p:
+                    stem = Path(p).stem.lower()
+                    item["path"] = (
+                        stem if stem in {"ollama", "llama-server", "llama-cli"} else Path(p).name
+                    )
+                clean_rt[rname] = item
+            else:
+                clean_rt[rname] = info
+        out["runtimes"] = clean_rt
+    return out
+
+
 def build_quant_comparison(results_dir: str | Path = "results") -> dict[str, Any]:
     """Assemble base + F16 + quantized accuracy, sizes, local benchmarks, and recommendation."""
     root = Path(results_dir)
@@ -222,7 +246,7 @@ def build_quant_comparison(results_dir: str | Path = "results") -> dict[str, Any
     return {
         "artifacts": artifacts,
         "parity_f16": parity,
-        "local_environment": local_raw.get("environment"),
+        "local_environment": _sanitize_environment(local_raw.get("environment")),
         "systems": systems,
         "recommendation": recommendation,
     }

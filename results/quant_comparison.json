@@ -63,7 +63,7 @@
     "runtimes": {
       "ollama": {
         "installed": true,
-        "path": "C:\\Users\\abuba\\AppData\\Local\\Programs\\Ollama\\ollama.EXE",
+        "path": "ollama",
         "version": "ollama version is 0.40.18"
       },
       "llama_server": {
