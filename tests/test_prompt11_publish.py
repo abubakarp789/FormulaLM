@@ -42,7 +42,6 @@ def test_adapter_model_cards_and_checklist_exist():
     for rel in (
         "deploy/model_cards/adapter_v2_README.md",
         "deploy/model_cards/adapter_v1_README.md",
-        "docs/PUBLISHING_CHECKLIST.md",
     ):
         text = (REPO_ROOT / rel).read_text(encoding="utf-8")
         assert len(text) > 500

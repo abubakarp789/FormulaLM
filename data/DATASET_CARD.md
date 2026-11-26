@@ -10,11 +10,11 @@ The FormulaLM dataset pairs a spreadsheet schema and a plain-English request wit
    - 25 spreadsheets across 11 domains (`sales`, `hr_employees`, `inventory`, `student_grades`, `expenses`, `orders`, `project_tracking`, `attendance`, `subscriptions`, `support_tickets`, `marketing`).
    - 5–8 typed columns (`text`, `integer`, `decimal`, `date`, `category`), 42–193 rows (`rows_per_sheet` in `[30, 200]`), realistic headers including spaces, and ~4% blank cells in designated nullable columns.
    - All person names, organizations, cities, product names and numbers are sampled from purely invented vocabularies.
-2. **Hand-written formula templates ([`src/data/templates.py`](../src/data/templates.py)):**
+2. **Rule-based, written with AI assistance and reviewed by Abu Bakar ([`src/data/templates.py`](../src/data/templates.py)):**
    - 60 templates spanning 7 categories and 3 difficulty levels (22 easy, 26 medium, 12 hard), covering all **36 / 36** in-scope Excel functions (`SUM`, `SUMIF`, `SUMIFS`, `COUNT`, `COUNTIF`, `COUNTIFS`, `AVERAGE`, `AVERAGEIF`, `AVERAGEIFS`, `MIN`, `MAX`, `IF`, `IFS`, `AND`, `OR`, `VLOOKUP`, `XLOOKUP`, `INDEX`, `MATCH`, `LEFT`, `RIGHT`, `MID`, `LEN`, `CONCAT`, `TEXTJOIN`, `UPPER`, `LOWER`, `PROPER`, `TRIM`, `TEXT`, `DATE`, `YEAR`, `MONTH`, `DAY`, `ROUND`, `IFERROR`). Volatile functions (`TODAY`, `NOW`, `RAND`) are excluded.
-   - Each template has 7–8 hand-written phrasing patterns (422 total) across formal, casual, terse and verbose styles, paired with an independent pandas ground-truth function (`pandas_gt`).
+   - Each template has 7–8 rule-based phrasing patterns, written with AI assistance and reviewed by Abu Bakar (422 total) across formal, casual, terse and verbose styles, paired with an independent pandas ground-truth function (`pandas_gt`).
 3. **Optional paraphrase augmentation (`train` only):**
-   - 10 hand-written semantic-preserving rewrite rules (e.g., polite/imperative prefixes, `records`↔`rows`, `Calculate`↔`Compute`, `sheet`↔`table`, `column`↔`field`, trailing period removal), logged per example in the `augmentation` field (`"none"` or `"rule:<name>"`).
+   - 10 rule-based semantic-preserving rewrite rules, written with AI assistance and reviewed by Abu Bakar (e.g., polite/imperative prefixes, `records`↔`rows`, `Calculate`↔`Compute`, `sheet`↔`table`, `column`↔`field`, trailing period removal), logged per example in the `augmentation` field (`"none"` or `"rule:<name>"`).
    - Never applied to `val` or `test_synthetic`.
 4. **Executable verification ([`src/eval/executor.py`](../src/eval/executor.py)):**
    - Every generated example's formula is executed on its target `.xlsx` sheet using Python `formulas` 1.3.4 and compared against its pandas ground truth (`values_equal`, numeric tolerance `1e-6`).
@@ -30,13 +30,13 @@ The FormulaLM dataset pairs a spreadsheet schema and a plain-English request wit
 | `test_synthetic` (frozen) | `data/processed/test_synthetic.jsonl` | **500** | 5 (held-out) | 60 | 0 | 0 | 588.2 KB | `ec6348fef4ca3b6a` |
 
 - **v2 train split (`train_v2.jsonl`, `stats_v2.json`):** generated strictly on the 20 training sheets using `src/data/v2_augmentations.py` (58 train-only phrasings + 2 ratio templates; difficulty rebalanced to 30.2% D1 / 38.9% D2 / 30.9% D3; 10,000/10,000 verified, 0 dropped). Both `val.jsonl` and `test_synthetic.jsonl` remain **bit-for-bit identical** to v1. See [`docs/v2_changelog.md`](../docs/v2_changelog.md).
-- **Fresh held-out set (`data/test_real_v2/`):** 50 executor-verified requests across the 5 held-out sheets (`requests.csv` + `test_real_v2.csv`), created after v2 training finished and reported separately (drafted by an AI assistant with access to the repo, including the v1 error analysis; therefore not fully independent).
+- **Fresh held-out set (`data/test_real_v2/`):** 50 executor-verified requests across the 5 held-out sheets (`requests.csv` + `test_real_v2.csv`), created after v2 training finished and reported separately: AI-drafted with access to the repository including the v1 error analysis, reviewed and approved by Abu Bakar on 26 November 2026; therefore not fully independent, and small (N=50).
 
 - **Zero schema leakage:** `test_synthetic` uses only the 5 held-out test sheets (`sales_retail_store`, `hr_employee_roster`, `inventory_stock_movements`, `grades_course_scores`, `orders_ecommerce`), which never appear in `train` or `val`.
 - **Zero phrasing leakage:** for every template, phrasing pattern indices are partitioned disjointly across splits: **2 reserved for `test_synthetic`**, **1 reserved for `val`**, and the remaining **4–5 for `train`**.
 - **Zero duplicate prompts:** enforced globally across all 9,000 examples and verified by automated pytest leakage tests (`tests/test_dataset.py`).
 
-### Category Distribution
+### Category Distribution — v1 (`train.jsonl`, 8,000)
 
 | Category | Train | Val | Test (synthetic) |
 |---|---:|---:|---:|
@@ -49,7 +49,7 @@ The FormulaLM dataset pairs a spreadsheet schema and a plain-English request wit
 | `text` | 1,142 | 71 | 71 |
 | **Total** | **8,000** | **500** | **500** |
 
-### Difficulty Distribution
+### Difficulty Distribution — v1 (`train.jsonl`, 8,000)
 
 | Difficulty | Train | Val | Test (synthetic) |
 |---|---:|---:|---:|
@@ -57,7 +57,7 @@ The FormulaLM dataset pairs a spreadsheet schema and a plain-English request wit
 | 2 (Medium) | 2,857 (35.7%) | 179 (35.8%) | 179 (35.8%) |
 | 3 (Hard) | 2,286 (28.6%) | 141 (28.2%) | 141 (28.2%) |
 
-### Train Augmentation Breakdown
+### Train Augmentation Breakdown — v1 (`train.jsonl`, 8,000)
 
 | Augmentation tag | Count |
 |---|---:|
@@ -94,15 +94,18 @@ The `.jsonl` files are git-ignored as regenerable build artifacts (`data/process
 ```
 
 ```bash
-# Linux / macOS / Git Bash
-make data ARGS="--workers 4"
+# Cross-platform (Linux / macOS / Windows)
+uv run python -m src.data.sheets
+uv run python scripts/generate_data.py --workers 4
+uv run python -m src.data.build_dataset --version v2
 ```
 
 ## Authorship and Provenance
 
-- **AI-assisted drafting:** Templates (`src/data/templates.py`), phrasing patterns, v2 train-only phrasings and ratio templates (`src/data/v2_augmentations.py`), code, and `data/test_real/test_real_DRAFT.csv` (80 executor-verified requests, kept as an unreviewed AI-assisted draft) were written with an AI assistant. Abubakar specified the task and prompts, ran the builds/evaluations, and spot-checked outputs.
+- **Authorship statement:** Author and repository owner: Abu Bakar (GitHub: `abubakarp789`; Hugging Face and ModelScope: `abubakar56`). Abu Bakar conceived the project and defined the task, scope, evaluation design and all engineering decisions; ran all training, evaluation, quantization and local CPU benchmarks; published the models; and reviewed and approved all code, synthetic data, test sets and results in this repository. An AI coding assistant (Google Antigravity) was used under his direction to help generate code and synthetic data (templates, phrasing patterns, sheets) and to draft test requests; all AI-assisted output was reviewed and approved by Abu Bakar. Code and synthetic data: MIT. Fine-tuned adapters and quantized GGUF weights are Apache-2.0 derivatives of `Qwen/Qwen3-1.7B`.
+- **Original realistic test set (`data/test_real/test_real_DRAFT.csv`, 80 requests, filename kept for compatibility with saved results):** AI-drafted, reviewed and approved by Abu Bakar on 26 November 2026.
 - **v2 test-set caveat:** v2 data additions (`train_v2.jsonl`) were informed by v1 error analysis on `test_synthetic` and `test_real` (`results/ft_v1_comparison.md`). Neither test set was included in training or used for checkpoint selection (selection uses `val.jsonl` only), and both frozen test sets remain bit-for-bit unchanged, but any v2 score on `test_synthetic` or `test_real` must be labeled **"informed by v1 error analysis"**.
-- **Fresh held-out set (`data/test_real_v2/`):** `requests.csv` and `test_real_v2.csv` (50 rows, 10 per held-out sheet, zero overlap with `test_real`, executor-verified) were created after v2 training finished. The requests were drafted by an AI assistant with access to the repo, including the v1 error analysis; the set is therefore not fully independent.
+- **Fresh held-out set (`data/test_real_v2/`):** `requests.csv` and `test_real_v2.csv` (50 rows, 10 per held-out sheet, zero overlap with `test_real`, executor-verified) were created after v2 training finished: AI-drafted (with an AI assistant that had access to the repository including the v1 error analysis), reviewed and approved by Abu Bakar on 26 November 2026; therefore not fully independent, and small (`N = 50`, 95% Wilson CIs about 17-20 pp wide (roughly ±9 pp)).
 
 ## Privacy, Licensing and Limitations
 

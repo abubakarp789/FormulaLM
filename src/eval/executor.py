@@ -71,7 +71,7 @@ __all__ = [
 
 ErrorType = Literal["syntax_error", "unsupported_function", "runtime_error", "timeout"]
 
-# Exact 36 in-scope Excel functions from docs/BRIEF.md (volatile functions excluded).
+# Exact 36 in-scope Excel functions documented in README.md (volatile functions excluded).
 ALLOWED_FUNCTIONS: frozenset[str] = frozenset(
     {
         # Aggregation & conditional aggregation

@@ -44,14 +44,14 @@ All v1 and v2 runs below come directly from saved files under `results/` (see [`
 
 - **Statistically indistinguishable on unbiased splits:** On `val` (498/500 vs 498/500) and `test_real_v2` (44/50 vs 44/50), v1 and v2 tie exactly on execution accuracy with identical 95% Wilson CIs (`[98.6%, 99.9%]` and `[76.2%, 94.4%]`). v2 holds small secondary advantages (lower validation loss `0.003975` vs `0.004240`, `100.0%` vs `99.8%` syntax validity on `val`, and `86.0%` vs `82.0%` normalized exact match on `test_real_v2`).
 - **Original test-set gains are within noise and analysis-informed:** v2's gains on `test_synthetic` (`+1.2 pp`, `[95.9%, 98.6%]` vs `[97.4%, 99.5%]`) and `test_real` (`+2.5 pp`, `[83.0%, 95.7%]` vs `[86.2%, 97.3%]`) have overlapping 95% Wilson CIs and were produced after v2's train-only data additions targeted v1's failure clusters on those sets (*informed by v1 error analysis*). They should not be overstated as statistically significant breakthroughs over v1.
-- **Authorship caveat on `test_real_v2`:** For the fresh held-out set `data/test_real_v2/test_real_v2.csv` (50 requests, created after `qlora_v2` training finished), the requests were drafted by an AI assistant with access to the repo, including the v1 error analysis; the set is therefore not fully independent. This is disclosed in `README.md`, `data/DATASET_CARD.md`, and `data/test_real_v2/README.md`.
+- **Authorship caveat on `test_real_v2`:** For the fresh held-out set `data/test_real_v2/test_real_v2.csv` (50 requests, created after `qlora_v2` training finished): AI-drafted with access to the repository including the v1 error analysis, reviewed and approved by Abu Bakar on 26 November 2026; therefore not fully independent, and small (`N = 50`). This is disclosed in `README.md`, `data/DATASET_CARD.md`, and `data/test_real_v2/README.md`.
 - **Why `SHIP_V2` stands:** `v2` passed all pre-registered gates cleanly, showed cleaner 1-epoch training dynamics (no Epoch-2 validation overfitting), and achieved lower validation loss.
 
 ---
 
 ## 4. Shipping candidate (`v2-ship`) and fallback (`v1-frozen`)
 
-### Candidate to merge and quantize in PROMPT 10 (`v2-ship`)
+### Shipping candidate merged and quantized to GGUF (`v2-ship`)
 - **Base model (merge target):** `Qwen/Qwen3-1.7B`
 - **Base revision:** `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e` (`apache-2.0`)
 - **Adapter Hugging Face repo:** [`abubakar56/formulalm-qwen3-1.7b-lora-v2`](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora-v2)

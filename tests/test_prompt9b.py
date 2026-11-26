@@ -218,7 +218,7 @@ def test_provenance_doc_authorship_notes_and_eval_notebook():
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     card = (REPO_ROOT / "data" / "DATASET_CARD.md").read_text(encoding="utf-8")
     for text in (readme, card):
-        assert "AI assistant" in text
+        assert "AI coding assistant" in text and "AI assistant" in text
         assert "informed by v1 error analysis" in text
 
     nb = json.loads((REPO_ROOT / "notebooks" / "03_eval_ft_v2.ipynb").read_text(encoding="utf-8"))

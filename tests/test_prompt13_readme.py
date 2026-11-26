@@ -92,7 +92,9 @@ def test_prompt13b_wording_accuracy_across_docs_cards_and_app() -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     for snippet in (
         "## Quick-Start (5 Steps)",
-        "216 tests",
+        "uv run pytest",
+        "Abu Bakar",
+        "reviewed and approved by Abu Bakar on 26 November 2026",
         "Junaid Shaukat",
         "passed all pre-registered gates",
         "No model-generated paraphrase augmentation or scraped data was used",
@@ -105,11 +107,11 @@ def test_prompt13b_wording_accuracy_across_docs_cards_and_app() -> None:
         "100% synthetic",
         "Excel dialect",
         "real_v2_050",
+        "Item Count",
         "docs/screenshots/demo_win.png",
         "docs/screenshots/demo_honest_failure.png",
         "docs/screenshots/demo_custom_headers.png",
         "Pending upload",
-        "unreviewed AI-assisted draft",
         "junaiddshaukat/finetune-anywhere",
         "Apache-2.0",
         "MIT",
@@ -121,8 +123,9 @@ def test_prompt13b_wording_accuracy_across_docs_cards_and_app() -> None:
         "M Junaid",
         "zero regressions",
         "third-party vendor",
-        "reviewed by Abubakar",
-        "reviewed/run by Abubakar",
+        "unreviewed",
+        "spot-checked outputs",
+        "Discount %",
     ):
         assert forbidden not in readme, f"Forbidden wording still in README: {forbidden!r}"
 

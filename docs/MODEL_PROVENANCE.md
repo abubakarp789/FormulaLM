@@ -1,5 +1,7 @@
 # Model Provenance
 
+- **Author and repository owner:** Abu Bakar (GitHub: `abubakarp789`; Hugging Face and ModelScope: `abubakar56`)
+
 Facts below were checked on **24 Nov 2026** against the Hugging Face Hub API and the files committed in this repo. Anything that cannot be proven from a file or API response is marked **UNVERIFIED**.
 
 ## 1. Base model
@@ -46,7 +48,7 @@ Both adapters: `r=16`, `lora_alpha=32`, `lora_dropout=0.0`, targets `q,k,v,o,gat
   - Each Hub repo was created about 20 s before the commit that saved that run's logs (`caae8f1` at 22:51:12Z; `341be71` at 11:11:53Z), which fits a push at the end of the same run.
 - **UNVERIFIED:** byte-level identity between each Hub `adapter_model.safetensors` and the corresponding Drive `checkpoint-*/adapter_model.safetensors`. The Drive folders can't be reached from this machine. To verify, run `sha256sum` on the Drive files and compare with the hashes above.
 - **UNVERIFIED:** that the frozen `results/ft_v1_*` runs used weights identical to the v1 Hub adapter. Those runs loaded the Drive copy (`run_config.json` → `backend: transformers:Qwen/Qwen3-1.7B+/content/drive/MyDrive/FormulaLM/qlora_v1/adapter`).
-- **UNVERIFIED:** the base revision used by the frozen baseline and `ft_v1_*` runs. The notebooks passed `REVISION = '70d244c…'`, but `run_config.json` did not record it before PROMPT 9B. From PROMPT 9B on, `run_eval` writes `base_model_id`, `base_revision` and `model_provenance` (adapter source, resolved Hub commit, adapter-config base, dtype) into every `run_config.json`.
+- **UNVERIFIED:** the base revision used by the frozen baseline and `ft_v1_*` runs. The notebooks passed `REVISION = '70d244c…'`, but `run_config.json` did not record it before commit `c2687ba` (24 Nov 2026). From commit `c2687ba` onward, `run_eval` writes `base_model_id`, `base_revision` and `model_provenance` (adapter source, resolved Hub commit, adapter-config base, dtype) into every `run_config.json`.
 
 ## 4. Evaluation from now on
 

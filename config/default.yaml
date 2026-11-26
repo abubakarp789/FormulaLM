@@ -1,7 +1,6 @@
 # FormulaLM default configuration.
 # All paths are relative to the repository root and resolved by formulalm.config.load_config.
-# Split sizes and generation settings are initial targets from docs/BRIEF.md and may be tuned
-# in later prompts; every run saves the exact config it used next to its outputs.
+# Split sizes and generation settings; every run saves the exact config it used next to its outputs.
 
 project: formulalm
 seed: 42

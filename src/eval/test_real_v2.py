@@ -1,8 +1,9 @@
 """Loader and validator for the fresh held-out set (`data/test_real_v2/`).
 
 Workflow:
-1. Abubakar authors raw requests in ``data/test_real_v2/requests.csv`` with columns
-   ``sheet_id`` and ``request`` (optional ``id``, ``notes``).
+1. Raw held-out requests live in ``data/test_real_v2/requests.csv`` with columns
+   ``sheet_id`` and ``request`` (optional ``id``, ``notes``) — AI-drafted with access
+   to the repository (including v1 error analysis), reviewed and approved by Abu Bakar.
 2. Validate the raw file without guessing formulas:
        uv run python -m src.eval.test_real_v2 --mode raw data/test_real_v2/requests.csv
 3. Annotate into ``data/test_real_v2/test_real_v2.csv`` with ``reference_formula``,
@@ -44,7 +45,7 @@ UNRESOLVED_MARKERS: tuple[str, ...] = ("AMBIGUOUS", "UNANSWERABLE", "TODO", "TBD
 
 @dataclass(frozen=True)
 class RawRequest:
-    """One user-authored request from ``data/test_real_v2/requests.csv``."""
+    """One raw held-out request record from ``data/test_real_v2/requests.csv``."""
 
     id: str
     sheet_id: str

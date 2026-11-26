@@ -1545,6 +1545,10 @@ button.flm-primary:hover { background: var(--flm-accent-hover) !important; }
     font-family: var(--flm-mono) !important; font-size: 14px !important;
     background: #ffffff !important; color: var(--flm-ink) !important;
 }
+.flm-credit-line {
+    text-align: center; font-size: 13px; color: var(--flm-muted);
+    padding: 4px 0 2px 0;
+}
 """
 
 FORCE_LIGHT_JS = """
@@ -1742,6 +1746,11 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                     interactive=False,
                     elem_classes=["flm-schema"],
                 )
+        gr.HTML(
+            '<div class="flm-credit-line">'
+            "Built by Abu Bakar · MIT code · Apache-2.0 weights (Qwen3-1.7B)"
+            "</div>"
+        )
 
         # Poll the background warm-up so the meta line flips from "warming up..." to "ready".
         warmup_timer = gr.Timer(value=1.0, active=runtime.warmup_state in ("warming", "idle"))

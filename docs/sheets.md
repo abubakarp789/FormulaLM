@@ -12,9 +12,7 @@ No real people, organizations, cities, addresses or personal data are used anywh
 ```
 
 ```bash
-# Linux / macOS / Git Bash
-make sheets
-# Or directly:
+# Cross-platform (Linux / macOS / Windows)
 uv run python -m src.data.sheets --seed 42 --out-dir data/sheets
 ```
 

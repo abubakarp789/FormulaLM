@@ -50,3 +50,9 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# local working notes (not part of the submission)
+AGENTS.md
+docs/BRIEF.md
+docs/PUBLISHING_CHECKLIST.md
+docs/DEMO_VIDEO_SCRIPT.md

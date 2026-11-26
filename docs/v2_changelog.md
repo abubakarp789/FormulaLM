@@ -1,7 +1,7 @@
 # FormulaLM v2 Iteration Changelog (Data vs Hyperparameter Changes)
 
 **Frozen fallback:** git tag [`v1-frozen`](https://github.com/abubakarp789/FormulaLM/releases/tag/v1-frozen) (`checkpoint-200`, `config/train_qlora.yaml`, `results/ft_v1_*`).
-**Evaluation discipline:** all checkpoint selection and model-selection decisions use `data/processed/val.jsonl` only. Because v2's data additions were motivated by v1's 6-cluster error analysis (`results/ft_v1_comparison.md`), all v2 metrics on `test_synthetic` and `test_real` are explicitly labeled **"informed by v1 error analysis"**, and a 50-example fresh held-out set (`data/test_real_v2/`) created after v2 training is reported separately (noting transparently that its requests were drafted by an AI assistant with repo access, including v1 error analysis, so it is not fully independent).
+**Evaluation discipline:** all checkpoint selection and model-selection decisions use `data/processed/val.jsonl` only. Because v2's data additions were motivated by v1's 6-cluster error analysis (`results/ft_v1_comparison.md`), all v2 metrics on `test_synthetic` and `test_real` are explicitly labeled **"informed by v1 error analysis"**, and a 50-example fresh held-out set (`data/test_real_v2/`) created after v2 training is reported separately (AI-drafted with access to the repository including the v1 error analysis, reviewed and approved by Abu Bakar on 26 November 2026; therefore not fully independent, and small, `N = 50`).
 
 ---
 
@@ -34,5 +34,5 @@ All hyperparameter changes below were motivated strictly by v1's validation loss
 - **Base model & LoRA architecture:** `Qwen/Qwen3-1.7B`, 4-bit QLoRA, `r=16`, `lora_alpha=32`, `lora_dropout=0.0`, all 7 linear projections, `max_seq_length=512`, `batch_size=4 × grad_accum=4 = 16`, `adamw_8bit`, `cosine` schedule, `enable_thinking=false`, `train_on_responses_only=true`, `seed=42`.
 - **Validation split (`data/processed/val.jsonl`):** **bit-for-bit identical** to v1 (`SHA-256 = f2cf0d3181baee06`, 500 examples).
 - **Synthetic test split (`data/processed/test_synthetic.jsonl`):** **bit-for-bit identical** to v1 (`SHA-256 = ec6348fef4ca3b6a`, 500 examples, 5 held-out sheets, 2 reserved test phrasings/template).
-- **Original realistic v1 test split (`data/test_real/test_real_DRAFT.csv`):** untouched (80 examples, kept as an unreviewed AI-assisted draft).
-- **Fresh held-out test split (`data/test_real_v2/`):** 50 post-v2 requests across the 5 held-out sheets (drafted after `qlora_v2` training finished by an AI assistant with repo access, including v1 error analysis; therefore not fully independent).
+- **Original realistic v1 test split (`data/test_real/test_real_DRAFT.csv`):** untouched (80 requests, filename kept for compatibility with saved results: AI-drafted, reviewed and approved by Abu Bakar on 26 November 2026).
+- **Fresh held-out test split (`data/test_real_v2/`):** 50 post-v2 requests across the 5 held-out sheets (AI-drafted with access to the repository including the v1 error analysis, reviewed and approved by Abu Bakar on 26 November 2026; therefore not fully independent, and small, `N = 50`).
