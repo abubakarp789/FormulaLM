@@ -1862,13 +1862,11 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 request_text=req,
                 show_base_comparison=False,
             )
-            if not preview_df.empty:
-                cname = Path(uploaded).stem if uploaded else "custom_headers"
-                sub = "uploaded sheet" if uploaded else "pasted headers · synthesized sample rows"
+            if not preview_df.empty and not uploaded:
                 ncols = max(0, len(preview_df.columns) - 1)
                 card = render_sheet_preview_html(
-                    cname,
-                    sub,
+                    "custom_headers",
+                    "pasted headers · synthesized sample rows",
                     preview_df,
                     rows_cols_chip=f"{len(preview_df)} rows · {ncols} cols",
                 )

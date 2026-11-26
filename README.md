@@ -116,10 +116,13 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
 ```
 
 - **Features:** Compact 2-tab 1080p layout (**Held-out examples** + **Your own sheet** with CSV/XLSX upload `<= 1.0 MB` or pasted column headers synthesizing 5 sample rows); 8 short example buttons including 1 red-outlined honest failure (`real_v2_050`); formula copy button; live `formulas` verdict pill + ground truth; one-line latency/quantization meta with background startup warm-up (`keep_alive=30m`); and offline **saved Base `Qwen3-1.7B`** side-by-side cards (`results/baseline_*`, never loads a second model on 8 GB RAM).
-- **Screenshots (placeholders to capture before submission):**
-  1. `docs/screenshots/demo_win.png` — _[Placeholder: held-out win (`real_v2_005` / `COUNTIFS`) with saved Base `Qwen3-1.7B` failure side-by-side]_
-  2. `docs/screenshots/demo_honest_failure.png` — _[Placeholder: Built-in #8 honest failure (`real_v2_050` wrong `VLOOKUP` column index: `11` vs `533`)]_
-  3. `docs/screenshots/demo_custom_headers.png` — _[Placeholder: custom pasted column headers (`Region, Sales Rep, Units, Net Sales`) executed on sample rows]_
+- **Local screenshots (`Q5_K_M` on local Ollama):**
+  1. **Held-out win + saved Base `Qwen3-1.7B` failures (`docs/screenshots/demo_win.png`):** `real_v2_005` (`=COUNTIFS(...)` → `16`, `3.2 s`, `9.4 tok/s`)
+     ![FormulaLM held-out win](docs/screenshots/demo_win.png)
+  2. **Honest failure caught by execution (`docs/screenshots/demo_honest_failure.png`):** `real_v2_050` (`VLOOKUP` column `6` vs `7`: `11 ≠ 533`, `3.4 s`, `9.8 tok/s`)
+     ![FormulaLM honest failure](docs/screenshots/demo_honest_failure.png)
+  3. **Custom uploaded sheet (`docs/screenshots/demo_custom_headers.png`):** `demo_orders.csv` (`Highest price` → `=MAX(D2:D7)` → `Executed: 59.99 on 6 rows`, `1.8 s`, `7.1 tok/s`)
+     ![FormulaLM custom sheet](docs/screenshots/demo_custom_headers.png)
 
 ---
 

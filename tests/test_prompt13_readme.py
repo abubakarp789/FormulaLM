@@ -13,11 +13,7 @@ CODE_PATH_RE = re.compile(
     r"`((?:notebooks|scripts|src|data|docs|results|deploy|config|app|tests)/[A-Za-z0-9_./\-\*]+|"
     r"LICENSE|README\.md)`"
 )
-INTENTIONAL_PLACEHOLDERS = {
-    "docs/screenshots/demo_win.png",
-    "docs/screenshots/demo_honest_failure.png",
-    "docs/screenshots/demo_custom_headers.png",
-}
+INTENTIONAL_PLACEHOLDERS: set[str] = set()
 
 
 def test_readme_length_and_first_screen_q5_k_m_headline() -> None:
