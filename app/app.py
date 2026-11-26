@@ -1,15 +1,14 @@
 """FormulaLM local Gradio demo application.
 
-Features:
-- Input via 5 held-out spreadsheets, uploaded small CSV/XLSX (<= 1 MB), or pasted column headers.
-- Localhost-only inference via Ollama (default: ``formulalm`` Q5_K_M from ``deploy/Modelfile``),
-  ``llama.cpp`` (``llama-server``), or deterministic ``mock`` backend for offline testing.
-- Safe formula execution via ``src.eval.executor.run_formula`` with clear error diagnostics.
-- Side-by-side comparison against **saved** base ``Qwen3-1.7B`` evaluation runs
-  (``results/baseline_*``) — never loads a second model in RAM on 8 GB laptops.
-- 8 built-in realistic requests across all 5 held-out sheets, including 1 honestly labeled
-  failure case (``real_v2_050``) where ``Q5_K_M`` predicts the wrong ``VLOOKUP`` column index.
-- Plain light theme with large fonts optimized for 1080p screen recordings.
+Compact, 1080p-ready light UI (fits without scrolling at 100-110% browser zoom):
+- Header + hardware/quantization chips, two tabs: "Held-out examples" and "Your own sheet".
+- 8 short example buttons across all 5 held-out sheets (including 1 red-outlined honest failure).
+- Left (~40%): 5-row horizontally scrollable sheet preview, large request box, primary button.
+- Right (~60%): large monospace formula with copy button, green/red/neutral verdict pill,
+  one-line meta status (with background startup warm-up and Ollama keep_alive="30m"),
+  and optional side-by-side saved Base 0-shot / Base 5-shot cards (never loads a 2nd model).
+- Footer: two collapsed accordions ("Limits & scope" and "Show prompt sent to model").
+- Localhost-only with system fonts only (zero Google Fonts, zero CDN, zero external assets).
 
 CLI usage:
     uv run python app/app.py
@@ -21,14 +20,16 @@ from __future__ import annotations
 
 import argparse
 import csv
+import html
 import io
 import json
 import os
 import re
 import sys
 import tempfile
+import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
@@ -67,13 +68,12 @@ from src.eval.run_eval import (  # noqa: E402
 MAX_UPLOAD_BYTES = 1_048_576  # 1.0 MB upload cap
 MAX_UPLOAD_ROWS = 2_000
 MAX_UPLOAD_COLS = 26  # Columns A..Z
-PREVIEW_ROWS = 8
+PREVIEW_ROWS = 5
 MAX_NEW_TOKENS = 96
 DEFAULT_SEED = 42
+DEFAULT_OLLAMA_KEEP_ALIVE = "30m"
 
 CUSTOM_SHEET_KEY = "__custom__"
-CUSTOM_SHEET_LABEL = "Custom — upload CSV/XLSX or paste headers below"
-
 LOCALHOST_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
 
 _HEADER_PREFIX_RE = re.compile(r"^\s*(?:[A-Z]{1,2}\s*:\s*)?(.+?)(?:\s*\(\s*([A-Za-z_]+)\s*\))?\s*$")
@@ -88,6 +88,7 @@ _HEADER_PREFIX_RE = re.compile(r"^\s*(?:[A-Z]{1,2}\s*:\s*)?(.+?)(?:\s*\(\s*([A-Z
 @dataclass(frozen=True)
 class BuiltinExample:
     example_id: str
+    short_label: str
     label: str
     sheet_id: str
     request: str
@@ -98,12 +99,14 @@ class BuiltinExample:
 BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
     BuiltinExample(
         example_id="real_v2_005",
+        short_label="COUNTIFS",
         label="1. [Sales — COUNTIFS] Brinport sales with Quantity >= 15",
         sheet_id="sales_retail_store",
         request="How many Brinport sales had Quantity of at least 15?",
     ),
     BuiltinExample(
         example_id="real_v2_006",
+        short_label="IF + AND",
         label="2. [Sales — IF + AND] Classify row 10 as 'Bulk High' vs 'Standard'",
         sheet_id="sales_retail_store",
         request=(
@@ -113,24 +116,28 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
     ),
     BuiltinExample(
         example_id="real_v2_015",
+        short_label="SUMIFS (HR)",
         label="3. [HR — SUMIFS] Total Annual Salary for Design staff in Stonewick",
         sheet_id="hr_employee_roster",
         request="Total Annual Salary for Design staff based in Stonewick",
     ),
     BuiltinExample(
         example_id="real_v2_017",
+        short_label="INDEX + MATCH",
         label="4. [HR — INDEX + MATCH] Find Work Hub for employee EMP-1010",
         sheet_id="hr_employee_roster",
         request="Find the Work Hub for employee EMP-1010 using INDEX and MATCH",
     ),
     BuiltinExample(
         example_id="real_v2_027",
+        short_label="XLOOKUP",
         label="5. [Inventory — XLOOKUP] Look up Valuation for movement MOV-1010",
         sheet_id="inventory_stock_movements",
         request="Look up the Valuation for MOV-1010 using XLOOKUP",
     ),
     BuiltinExample(
         example_id="real_v2_040",
+        short_label="IFERROR + ROUND",
         label="6. [Grades — IFERROR + ROUND + SUMIF/SUM] Physics share of Assignments Done",
         sheet_id="grades_course_scores",
         request=(
@@ -140,12 +147,14 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
     ),
     BuiltinExample(
         example_id="real_v2_045",
+        short_label="SUMIFS (Orders)",
         label="7. [Orders — SUMIFS] Shipping Fee for Shipped Marketplace orders",
         sheet_id="orders_ecommerce",
         request="Total Shipping Fee for Marketplace orders that are Shipped",
     ),
     BuiltinExample(
         example_id="real_v2_050",
+        short_label="Honest failure",
         label=(
             "8. [HONEST FAILURE — model is WRONG] Orders VLOOKUP Order Total for ORD-1015 "
             "(off-by-one column index)"
@@ -154,9 +163,8 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
         request="VLOOKUP Order Total for ORD-1015 rounded to 1 decimal, returning 0 if not found",
         is_honest_failure=True,
         note=(
-            "Honest failure case: Q5_K_M generates syntactically valid Excel, but passes "
-            "col_index_num=6 (Discount %, returning 11.0) instead of 7 (Order Total, 533.0). "
-            "Executable evaluation catches this semantic error."
+            "Q5_K_M writes valid Excel syntax but picks column 6 (Discount %, 11) instead of "
+            "column 7 (Order Total, 533). Execution catches the mistake."
         ),
     ),
 )
@@ -229,7 +237,6 @@ class DemoMockBackend:
     ) -> str:
         del max_tokens, seed
         user_msg = messages[-1]["content"] if messages else ""
-        # Match known held-out requests so even the honest failure reproduces in mock mode.
         sheet_m = re.search(r"^Sheet:\s*([^\s(]+)", user_msg, flags=re.MULTILINE)
         req_m = re.search(r"\nRequest:\s*(.+)$", user_msg, flags=re.DOTALL)
         if sheet_m and req_m:
@@ -237,8 +244,6 @@ class DemoMockBackend:
             if key in self._saved:
                 return self._saved[key]
 
-        # Fallback for custom uploaded CSV/XLSX or pasted headers: sum first numeric column,
-        # or count values in column A.
         rows_m = re.search(r"\(rows\s+2\.\.(\d+)\)", user_msg)
         last_row = int(rows_m.group(1)) if rows_m else 6
         for line in user_msg.splitlines():
@@ -351,6 +356,7 @@ class ResolvedSheet:
     xlsx_path: Path
     preview_df: pd.DataFrame
     source_note: str
+    total_rows: int = 5
     is_temp: bool = False
 
 
@@ -397,7 +403,7 @@ def _build_preview_df(df: pd.DataFrame, max_rows: int = PREVIEW_ROWS) -> pd.Data
                 else (v.strftime("%Y-%m-%d") if isinstance(v, datetime | date) else str(v))
             )
         )
-    head.insert(0, "Excel Row", [str(r) for r in range(2, 2 + len(head))])
+    head.insert(0, "Row", [str(r) for r in range(2, 2 + len(head))])
     return head
 
 
@@ -489,10 +495,8 @@ def resolve_uploaded_file(file_path: str | Path) -> ResolvedSheet:
         schema_text=schema_text,
         xlsx_path=tmp_xlsx,
         preview_df=preview_df,
-        source_note=(
-            f"Uploaded `{path.name}` ({size_bytes / 1024:.1f} KB, "
-            f"{len(df)} data rows, {df.shape[1]} columns)."
-        ),
+        source_note=f"{path.name} ({len(df)} rows, {df.shape[1]} cols)",
+        total_rows=len(df),
         is_temp=True,
     )
 
@@ -583,14 +587,12 @@ def resolve_pasted_headers(raw_text: str) -> ResolvedSheet:
     if not lines:
         raise ValueError("Pasted headers box is empty.")
 
-    # Filter optional boilerplate lines if user pasted a full schema block.
     filtered = [
         ln for ln in lines if not ln.lower().startswith("sheet:") and ln.lower() != "columns:"
     ]
     if not filtered:
         raise ValueError("No column definitions found in pasted text.")
 
-    # Case A: Multi-line CSV/TSV with header row + actual data rows.
     looks_like_schema_list = all(re.match(r"^[A-Z]{1,2}\s*:", ln) for ln in filtered)
     if (
         len(filtered) >= 2
@@ -609,11 +611,11 @@ def resolve_pasted_headers(raw_text: str) -> ResolvedSheet:
             schema_text=_format_df_schema("pasted_sheet", df),
             xlsx_path=tmp_xlsx,
             preview_df=_build_preview_df(df),
-            source_note=f"Pasted CSV data ({len(df)} rows, {df.shape[1]} columns).",
+            source_note=f"pasted CSV ({len(df)} rows, {df.shape[1]} cols)",
+            total_rows=len(df),
             is_temp=True,
         )
 
-    # Case B: Header-only paste (comma-separated, pipe-separated, tab-separated, or 1-per-line).
     if len(filtered) == 1:
         line = filtered[0]
         if "|" in line:
@@ -651,10 +653,8 @@ def resolve_pasted_headers(raw_text: str) -> ResolvedSheet:
         schema_text=schema_text,
         xlsx_path=tmp_xlsx,
         preview_df=_build_preview_df(df),
-        source_note=(
-            f"Pasted {len(headers)} column header(s) — synthesized 5 sample rows "
-            "(rows 2..6) so the formula can be executed immediately."
-        ),
+        source_note=f"{len(headers)} headers · 5 sample rows (2..6)",
+        total_rows=5,
         is_temp=True,
     )
 
@@ -669,22 +669,20 @@ def resolve_heldout_sheet(sheet_id: str, bundle: SavedEvalBundle) -> ResolvedShe
         schema_text=format_schema_text(ctx),
         xlsx_path=ctx.xlsx_path,
         preview_df=_build_preview_df(df),
-        source_note=(
-            f"Held-out test sheet `{ctx.sheet_id}` ({ctx.domain}, rows 2..{ctx.last_row}, "
-            f"{len(ctx.columns)} columns — never seen during training)."
-        ),
+        source_note=f"rows 2..{ctx.last_row} · {len(ctx.columns)} cols · held-out",
+        total_rows=ctx.last_row - 1,
         is_temp=False,
     )
 
 
 # ---------------------------------------------------------------------------
-# Formatting helpers for UI output cards
+# Clean HTML formatting helpers (high-contrast light cards, zero external CSS)
 # ---------------------------------------------------------------------------
 
 
 def format_scalar_value(val: Any) -> str:
     if val is None:
-        return "None (blank)"
+        return "None"
     if isinstance(val, bool):
         return "TRUE" if val else "FALSE"
     if isinstance(val, float):
@@ -698,147 +696,249 @@ def format_scalar_value(val: Any) -> str:
     return str(val)
 
 
-def format_execution_markdown(
-    formula: str,
-    exec_res: ExecutionResult,
-    gt: dict[str, Any] | None,
-    source_note: str,
+def render_sheet_preview_html(
+    sheet_name: str,
+    subtitle: str,
+    preview_df: pd.DataFrame,
 ) -> str:
-    lines: list[str] = []
+    """Render a compact 5-row horizontally scrollable preview card with column letters."""
+    safe_name = html.escape(sheet_name)
+    safe_sub = html.escape(subtitle)
+    if preview_df.empty:
+        return (
+            '<div class="flm-card flm-sheet-card">'
+            '<div class="flm-card-head">'
+            f'<span class="flm-sheet-title">{safe_name}</span>'
+            f'<span class="flm-sheet-sub">{safe_sub}</span>'
+            "</div>"
+            '<div class="flm-empty-table">'
+            "Paste headers or upload a CSV/XLSX above to preview 5 sample rows."
+            "</div></div>"
+        )
+
+    ths: list[str] = []
+    for col in preview_df.columns:
+        col_str = str(col)
+        if col_str == "Row":
+            ths.append('<th class="flm-row-col">#</th>')
+        elif ": " in col_str:
+            letter, cname = col_str.split(": ", 1)
+            ths.append(
+                f'<th><span class="flm-col-letter">{html.escape(letter)}</span> '
+                f"{html.escape(cname)}</th>"
+            )
+        else:
+            ths.append(f"<th>{html.escape(col_str)}</th>")
+
+    body_rows: list[str] = []
+    for row in preview_df.itertuples(index=False, name=None):
+        tds = []
+        for idx, cell in enumerate(row):
+            cls = ' class="flm-row-col"' if idx == 0 else ""
+            tds.append(f"<td{cls}>{html.escape(str(cell))}</td>")
+        body_rows.append(f"<tr>{''.join(tds)}</tr>")
+
+    return (
+        '<div class="flm-card flm-sheet-card">'
+        '<div class="flm-card-head">'
+        f'<span class="flm-sheet-title">{safe_name}</span>'
+        f'<span class="flm-sheet-sub">{safe_sub}</span>'
+        "</div>"
+        '<div class="flm-table-wrap">'
+        f'<table class="flm-table"><thead><tr>{"".join(ths)}</tr></thead>'
+        f"<tbody>{''.join(body_rows)}</tbody></table>"
+        "</div></div>"
+    )
+
+
+def format_verdict_html(
+    formula: str,
+    exec_res: ExecutionResult | None,
+    gt: dict[str, Any] | None,
+    *,
+    error_banner: str | None = None,
+    idle_hint: bool = False,
+) -> str:
+    """Render the verdict pill directly under the formula output."""
+    if error_banner:
+        return (
+            '<div class="flm-verdict-wrap">'
+            f'<span class="flm-pill flm-pill-err">❌ {html.escape(error_banner)}</span>'
+            "</div>"
+        )
+    if idle_hint:
+        return (
+            '<div class="flm-verdict-wrap">'
+            '<span class="flm-pill flm-pill-neutral">'
+            "Click Generate &amp; verify to run locally</span>"
+            "</div>"
+        )
     if not formula:
-        lines.append("### Execution Result\n- **Error:** Model returned an empty response.")
-        return "\n".join(lines)
+        return (
+            '<div class="flm-verdict-wrap">'
+            '<span class="flm-pill flm-pill-err">❌ Model returned an empty response</span>'
+            "</div>"
+        )
+    if exec_res is None or not exec_res.ok:
+        err_t = exec_res.error_type if exec_res and exec_res.error_type else "runtime_error"
+        err_msg = exec_res.error_message if exec_res and exec_res.error_message else ""
+        detail_html = (
+            f'<div class="flm-verdict-detail">{html.escape(err_msg)}</div>' if err_msg else ""
+        )
+        return (
+            '<div class="flm-verdict-wrap">'
+            f'<span class="flm-pill flm-pill-err">❌ Execution failed ({html.escape(err_t)})</span>'
+            f"{detail_html}"
+            "</div>"
+        )
 
-    if exec_res.ok:
-        formatted_val = format_scalar_value(exec_res.value)
-        lines.append(f"### Executed Value: `{formatted_val}`")
-        lines.append(f"- **Value type:** `{exec_res.value_type}` (engine: `{exec_res.engine}`)")
-    else:
-        lines.append("### Execution Failed")
-        lines.append(f"- **Error category:** `{exec_res.error_type}`")
-        lines.append(f"- **Details:** {exec_res.error_message}")
-
+    pred_str = format_scalar_value(exec_res.value)
     if gt is not None:
         exp_val = gt["expected_value"]
-        ref_formula = gt["reference_formula"]
-        matched = exec_res.ok and values_equal(exec_res.value, exp_val)
-        verdict = (
-            "MATCHES GROUND TRUTH" if matched else "DOES NOT MATCH GROUND TRUTH (Honest Failure)"
+        exp_str = format_scalar_value(exp_val)
+        matched = values_equal(exec_res.value, exp_val)
+        if matched:
+            return (
+                '<div class="flm-verdict-wrap">'
+                f'<span class="flm-pill flm-pill-ok">'
+                f"✅ {html.escape(pred_str)} = ground truth</span>"
+                "</div>"
+            )
+        ref_formula = html.escape(str(gt["reference_formula"]))
+        return (
+            '<div class="flm-verdict-wrap">'
+            f'<span class="flm-pill flm-pill-err">'
+            f"❌ {html.escape(pred_str)} ≠ {html.escape(exp_str)} (ground truth)</span>"
+            f'<div class="flm-verdict-detail">Expected: <code>{ref_formula}</code></div>'
+            "</div>"
         )
-        badge = "✅" if matched else "❌"
-        lines.append(
-            f"- **Ground truth (`{gt['split']}` / `{gt['id']}`):** "
-            f"`{format_scalar_value(exp_val)}`  →  {badge} **{verdict}**"
-        )
-        lines.append(f"- **Reference formula:** `{ref_formula}`")
+
+    return (
+        '<div class="flm-verdict-wrap">'
+        f'<span class="flm-pill flm-pill-neutral">Executed: {html.escape(pred_str)}</span>'
+        "</div>"
+    )
+
+
+def format_meta_line_html(
+    *,
+    backend_kind: str,
+    quant_label: str,
+    latency_s: float | None,
+    tok_per_s: float | None = None,
+    warmup_state: str = "ready",
+    error_note: str | None = None,
+) -> str:
+    """Render one compact meta line: 'Q5_K_M · local Ollama · 3.2 s · 9.2 tok/s'."""
+    backend_label = {
+        "ollama": "local Ollama",
+        "llamacpp": "local llama.cpp",
+        "mock": "mock (offline)",
+    }.get(backend_kind, backend_kind)
+
+    parts = [html.escape(quant_label), html.escape(backend_label)]
+    if error_note:
+        parts.append(html.escape(error_note))
+    elif latency_s is not None:
+        parts.append(f"{latency_s:.1f} s")
+        if tok_per_s is not None and tok_per_s > 0 and backend_kind != "mock":
+            parts.append(f"{tok_per_s:.1f} tok/s")
+    elif warmup_state == "warming":
+        parts.append("warming up...")
+    elif warmup_state == "error":
+        parts.append("server offline")
     else:
-        lines.append("- **Ground truth:** _Not applicable (custom sheet or custom request)_")
+        parts.append("ready")
 
-    lines.append(f"- **Active sheet:** {source_note}")
-    return "\n".join(lines)
+    return f'<div class="flm-meta-line">{" · ".join(parts)}</div>'
 
 
-def format_saved_base_markdown(
+def _render_single_base_card(title: str, rec: dict[str, Any] | None) -> str:
+    if rec is None:
+        return (
+            '<div class="flm-base-card">'
+            f'<div class="flm-base-head"><span>{html.escape(title)}</span>'
+            '<span class="flm-base-tag">saved evaluation run, not live</span></div>'
+            '<div class="flm-base-outcome">No saved prediction for this request.</div>'
+            "</div>"
+        )
+
+    ext = str(rec.get("extracted_formula") or rec.get("raw_output") or "").strip()
+    ok = bool(rec.get("exec_correct"))
+    syn = bool(rec.get("syntax_valid"))
+    err_t = rec.get("error_type")
+    pred_v = rec.get("predicted_value")
+    icon = "✅" if ok else "❌"
+    outcome_cls = "flm-base-ok" if ok else "flm-base-err"
+
+    if not syn or err_t:
+        outcome = f"{icon} {err_t or 'execution failed'}"
+    else:
+        outcome = f"{icon} {format_scalar_value(pred_v)}"
+
+    return (
+        '<div class="flm-base-card">'
+        f'<div class="flm-base-head"><span>{html.escape(title)}</span>'
+        '<span class="flm-base-tag">saved evaluation run, not live</span></div>'
+        f'<div class="flm-base-formula"><code>{html.escape(ext)}</code></div>'
+        f'<div class="flm-base-outcome {outcome_cls}">{html.escape(outcome)}</div>'
+        "</div>"
+    )
+
+
+def format_saved_base_html(
     sheet_id: str,
     request: str,
     bundle: SavedEvalBundle,
     enabled: bool,
 ) -> str:
+    """Render two small side-by-side saved base-model cards when enabled."""
     if not enabled:
-        return (
-            "_Base-model comparison is turned off. Toggle the checkbox above to view saved "
-            "`Qwen3-1.7B` predictions from `results/baseline_*`._"
-        )
+        return ""
 
     key = _norm_key(sheet_id, request)
     b0 = bundle.base_zeroshot.get(key)
     b5 = bundle.base_5shot.get(key)
     if b0 is None and b5 is None:
         return (
-            "### Saved evaluation run, base `Qwen3-1.7B`\n"
-            "_No saved base-model prediction exists for this request._\n\n"
-            "To protect 8 GB laptop RAM (`OLLAMA_MAX_LOADED_MODELS=1`), FormulaLM **never** "
-            "runs the unquantized base model live. Saved base predictions are shown only for "
-            "held-out requests present in `results/baseline_*` (`test_real_v2` and `test_real`)."
+            '<div class="flm-base-empty">'
+            "No saved base-model prediction exists for this request "
+            "(saved evaluation run, not live)."
+            "</div>"
         )
 
-    lines = [
-        "### Saved evaluation run, base `Qwen3-1.7B` _(offline — not run live)_",
-    ]
-    for label, rec in (("Base `Qwen3-1.7B` (0-shot)", b0), ("Base `Qwen3-1.7B` (5-shot)", b5)):
-        if rec is None:
-            continue
-        ext = str(rec.get("extracted_formula") or rec.get("raw_output") or "").strip()
-        ok = bool(rec.get("exec_correct"))
-        syn = bool(rec.get("syntax_valid"))
-        err_t = rec.get("error_type")
-        pred_v = rec.get("predicted_value")
-        icon = "✅ Correct" if ok else "❌ Wrong"
-        if not syn or err_t:
-            outcome = f"Failed (`{err_t}`: {rec.get('error_message', 'execution failed')})"
-        else:
-            outcome = f"Executed value: `{format_scalar_value(pred_v)}`"
-        lines.append(f"- **{label}** (`{rec['_source_file']}`): {icon}")
-        lines.append(f"  - Formula: `{ext}`")
-        lines.append(f"  - Outcome: {outcome}")
-    return "\n".join(lines)
+    return (
+        '<div class="flm-base-grid">'
+        f"{_render_single_base_card('Base 0-shot', b0)}"
+        f"{_render_single_base_card('Base 5-shot', b5)}"
+        "</div>"
+    )
 
 
-def format_status_markdown(
-    *,
-    backend_kind: str,
-    base_url: str,
-    model_name: str,
-    quant_label: str,
-    latency_s: float | None,
-    tok_per_s: float | None = None,
-    error_note: str | None = None,
-) -> str:
-    lat_str = f"**{latency_s:.2f} s**" if latency_s is not None else "_ready_"
-    if tok_per_s is not None and tok_per_s > 0:
-        lat_str += f" ({tok_per_s:.1f} tok/s)"
-    endpoint_str = "in-process deterministic mock (offline)" if backend_kind == "mock" else base_url
-    lines = [
-        "### Runtime Status",
-        f"- **Model:** `{model_name}` (`FormulaLM Qwen3-1.7B QLoRA v2-ship`)",
-        (
-            f"- **Quantization:** `{quant_label}` GGUF "
-            "(single model loaded; `OLLAMA_MAX_LOADED_MODELS=1`)"
-        ),
-        f"- **Backend:** `{backend_kind}` @ `{endpoint_str}` _(localhost only, zero cloud calls)_",
-        f"- **Latency:** {lat_str}",
-    ]
-    if error_note:
-        lines.append(f"- **Backend error:** ⚠️ {error_note}")
-    return "\n".join(lines)
-
-
-LIMITS_MARKDOWN = "\n".join(
-    [
-        "### Limits & Scope",
-        (
-            "- **Excel dialect only:** outputs a single formula starting with `=` for one active "
-            "sheet (no multi-sheet joins or Google Sheets `QUERY` / `ARRAYFORMULA`)."
-        ),
-        (
-            "- **~35 supported functions (36 exact):** `SUM`/`COUNT`/`AVERAGE` (+ `IF`/`IFS`), "
-            "`MIN`, `MAX`, `IF`, `IFS`, `AND`, `OR`, `VLOOKUP`, `XLOOKUP`, `INDEX`+`MATCH`, text "
-            "(`LEFT`, `RIGHT`, `MID`, `LEN`, `CONCAT`, `TEXTJOIN`, `UPPER`, `LOWER`, `PROPER`, "
-            "`TRIM`, `TEXT`), date (`DATE`, `YEAR`, `MONTH`, `DAY`), `ROUND`, `IFERROR`. Excludes "
-            "`SUMPRODUCT`, `FILTER`, `LET`, and volatile `TODAY`/`NOW`/`RAND`."
-        ),
-        (
-            "- **Short formulas & synthetic training:** trained on 9,000 synthetic examples "
-            "(`max_new_tokens=96`). Reaches **86.0%–93.8%** execution accuracy on held-out "
-            "realistic sets (`N=50` fresh held-out set) — can still miscount `VLOOKUP` column "
-            "indices (see Built-in Example #8). Always verify critical financial formulas."
-        ),
-    ]
+LIMITS_HTML = (
+    '<div class="flm-limits">'
+    "<p><strong>Excel dialect only:</strong> outputs a single formula starting with "
+    "<code>=</code> (no Google Sheets <code>QUERY</code> or <code>ARRAYFORMULA</code>).</p>"
+    "<p><strong>36 functions:</strong> <code>SUM</code>/<code>COUNT</code>/"
+    "<code>AVERAGE</code> (+ <code>IF</code>/<code>IFS</code>), <code>MIN</code>, "
+    "<code>MAX</code>, <code>IF</code>, <code>IFS</code>, <code>AND</code>, <code>OR</code>, "
+    "<code>VLOOKUP</code>, <code>XLOOKUP</code>, <code>INDEX</code>+<code>MATCH</code>, "
+    "text/date helpers, <code>ROUND</code>, and <code>IFERROR</code> (no volatile "
+    "<code>TODAY</code>/<code>NOW</code>/<code>RAND</code>, <code>SUMPRODUCT</code>, "
+    "<code>FILTER</code>, or <code>LET</code>).</p>"
+    "<p><strong>Single sheet:</strong> bounded ranges (<code>2..N</code>) on one active sheet "
+    "only.</p>"
+    "<p><strong>Short formulas:</strong> up to 96 tokens, trained on synthetic spreadsheet data. "
+    "On a 50-request fresh held-out set (small, AI-drafted): "
+    "86-90% (Q5_K_M, Colab 45/50, local Ollama 43/50).</p>"
+    "<p><strong>Always verify:</strong> check generated formulas before relying on them in "
+    "critical sheets.</p>"
+    "</div>"
 )
 
 
 # ---------------------------------------------------------------------------
-# Core inference + execution controller (pure Python, directly testable)
+# Core runtime, background warm-up & query controller (pure Python, testable)
 # ---------------------------------------------------------------------------
 
 
@@ -850,6 +950,37 @@ class DemoRuntime:
     quant_label: str
     backend: Any
     bundle: SavedEvalBundle
+    keep_alive: str = DEFAULT_OLLAMA_KEEP_ALIVE
+    warmup_state: str = "ready"
+    _warmup_started: bool = field(default=False, repr=False)
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    def start_background_warmup(self) -> None:
+        """Send one tiny background request at startup so the first demo click is warm."""
+        if self.backend_kind == "mock":
+            self.warmup_state = "ready"
+            return
+        with self._lock:
+            if self._warmup_started:
+                return
+            self._warmup_started = True
+            self.warmup_state = "warming"
+
+        def _worker() -> None:
+            try:
+                self.backend.generate(
+                    [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": "hi"},
+                    ],
+                    max_tokens=1,
+                    seed=DEFAULT_SEED,
+                )
+                self.warmup_state = "ready"
+            except Exception:
+                self.warmup_state = "error"
+
+        threading.Thread(target=_worker, name="formulalm-warmup", daemon=True).start()
 
 
 def create_runtime(
@@ -857,6 +988,7 @@ def create_runtime(
     backend_kind: str = "ollama",
     base_url: str | None = None,
     model_name: str | None = None,
+    keep_alive: str = DEFAULT_OLLAMA_KEEP_ALIVE,
 ) -> DemoRuntime:
     gguf_file, modelfile_quant = detect_modelfile_quant()
     del gguf_file
@@ -867,7 +999,13 @@ def create_runtime(
         resolved_url = assert_localhost_url(base_url or "http://127.0.0.1:11434")
         resolved_model = (model_name or "formulalm").strip()
         quant = infer_quant_label(resolved_model, modelfile_quant)
-        backend: Any = OllamaBackend(model=resolved_model, base_url=resolved_url, timeout=120.0)
+        backend: Any = OllamaBackend(
+            model=resolved_model,
+            base_url=resolved_url,
+            timeout=120.0,
+            keep_alive=keep_alive,
+        )
+        initial_warmup = "idle"
     elif kind == "llamacpp":
         resolved_url = assert_localhost_url(base_url or "http://127.0.0.1:8080")
         resolved_model = (model_name or "formulalm-qwen3-1.7b-v2-q5_k_m.gguf").strip()
@@ -879,11 +1017,13 @@ def create_runtime(
             use_raw_prompt=True,
             quantization=quant,
         )
+        initial_warmup = "idle"
     elif kind == "mock":
         resolved_url = assert_localhost_url(base_url or "http://127.0.0.1:11434")
         resolved_model = (model_name or "formulalm-mock").strip()
         quant = modelfile_quant
         backend = DemoMockBackend(saved_q5_by_prompt=bundle.local_q5_outputs)
+        initial_warmup = "ready"
     else:
         raise ValueError(f"Unsupported backend {backend_kind!r} (expected ollama, llamacpp, mock).")
 
@@ -894,6 +1034,8 @@ def create_runtime(
         quant_label=quant,
         backend=backend,
         bundle=bundle,
+        keep_alive=keep_alive,
+        warmup_state=initial_warmup,
     )
 
 
@@ -906,10 +1048,10 @@ def run_demo_query(
     request_text: str,
     show_base_comparison: bool,
 ) -> tuple[str, str, str, str, pd.DataFrame, str]:
-    """Execute one end-to-end demo request and return UI component values.
+    """Execute one end-to-end demo request and return UI outputs.
 
     Returns:
-        ``(formula_str, execution_md, status_md, base_comparison_md, preview_df, schema_text)``
+        ``(formula_str, verdict_html, meta_html, base_comparison_html, preview_df, schema_text)``
     """
     req = (request_text or "").strip()
     resolved: ResolvedSheet | None = None
@@ -922,8 +1064,7 @@ def run_demo_query(
             resolved = resolve_heldout_sheet(sheet_choice, runtime.bundle)
         else:
             raise ValueError(
-                "Please select a held-out sheet, upload a small CSV/XLSX (<= 1 MB), "
-                "or paste column headers."
+                "Paste column headers or upload a CSV/XLSX (up to 1 MB) before generating."
             )
 
         if not req:
@@ -939,28 +1080,24 @@ def run_demo_query(
             raw_output = runtime.backend.generate(
                 messages, max_tokens=MAX_NEW_TOKENS, seed=DEFAULT_SEED
             )
+            runtime.warmup_state = "ready"
         except Exception as exc:
             elapsed = time.perf_counter() - t0
-            err_msg = (
-                f"Could not reach local `{runtime.backend_kind}` backend at `{runtime.base_url}` "
-                f"for model `{runtime.model_name}`: {exc}"
-            )
-            status_md = format_status_markdown(
+            err_msg = f"Backend unreachable ({runtime.backend_kind} @ {runtime.base_url}): {exc}"
+            meta_html = format_meta_line_html(
                 backend_kind=runtime.backend_kind,
-                base_url=runtime.base_url,
-                model_name=runtime.model_name,
                 quant_label=runtime.quant_label,
                 latency_s=elapsed,
-                error_note=err_msg,
+                error_note="backend error",
             )
-            base_md = format_saved_base_markdown(
+            base_html = format_saved_base_html(
                 resolved.sheet_id, req, runtime.bundle, show_base_comparison
             )
             return (
                 "",
-                f"### Execution Skipped\n- **Backend Error:** {err_msg}",
-                status_md,
-                base_md,
+                format_verdict_html("", None, None, error_banner=err_msg),
+                meta_html,
+                base_html,
                 resolved.preview_df,
                 resolved.schema_text,
             )
@@ -977,42 +1114,40 @@ def run_demo_query(
             else runtime.bundle.ground_truth.get(_norm_key(resolved.sheet_id, req))
         )
 
-        exec_md = format_execution_markdown(formula, exec_res, gt, resolved.source_note)
-        status_md = format_status_markdown(
+        verdict_html = format_verdict_html(formula, exec_res, gt)
+        meta_html = format_meta_line_html(
             backend_kind=runtime.backend_kind,
-            base_url=runtime.base_url,
-            model_name=runtime.model_name,
             quant_label=runtime.quant_label,
             latency_s=latency_s,
             tok_per_s=float(tok_s) if isinstance(tok_s, int | float) else None,
+            warmup_state="ready",
         )
-        base_md = format_saved_base_markdown(
-            resolved.sheet_id if not resolved.is_temp else "__custom__",
+        base_html = format_saved_base_html(
+            resolved.sheet_id if not resolved.is_temp else CUSTOM_SHEET_KEY,
             req,
             runtime.bundle,
             show_base_comparison,
         )
         return (
             formula,
-            exec_md,
-            status_md,
-            base_md,
+            verdict_html,
+            meta_html,
+            base_html,
             resolved.preview_df,
             resolved.schema_text,
         )
     except ValueError as exc:
-        status_md = format_status_markdown(
+        meta_html = format_meta_line_html(
             backend_kind=runtime.backend_kind,
-            base_url=runtime.base_url,
-            model_name=runtime.model_name,
             quant_label=runtime.quant_label,
             latency_s=None,
+            warmup_state=runtime.warmup_state,
         )
         return (
             "",
-            f"### Input Validation Error\n- {exc}",
-            status_md,
-            format_saved_base_markdown("", req, runtime.bundle, show_base_comparison),
+            format_verdict_html("", None, None, error_banner=f"Input validation error: {exc}"),
+            meta_html,
+            format_saved_base_html("", req, runtime.bundle, show_base_comparison),
             pd.DataFrame(),
             "",
         )
@@ -1025,48 +1160,410 @@ def run_demo_query(
 
 
 # ---------------------------------------------------------------------------
-# Gradio UI (plain light theme + large fonts for screen recording)
+# Compact Light 1080p CSS (system fonts only; zero external assets)
 # ---------------------------------------------------------------------------
 
-LIGHT_RECORDING_CSS = """
+LIGHT_1080P_CSS = """
 :root, body, .gradio-container {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
+    --flm-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    --flm-mono: "Cascadia Code", Consolas, "SFMono-Regular", Menlo, ui-monospace, monospace;
+    --flm-accent: #2563eb;
+    --flm-accent-hover: #1d4ed8;
+    --flm-ink: #0f172a;
+    --flm-muted: #475569;
+    --flm-border: #cbd5e1;
+    --flm-bg: #f8fafc;
+    --flm-card: #ffffff;
+    background-color: var(--flm-bg) !important;
+    color: var(--flm-ink) !important;
+    font-family: var(--flm-sans) !important;
     font-size: 18px !important;
 }
 .gradio-container {
-    max-width: 1280px !important;
+    max-width: 1440px !important;
     margin: 0 auto !important;
+    padding: 12px 20px 14px 20px !important;
 }
-.gradio-container h1 {
-    font-size: 2.0rem !important;
+footer { display: none !important; }
+
+/* Header bar + chips */
+.flm-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 4px 2px 10px 2px;
+    border-bottom: 1px solid var(--flm-border);
+    margin-bottom: 6px;
+}
+.flm-brand {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.flm-badge {
+    display: inline-block;
+    background: var(--flm-ink);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.25rem;
+    padding: 4px 12px;
+    border-radius: 8px;
+    letter-spacing: -0.01em;
+}
+.flm-subtitle {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--flm-ink);
+}
+.flm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.flm-chip {
+    background: #ffffff;
+    border: 1px solid var(--flm-border);
+    color: #1e293b;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Tabs */
+.tabs > .tab-nav {
+    border-bottom: 1px solid var(--flm-border) !important;
+    margin-bottom: 10px !important;
+    gap: 6px !important;
+}
+.tabs > .tab-nav button {
+    font-size: 0.98rem !important;
+    font-weight: 600 !important;
+    padding: 7px 16px !important;
+    border-radius: 10px 10px 0 0 !important;
+    color: var(--flm-muted) !important;
+}
+.tabs > .tab-nav button.selected {
+    color: var(--flm-accent) !important;
+    border-bottom: 2px solid var(--flm-accent) !important;
+    background: #ffffff !important;
+}
+
+/* 8 short example buttons */
+#ex-btn-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+}
+#ex-btn-row > div, #ex-btn-row button.ex-btn {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+}
+button.ex-btn {
+    background: #ffffff !important;
+    color: var(--flm-ink) !important;
+    border: 1px solid var(--flm-border) !important;
+    border-radius: 10px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    padding: 7px 10px !important;
+    min-height: 38px !important;
+    box-shadow: none !important;
+}
+button.ex-btn:hover {
+    border-color: var(--flm-accent) !important;
+    background: #eff6ff !important;
+}
+button.ex-btn-active {
+    border: 2px solid var(--flm-accent) !important;
+    background: #eff6ff !important;
+    color: #1e3a8a !important;
+}
+button.ex-btn-fail {
+    border: 2px solid #dc2626 !important;
+    color: #991b1b !important;
+    background: #fff5f5 !important;
+}
+button.ex-btn-fail:hover, button.ex-btn-fail.ex-btn-active {
+    background: #fee2e2 !important;
+    border-color: #b91c1c !important;
+}
+
+/* Cards */
+.flm-card, .flm-panel {
+    background: var(--flm-card) !important;
+    border: 1px solid var(--flm-border) !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    box-shadow: none !important;
+}
+.flm-panel > .form, .flm-panel .block {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+.flm-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.flm-sheet-title {
+    font-family: var(--flm-mono);
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--flm-ink);
+}
+.flm-sheet-sub {
+    font-size: 0.82rem;
+    color: var(--flm-muted);
+    white-space: nowrap;
+}
+
+/* Compact 5-row horizontally scrollable table */
+.flm-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+}
+.flm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+.flm-table th {
+    background: #f1f5f9;
+    color: var(--flm-ink);
+    font-weight: 600;
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--flm-border);
+}
+.flm-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+}
+.flm-table tr:last-child td { border-bottom: none; }
+.flm-col-letter {
+    font-family: var(--flm-mono);
+    font-weight: 700;
+    color: var(--flm-accent);
+}
+.flm-row-col {
+    font-family: var(--flm-mono);
+    color: var(--flm-muted) !important;
+    background: #f8fafc;
+    text-align: right;
+    width: 32px;
+}
+.flm-empty-table {
+    padding: 16px 12px;
+    color: var(--flm-muted);
+    font-size: 0.92rem;
+    text-align: center;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed var(--flm-border);
+}
+
+/* Request input + primary button */
+.flm-request-box textarea {
+    font-family: var(--flm-sans) !important;
+    font-size: 19px !important;
+    line-height: 1.35 !important;
+    color: var(--flm-ink) !important;
+    background: #ffffff !important;
+    border: 1px solid var(--flm-border) !important;
+    border-radius: 10px !important;
+    padding: 10px 12px !important;
+}
+.flm-primary-btn {
+    background: var(--flm-accent) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 1.08rem !important;
     font-weight: 700 !important;
-    color: #0f172a !important;
+    padding: 12px 18px !important;
+    min-height: 48px !important;
 }
-.gradio-container h2, .gradio-container h3 {
-    font-size: 1.25rem !important;
-    color: #0f172a !important;
+.flm-primary-btn:hover {
+    background: var(--flm-accent-hover) !important;
 }
-.gradio-container p, .gradio-container li, .gradio-container label, .gradio-container span {
-    font-size: 1.05rem !important;
-    line-height: 1.5 !important;
-}
-#formula-output textarea, #formula-output input {
-    font-family: "IBM Plex Mono", Consolas, monospace !important;
-    font-size: 1.35rem !important;
+
+/* Result card: monospace formula + verdict pill + meta line */
+.flm-formula-box textarea, .flm-formula-box input {
+    font-family: var(--flm-mono) !important;
+    font-size: 22px !important;
     font-weight: 700 !important;
-    color: #0b4f6c !important;
-    background-color: #f8fafc !important;
-}
-#request-input textarea {
-    font-size: 1.15rem !important;
-    background-color: #ffffff !important;
-}
-.card-panel {
+    line-height: 1.35 !important;
+    color: #0f172a !important;
     background: #f8fafc !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    padding: 14px 18px !important;
+    border: 1px solid var(--flm-border) !important;
+    border-radius: 10px !important;
+    padding: 12px 14px !important;
+}
+.flm-verdict-wrap {
+    margin-top: 8px;
+}
+.flm-pill {
+    display: inline-block;
+    font-size: 1.02rem;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+.flm-pill-ok {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+}
+.flm-pill-err {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+}
+.flm-pill-neutral {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+.flm-verdict-detail {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: #334155;
+}
+.flm-verdict-detail code {
+    font-family: var(--flm-mono);
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: #0f172a;
+}
+.flm-meta-line {
+    margin-top: 8px;
+    font-size: 0.88rem;
+    color: var(--flm-muted);
+    font-weight: 500;
+}
+
+/* Base comparison toggle & side-by-side cards */
+.flm-base-toggle {
+    margin-top: 4px !important;
+    padding: 0 2px !important;
+}
+.flm-base-toggle label, .flm-base-toggle span {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: var(--flm-ink) !important;
+}
+.flm-base-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+}
+.flm-base-card {
+    background: #ffffff;
+    border: 1px solid var(--flm-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+.flm-base-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--flm-ink);
+    margin-bottom: 6px;
+}
+.flm-base-tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--flm-muted);
+}
+.flm-base-formula {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 8px;
+    overflow-x: auto;
+    margin-bottom: 6px;
+}
+.flm-base-formula code {
+    font-family: var(--flm-mono);
+    font-size: 0.85rem;
+    color: #0f172a;
+    white-space: nowrap;
+}
+.flm-base-outcome {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+.flm-base-ok { color: #166534; }
+.flm-base-err { color: #991b1b; }
+.flm-base-empty {
+    font-size: 0.9rem;
+    color: var(--flm-muted);
+    background: #ffffff;
+    border: 1px solid var(--flm-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+/* Custom upload compact height */
+.flm-upload-box .upload-container, .flm-upload-box .file-preview {
+    min-height: 64px !important;
+    padding: 6px 10px !important;
+}
+
+/* Footer collapsed accordions */
+.flm-footer-row {
+    margin-top: 10px !important;
+    gap: 12px !important;
+}
+.flm-footer-acc {
+    background: #ffffff !important;
+    border: 1px solid var(--flm-border) !important;
+    border-radius: 12px !important;
+}
+.flm-footer-acc > button {
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    color: var(--flm-muted) !important;
+    padding: 8px 14px !important;
+}
+.flm-limits p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #1e293b;
+}
+.flm-limits code {
+    font-family: var(--flm-mono);
+    font-size: 0.84rem;
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.flm-schema-box textarea {
+    font-family: var(--flm-mono) !important;
+    font-size: 0.86rem !important;
+    background: #f8fafc !important;
 }
 """
 
@@ -1078,228 +1575,376 @@ FORCE_LIGHT_JS = """
 """
 
 
+def _header_html(quant_label: str) -> str:
+    size_chip = f"{quant_label} 1.2 GB" if quant_label == "Q5_K_M" else quant_label
+    return (
+        '<div class="flm-header">'
+        '<div class="flm-brand">'
+        '<span class="flm-badge">FormulaLM</span>'
+        '<span class="flm-subtitle">Plain-English to verified Excel formula</span>'
+        "</div>"
+        '<div class="flm-chips">'
+        '<span class="flm-chip">Qwen3-1.7B</span>'
+        f'<span class="flm-chip">{html.escape(size_chip)}</span>'
+        '<span class="flm-chip">CPU only</span>'
+        '<span class="flm-chip">offline</span>'
+        "</div>"
+        "</div>"
+    )
+
+
+def _button_classes(ex: BuiltinExample, active_id: str) -> list[str]:
+    classes = ["ex-btn"]
+    if ex.is_honest_failure:
+        classes.append("ex-btn-fail")
+    if ex.example_id == active_id:
+        classes.append("ex-btn-active")
+    return classes
+
+
 def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
-    """Construct the FormulaLM Gradio Blocks application."""
-    sheet_choices: list[tuple[str, str]] = [
-        (f"{sid} (held-out test sheet)", sid) for sid in runtime.bundle.heldout_contexts
-    ]
-    sheet_choices.append((CUSTOM_SHEET_LABEL, CUSTOM_SHEET_KEY))
-
-    example_choices: list[tuple[str, str]] = [(ex.label, ex.example_id) for ex in BUILTIN_EXAMPLES]
+    """Construct the compact, 1080p-ready FormulaLM Gradio Blocks application."""
     example_by_id = {ex.example_id: ex for ex in BUILTIN_EXAMPLES}
-
     first_ex = BUILTIN_EXAMPLES[0]
     initial_sheet = resolve_heldout_sheet(first_ex.sheet_id, runtime.bundle)
-    initial_status = format_status_markdown(
+
+    initial_meta = format_meta_line_html(
         backend_kind=runtime.backend_kind,
-        base_url=runtime.base_url,
-        model_name=runtime.model_name,
         quant_label=runtime.quant_label,
         latency_s=None,
+        warmup_state=runtime.warmup_state,
     )
-    initial_base_md = format_saved_base_markdown(
-        first_ex.sheet_id, first_ex.request, runtime.bundle, True
+    initial_verdict = format_verdict_html("", None, None, idle_hint=True)
+    initial_base = format_saved_base_html(first_ex.sheet_id, first_ex.request, runtime.bundle, True)
+    initial_preview = render_sheet_preview_html(
+        initial_sheet.sheet_id, initial_sheet.source_note, initial_sheet.preview_df
+    )
+    empty_custom_preview = render_sheet_preview_html(
+        "Your sheet", "paste headers or upload CSV/XLSX", pd.DataFrame()
     )
 
     with gr.Blocks(
-        analytics_enabled=False, title="FormulaLM — Local Excel Formula Generator"
+        analytics_enabled=False, title="FormulaLM — Plain-English to Verified Excel Formula"
     ) as demo:
-        gr.Markdown(
-            "# FormulaLM — Local Plain-English to Verified Excel Formula\n"
-            "Fine-tuned **`Qwen3-1.7B` (`v2-ship`, `Q5_K_M` GGUF)** running **100% locally on "
-            "CPU** and verified by executing every generated formula against spreadsheet rows."
-        )
+        gr.HTML(_header_html(runtime.quant_label))
 
-        with gr.Row():
-            builtin_dropdown = gr.Dropdown(
-                choices=example_choices,
-                value=first_ex.example_id,
-                label=(
-                    "Built-in Held-Out Examples (8 realistic requests, including 1 honest failure)"
-                ),
-                scale=4,
-            )
-            compare_toggle = gr.Checkbox(
-                value=True,
-                label="Show saved Base Qwen3-1.7B comparison (offline — never loads a 2nd model)",
-                scale=2,
-            )
+        active_sheet_state = gr.State(value=first_ex.sheet_id)
+        active_ex_state = gr.State(value=first_ex.example_id)
+        last_latency_state = gr.State(value=None)
+        custom_latency_state = gr.State(value=None)
 
-        example_note_md = gr.Markdown(value="", visible=False, elem_classes=["card-panel"])
+        with gr.Tabs():
+            # ---------------------------------------------------------------
+            # Tab 1: Held-out examples
+            # ---------------------------------------------------------------
+            with gr.Tab("Held-out examples"):
+                ex_buttons: list[gr.Button] = []
+                with gr.Row(elem_id="ex-btn-row"):
+                    for ex in BUILTIN_EXAMPLES:
+                        btn = gr.Button(
+                            ex.short_label,
+                            size="sm",
+                            elem_classes=_button_classes(ex, first_ex.example_id),
+                        )
+                        ex_buttons.append(btn)
 
-        with gr.Row():
-            with gr.Column(scale=5):
-                sheet_dropdown = gr.Dropdown(
-                    choices=sheet_choices,
-                    value=first_ex.sheet_id,
-                    label="1. Choose a Held-Out Sheet (or select Custom below)",
-                )
-                with gr.Accordion(
-                    "Optional Custom Input: Upload CSV/XLSX (<= 1 MB) or Paste Column Headers",
-                    open=False,
-                ):
-                    upload_input = gr.File(
-                        label="Upload small .csv or .xlsx (max 1.0 MB, <= 2,000 rows, <= 26 cols)",
-                        file_count="single",
-                        file_types=[".csv", ".xlsx"],
-                        type="filepath",
-                    )
-                    pasted_input = gr.Textbox(
-                        label="Or paste column headers (comma/pipe-separated) or mini-CSV rows",
-                        placeholder="Example: Region, Rep, Units, Net Sales",
-                        lines=2,
-                    )
+                with gr.Row(equal_height=False):
+                    # LEFT (~40%): Sheet preview card + Request card + Primary button
+                    with gr.Column(scale=4, min_width=360):
+                        sheet_preview_html = gr.HTML(initial_preview)
+                        with gr.Group(elem_classes=["flm-panel"]):
+                            request_box = gr.Textbox(
+                                value=first_ex.request,
+                                label="Request",
+                                placeholder="e.g., Total Net Amount for the Mirehaven branch",
+                                lines=2,
+                                elem_classes=["flm-request-box"],
+                            )
+                        run_btn = gr.Button(
+                            "Generate & verify",
+                            variant="primary",
+                            size="lg",
+                            elem_classes=["flm-primary-btn"],
+                        )
 
-                request_box = gr.Textbox(
-                    value=first_ex.request,
-                    label="2. Plain-English Spreadsheet Request",
-                    placeholder="e.g., Total Net Amount for the Mirehaven branch",
-                    lines=2,
-                    elem_id="request-input",
-                )
-                run_btn = gr.Button("Generate & Execute Formula", variant="primary", size="lg")
+                    # RIGHT (~60%): Formula + Verdict pill + Meta line + Base toggle/cards
+                    with gr.Column(scale=6, min_width=440):
+                        with gr.Group(elem_classes=["flm-panel"]):
+                            formula_out = gr.Textbox(
+                                value="",
+                                label="Excel Formula",
+                                lines=2,
+                                interactive=False,
+                                buttons=["copy"],
+                                elem_classes=["flm-formula-box"],
+                            )
+                            verdict_out = gr.HTML(initial_verdict)
+                            meta_out = gr.HTML(initial_meta)
 
+                        compare_toggle = gr.Checkbox(
+                            value=True,
+                            label="Compare with base model",
+                            elem_classes=["flm-base-toggle"],
+                        )
+                        base_out = gr.HTML(initial_base)
+
+            # ---------------------------------------------------------------
+            # Tab 2: Your own sheet (clean two-field form, no accordion)
+            # ---------------------------------------------------------------
+            with gr.Tab("Your own sheet"):
+                with gr.Row(equal_height=False):
+                    with gr.Column(scale=4, min_width=360):
+                        with gr.Group(elem_classes=["flm-panel"]):
+                            pasted_input = gr.Textbox(
+                                label="Paste column headers or mini-CSV",
+                                placeholder="Region, Sales Rep, Units, Net Sales",
+                                lines=2,
+                                elem_classes=["flm-request-box"],
+                            )
+                            upload_input = gr.File(
+                                label="Or upload CSV / XLSX (up to 1 MB)",
+                                file_count="single",
+                                file_types=[".csv", ".xlsx"],
+                                type="filepath",
+                                elem_classes=["flm-upload-box"],
+                            )
+                        custom_preview_html = gr.HTML(empty_custom_preview)
+                        with gr.Group(elem_classes=["flm-panel"]):
+                            custom_request_box = gr.Textbox(
+                                value="",
+                                label="Request",
+                                placeholder="e.g., Total Net Sales for North",
+                                lines=2,
+                                elem_classes=["flm-request-box"],
+                            )
+                        custom_run_btn = gr.Button(
+                            "Generate & verify",
+                            variant="primary",
+                            size="lg",
+                            elem_classes=["flm-primary-btn"],
+                        )
+
+                    with gr.Column(scale=6, min_width=440):
+                        with gr.Group(elem_classes=["flm-panel"]):
+                            custom_formula_out = gr.Textbox(
+                                value="",
+                                label="Excel Formula",
+                                lines=2,
+                                interactive=False,
+                                buttons=["copy"],
+                                elem_classes=["flm-formula-box"],
+                            )
+                            custom_verdict_out = gr.HTML(initial_verdict)
+                            custom_meta_out = gr.HTML(initial_meta)
+
+        # -------------------------------------------------------------------
+        # Footer: two collapsed accordions (both closed by default)
+        # -------------------------------------------------------------------
+        with gr.Row(elem_classes=["flm-footer-row"]):
+            with gr.Accordion("Limits & scope", open=False, elem_classes=["flm-footer-acc"]):
+                gr.HTML(LIMITS_HTML)
+            with gr.Accordion(
+                "Show prompt sent to model", open=False, elem_classes=["flm-footer-acc"]
+            ):
                 schema_box = gr.Textbox(
                     value=initial_sheet.schema_text,
-                    label="Active Prompt Schema Sent to Model",
+                    show_label=False,
                     lines=7,
                     interactive=False,
+                    elem_classes=["flm-schema-box"],
                 )
 
-            with gr.Column(scale=6):
-                formula_out = gr.Textbox(
-                    value="",
-                    label="Generated Excel Formula (click copy icon on right)",
-                    lines=2,
-                    interactive=False,
-                    buttons=["copy"],
-                    elem_id="formula-output",
-                )
-                exec_out_md = gr.Markdown(
-                    value=(
-                        "_Click **Generate & Execute Formula** to run local inference and "
-                        "execute the formula._"
-                    ),
-                    elem_classes=["card-panel"],
-                )
-                base_out_md = gr.Markdown(
-                    value=initial_base_md,
-                    elem_classes=["card-panel"],
-                )
-                status_out_md = gr.Markdown(
-                    value=initial_status,
-                    elem_classes=["card-panel"],
-                )
-
-        preview_table = gr.Dataframe(
-            value=initial_sheet.preview_df,
-            label=(
-                f"Sample Rows Preview (first {PREVIEW_ROWS} data rows — "
-                f"Excel Row 2..{1 + PREVIEW_ROWS})"
-            ),
-            interactive=False,
-            wrap=True,
+        # Lightweight timer to update "warming up..." -> "ready" once startup warm-up completes.
+        warmup_timer = gr.Timer(
+            value=1.5, active=(runtime.backend_kind != "mock" and runtime.warmup_state != "ready")
         )
 
-        gr.Markdown(LIMITS_MARKDOWN, elem_classes=["card-panel"])
+        def _poll_warmup(held_lat: float | None, cust_lat: float | None):
+            still_warming = runtime.warmup_state == "warming"
+            held_update = (
+                gr.update()
+                if held_lat is not None
+                else format_meta_line_html(
+                    backend_kind=runtime.backend_kind,
+                    quant_label=runtime.quant_label,
+                    latency_s=None,
+                    warmup_state=runtime.warmup_state,
+                )
+            )
+            cust_update = (
+                gr.update()
+                if cust_lat is not None
+                else format_meta_line_html(
+                    backend_kind=runtime.backend_kind,
+                    quant_label=runtime.quant_label,
+                    latency_s=None,
+                    warmup_state=runtime.warmup_state,
+                )
+            )
+            return held_update, cust_update, gr.Timer(active=still_warming)
 
-        def _on_select_example(example_id: str, show_base: bool):
-            ex = example_by_id[example_id]
+        warmup_timer.tick(
+            fn=_poll_warmup,
+            inputs=[last_latency_state, custom_latency_state],
+            outputs=[meta_out, custom_meta_out, warmup_timer],
+        )
+
+        # Event handlers — Held-out examples tab
+        def _select_example(ex_id: str, show_base: bool):
+            ex = example_by_id[ex_id]
             resolved = resolve_heldout_sheet(ex.sheet_id, runtime.bundle)
-            note_text = f"**Note:** {ex.note}" if ex.note else ""
-            base_md = format_saved_base_markdown(ex.sheet_id, ex.request, runtime.bundle, show_base)
+            preview = render_sheet_preview_html(
+                resolved.sheet_id, resolved.source_note, resolved.preview_df
+            )
+            base_html = format_saved_base_html(ex.sheet_id, ex.request, runtime.bundle, show_base)
+            btn_updates = [
+                gr.update(elem_classes=_button_classes(item, ex.example_id))
+                for item in BUILTIN_EXAMPLES
+            ]
             return (
                 ex.sheet_id,
-                None,
-                "",
+                ex.example_id,
+                preview,
                 ex.request,
-                resolved.schema_text,
-                resolved.preview_df,
                 "",
-                "_Click **Generate & Execute Formula** to run local inference._",
-                base_md,
-                gr.update(value=note_text, visible=bool(ex.note)),
+                format_verdict_html("", None, None, idle_hint=True),
+                base_html,
+                resolved.schema_text,
+                *btn_updates,
             )
 
-        def _on_change_sheet(sheet_id: str):
-            if not sheet_id or sheet_id == CUSTOM_SHEET_KEY:
-                return "", pd.DataFrame()
-            resolved = resolve_heldout_sheet(sheet_id, runtime.bundle)
-            return resolved.schema_text, resolved.preview_df
-
-        def _on_toggle_base(
-            show_base: bool, sheet_id: str, req: str, uploaded: str | None, pasted: str
-        ):
-            effective_sheet = (
-                "__custom__" if (uploaded or (pasted or "").strip()) else (sheet_id or "")
-            )
-            return format_saved_base_markdown(effective_sheet, req or "", runtime.bundle, show_base)
-
-        def _on_run(sheet_id: str, uploaded: str | None, pasted: str, req: str, show_base: bool):
-            return run_demo_query(
-                runtime,
-                sheet_choice=sheet_id,
-                uploaded_file=uploaded,
-                pasted_headers=pasted,
-                request_text=req,
-                show_base_comparison=show_base,
+        for ex, btn in zip(BUILTIN_EXAMPLES, ex_buttons, strict=True):
+            btn.click(
+                fn=lambda show_b, _eid=ex.example_id: _select_example(_eid, show_b),
+                inputs=[compare_toggle],
+                outputs=[
+                    active_sheet_state,
+                    active_ex_state,
+                    sheet_preview_html,
+                    request_box,
+                    formula_out,
+                    verdict_out,
+                    base_out,
+                    schema_box,
+                    *ex_buttons,
+                ],
             )
 
-        builtin_dropdown.change(
-            fn=_on_select_example,
-            inputs=[builtin_dropdown, compare_toggle],
-            outputs=[
-                sheet_dropdown,
-                upload_input,
-                pasted_input,
-                request_box,
-                schema_box,
-                preview_table,
-                formula_out,
-                exec_out_md,
-                base_out_md,
-                example_note_md,
-            ],
-        )
-
-        sheet_dropdown.change(
-            fn=_on_change_sheet,
-            inputs=[sheet_dropdown],
-            outputs=[schema_box, preview_table],
-        )
+        def _on_toggle_base(show_base: bool, sheet_id: str, req: str):
+            return format_saved_base_html(sheet_id or "", req or "", runtime.bundle, show_base)
 
         compare_toggle.change(
             fn=_on_toggle_base,
-            inputs=[compare_toggle, sheet_dropdown, request_box, upload_input, pasted_input],
-            outputs=[base_out_md],
+            inputs=[compare_toggle, active_sheet_state, request_box],
+            outputs=[base_out],
         )
 
-        run_btn.click(
-            fn=_on_run,
-            inputs=[sheet_dropdown, upload_input, pasted_input, request_box, compare_toggle],
-            outputs=[
-                formula_out,
-                exec_out_md,
-                status_out_md,
-                base_out_md,
-                preview_table,
-                schema_box,
-            ],
+        def _on_run_heldout(sheet_id: str, req: str, show_base: bool):
+            formula, verdict, meta, base_html, _, schema_txt = run_demo_query(
+                runtime,
+                sheet_choice=sheet_id,
+                uploaded_file=None,
+                pasted_headers="",
+                request_text=req,
+                show_base_comparison=show_base,
+            )
+            return formula, verdict, meta, base_html, schema_txt, 1.0
+
+        for trigger in (run_btn.click, request_box.submit):
+            trigger(
+                fn=_on_run_heldout,
+                inputs=[active_sheet_state, request_box, compare_toggle],
+                outputs=[
+                    formula_out,
+                    verdict_out,
+                    meta_out,
+                    base_out,
+                    schema_box,
+                    last_latency_state,
+                ],
+            )
+
+        # Event handlers — Your own sheet tab
+        def _preview_custom(pasted: str, uploaded: str | None):
+            resolved: ResolvedSheet | None = None
+            try:
+                if uploaded:
+                    resolved = resolve_uploaded_file(uploaded)
+                elif (pasted or "").strip():
+                    resolved = resolve_pasted_headers(pasted)
+                else:
+                    return empty_custom_preview, gr.update()
+                html_tbl = render_sheet_preview_html(
+                    resolved.sheet_id, resolved.source_note, resolved.preview_df
+                )
+                return html_tbl, resolved.schema_text
+            except ValueError as exc:
+                err_tbl = (
+                    '<div class="flm-card flm-sheet-card">'
+                    f'<div class="flm-empty-table">❌ {html.escape(str(exc))}</div></div>'
+                )
+                return err_tbl, gr.update()
+            finally:
+                if resolved is not None and resolved.is_temp and resolved.xlsx_path.is_file():
+                    try:
+                        resolved.xlsx_path.unlink()
+                    except OSError:
+                        pass
+
+        pasted_input.change(
+            fn=_preview_custom,
+            inputs=[pasted_input, upload_input],
+            outputs=[custom_preview_html, schema_box],
         )
-        request_box.submit(
-            fn=_on_run,
-            inputs=[sheet_dropdown, upload_input, pasted_input, request_box, compare_toggle],
-            outputs=[
-                formula_out,
-                exec_out_md,
-                status_out_md,
-                base_out_md,
-                preview_table,
-                schema_box,
-            ],
+        upload_input.change(
+            fn=_preview_custom,
+            inputs=[pasted_input, upload_input],
+            outputs=[custom_preview_html, schema_box],
         )
+
+        def _on_run_custom(pasted: str, uploaded: str | None, req: str):
+            formula, verdict, meta, _, preview_df, schema_txt = run_demo_query(
+                runtime,
+                sheet_choice=CUSTOM_SHEET_KEY,
+                uploaded_file=uploaded,
+                pasted_headers=pasted,
+                request_text=req,
+                show_base_comparison=False,
+            )
+            if not preview_df.empty:
+                title = Path(uploaded).stem if uploaded else "custom_headers"
+                sub = f"first {len(preview_df)} rows"
+                prev_html = render_sheet_preview_html(title, sub, preview_df)
+            else:
+                prev_html = empty_custom_preview
+            return formula, verdict, meta, prev_html, schema_txt or gr.update(), 1.0
+
+        for trigger in (custom_run_btn.click, custom_request_box.submit):
+            trigger(
+                fn=_on_run_custom,
+                inputs=[pasted_input, upload_input, custom_request_box],
+                outputs=[
+                    custom_formula_out,
+                    custom_verdict_out,
+                    custom_meta_out,
+                    custom_preview_html,
+                    schema_box,
+                    custom_latency_state,
+                ],
+            )
 
     return demo
+
+
+def build_offline_theme() -> gr.themes.Base:
+    """System-font light theme with zero Google Fonts or external CDN requests."""
+    return gr.themes.Base(
+        primary_hue="blue",
+        secondary_hue="slate",
+        neutral_hue="slate",
+        font=["system-ui", "-apple-system", "Segoe UI", "Roboto", "Arial", "sans-serif"],
+        font_mono=["Cascadia Code", "Consolas", "SFMono-Regular", "ui-monospace", "monospace"],
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1345,20 +1990,15 @@ def main(argv: list[str] | None = None) -> int:
         base_url=args.base_url,
         model_name=args.model,
     )
+    runtime.start_background_warmup()
     demo = build_demo_app(runtime)
-    theme = gr.themes.Default(
-        primary_hue="blue",
-        secondary_hue="slate",
-        neutral_hue="slate",
-        text_size="lg",
-    )
     demo.launch(
         server_name=args.host,
         server_port=args.port,
         share=False,
         max_file_size="1mb",
-        theme=theme,
-        css=LIGHT_RECORDING_CSS,
+        theme=build_offline_theme(),
+        css=LIGHT_1080P_CSS,
         js=FORCE_LIGHT_JS,
     )
     return 0

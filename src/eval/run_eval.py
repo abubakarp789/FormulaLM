@@ -383,10 +383,12 @@ class OllamaBackend:
         *,
         base_url: str = "http://localhost:11434",
         timeout: float = 120.0,
+        keep_alive: str | None = None,
     ) -> None:
         self.model = model
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        self.keep_alive = keep_alive
         self.name = f"ollama:{model}"
         self.last_timings: dict[str, Any] = {}
 
@@ -402,7 +404,7 @@ class OllamaBackend:
         example: EvalExample | None = None,
     ) -> str:
         del example
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
             "stream": False,
@@ -413,6 +415,8 @@ class OllamaBackend:
                 "seed": seed,
             },
         }
+        if self.keep_alive is not None:
+            payload["keep_alive"] = self.keep_alive
         resp = requests.post(f"{self.base_url}/api/chat", json=payload, timeout=self.timeout)
         resp.raise_for_status()
         data = resp.json()

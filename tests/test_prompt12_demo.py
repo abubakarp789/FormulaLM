@@ -1,7 +1,9 @@
-"""Tests for PROMPT 12 Gradio demo app (mock backend, localhost guard, uploads, honest failure)."""
+"""Tests for Gradio demo app (mock backend, localhost guard, uploads, honest failure, warm-up)."""
 
 from __future__ import annotations
 
+import re
+import time
 from pathlib import Path
 
 import gradio as gr
@@ -11,10 +13,13 @@ import pytest
 from app.app import (
     BUILTIN_EXAMPLES,
     CUSTOM_SHEET_KEY,
+    LIMITS_HTML,
     MAX_UPLOAD_BYTES,
     assert_localhost_url,
     build_demo_app,
+    build_offline_theme,
     create_runtime,
+    format_meta_line_html,
     run_demo_query,
 )
 
@@ -44,6 +49,7 @@ def test_builtin_examples_cover_all_heldout_sheets_and_include_honest_failure() 
     honest_failures = [ex for ex in BUILTIN_EXAMPLES if ex.is_honest_failure]
     assert len(honest_failures) >= 1
     assert "WRONG" in honest_failures[0].label or "FAILURE" in honest_failures[0].label
+    assert honest_failures[0].short_label == "Honest failure"
 
 
 def test_mock_backend_runs_wins_and_honest_failure_with_saved_base_comparison() -> None:
@@ -51,7 +57,7 @@ def test_mock_backend_runs_wins_and_honest_failure_with_saved_base_comparison() 
 
     # 1. Passing held-out example (real_v2_005)
     win_ex = BUILTIN_EXAMPLES[0]
-    formula, exec_md, status_md, base_md, preview_df, schema_text = run_demo_query(
+    formula, verdict_html, meta_html, base_html, preview_df, schema_text = run_demo_query(
         runtime,
         sheet_choice=win_ex.sheet_id,
         uploaded_file=None,
@@ -60,17 +66,17 @@ def test_mock_backend_runs_wins_and_honest_failure_with_saved_base_comparison() 
         show_base_comparison=True,
     )
     assert formula.startswith("=COUNTIFS(")
-    assert "MATCHES GROUND TRUTH" in exec_md
-    assert "Q5_K_M" in status_md
-    assert "Latency:" in status_md
-    assert "Saved evaluation run, base `Qwen3-1.7B`" in base_md
-    assert "0-shot" in base_md and "5-shot" in base_md
-    assert not preview_df.empty
+    assert "✅ 16 = ground truth" in verdict_html
+    assert "Q5_K_M" in meta_html
+    assert re.search(r"\d+\.\d s", meta_html)
+    assert "Base 0-shot" in base_html and "Base 5-shot" in base_html
+    assert "saved evaluation run, not live" in base_html
+    assert len(preview_df) == 5
     assert "sales_retail_store" in schema_text
 
     # 2. Honest failure built-in example (real_v2_050)
     fail_ex = [ex for ex in BUILTIN_EXAMPLES if ex.is_honest_failure][0]
-    f_fail, exec_fail_md, _, base_fail_md, _, _ = run_demo_query(
+    f_fail, verdict_fail_html, _, base_fail_html, _, _ = run_demo_query(
         runtime,
         sheet_choice=fail_ex.sheet_id,
         uploaded_file=None,
@@ -79,15 +85,15 @@ def test_mock_backend_runs_wins_and_honest_failure_with_saved_base_comparison() 
         show_base_comparison=True,
     )
     assert f_fail.startswith("=")
-    assert "DOES NOT MATCH GROUND TRUTH (Honest Failure)" in exec_fail_md
-    assert "Saved evaluation run, base `Qwen3-1.7B`" in base_fail_md
+    assert "❌ 11 ≠ 533 (ground truth)" in verdict_fail_html
+    assert "saved evaluation run, not live" in base_fail_html
 
 
 def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> None:
     runtime = create_runtime(backend_kind="mock")
 
     # Pasted column headers (synthesizes 5 rows and executes =SUM on first numeric column)
-    formula, exec_md, _, base_md, preview_df, schema_text = run_demo_query(
+    formula, verdict_html, _, base_html, preview_df, schema_text = run_demo_query(
         runtime,
         sheet_choice=CUSTOM_SHEET_KEY,
         uploaded_file=None,
@@ -96,15 +102,15 @@ def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> N
         show_base_comparison=True,
     )
     assert formula == "=SUM(C2:C6)"
-    assert "Executed Value:" in exec_md
-    assert "No saved base-model prediction exists" in base_md
+    assert "Executed:" in verdict_html
+    assert "No saved base-model prediction exists" in base_html
     assert len(preview_df) == 5
     assert "C: Units (integer)" in schema_text
 
     # Uploaded CSV
     csv_file = tmp_path / "mini_sales.csv"
     csv_file.write_text("Branch,Amount\nNorth,120.5\nSouth,79.5\n", encoding="utf-8")
-    f_csv, exec_csv, _, _, df_csv, _ = run_demo_query(
+    f_csv, verdict_csv, _, _, df_csv, _ = run_demo_query(
         runtime,
         sheet_choice=CUSTOM_SHEET_KEY,
         uploaded_file=csv_file,
@@ -113,7 +119,7 @@ def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> N
         show_base_comparison=False,
     )
     assert f_csv == "=SUM(B2:B3)"
-    assert "`200`" in exec_csv
+    assert "Executed: 200" in verdict_csv
     assert len(df_csv) == 2
 
     # Uploaded XLSX
@@ -126,7 +132,7 @@ def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> N
     ws.append(["Book", 6])
     wb.save(xlsx_file)
     wb.close()
-    f_xlsx, exec_xlsx, _, _, _, _ = run_demo_query(
+    f_xlsx, verdict_xlsx, _, _, _, _ = run_demo_query(
         runtime,
         sheet_choice=CUSTOM_SHEET_KEY,
         uploaded_file=xlsx_file,
@@ -135,12 +141,12 @@ def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> N
         show_base_comparison=False,
     )
     assert f_xlsx == "=SUM(B2:B3)"
-    assert "`10`" in exec_xlsx
+    assert "Executed: 10" in verdict_xlsx
 
     # Oversized upload (> 1.0 MB) rejected cleanly
     big_csv = tmp_path / "too_big.csv"
     big_csv.write_bytes(b"a,b\n" + b"1,2\n" * ((MAX_UPLOAD_BYTES // 4) + 100))
-    f_big, exec_big, _, _, _, _ = run_demo_query(
+    f_big, verdict_big, _, _, _, _ = run_demo_query(
         runtime,
         sheet_choice=CUSTOM_SHEET_KEY,
         uploaded_file=big_csv,
@@ -149,8 +155,8 @@ def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> N
         show_base_comparison=False,
     )
     assert f_big == ""
-    assert "Input Validation Error" in exec_big
-    assert "1.00 MB limit" in exec_big
+    assert "Input validation error" in verdict_big
+    assert "1.00 MB limit" in verdict_big
 
 
 def test_execution_failure_surfaces_clear_error_details() -> None:
@@ -165,7 +171,7 @@ def test_execution_failure_surfaces_clear_error_details() -> None:
             return "=SUMPRODUCT(E2:E115)"
 
     runtime.backend = _BadFormulaBackend()
-    formula, exec_md, _, _, _, _ = run_demo_query(
+    formula, verdict_html, _, _, _, _ = run_demo_query(
         runtime,
         sheet_choice="sales_retail_store",
         uploaded_file=None,
@@ -174,14 +180,55 @@ def test_execution_failure_surfaces_clear_error_details() -> None:
         show_base_comparison=False,
     )
     assert formula == "=SUMPRODUCT(E2:E115)"
-    assert "Execution Failed" in exec_md
-    assert "unsupported_function" in exec_md
+    assert "Execution failed" in verdict_html
+    assert "unsupported_function" in verdict_html
 
 
 def test_gradio_blocks_and_powershell_launcher_config() -> None:
     runtime = create_runtime(backend_kind="mock")
     demo = build_demo_app(runtime)
     assert isinstance(demo, gr.Blocks)
+
+    # Ollama runtime sets keep_alive="30m" and warms up in background
+    rt = create_runtime(backend_kind="ollama")
+    assert rt.backend.keep_alive == "30m"
+
+    warming_meta = format_meta_line_html(
+        backend_kind="ollama",
+        quant_label="Q5_K_M",
+        latency_s=None,
+        warmup_state="warming",
+    )
+    assert "warming up..." in warming_meta
+
+    called: list[int] = []
+
+    class _FakeOllama:
+        last_timings: dict[str, float] = {}
+
+        def generate(self, messages, *, max_tokens: int, seed: int) -> str:
+            del messages, seed
+            called.append(max_tokens)
+            return "="
+
+    rt.backend = _FakeOllama()
+    rt.start_background_warmup()
+    for _ in range(30):
+        if rt.warmup_state == "ready":
+            break
+        time.sleep(0.02)
+    assert rt.warmup_state == "ready"
+    assert called == [1]
+
+    # Offline theme must declare zero external stylesheets (no Google Fonts / CDN)
+    theme = build_offline_theme()
+    assert theme._stylesheets == []
+
+    # Exact quoted accuracy caveat in Limits & scope
+    assert (
+        "On a 50-request fresh held-out set (small, AI-drafted): "
+        "86-90% (Q5_K_M, Colab 45/50, local Ollama 43/50)"
+    ) in LIMITS_HTML
 
     ps1 = (Path(__file__).resolve().parents[1] / "scripts" / "run_demo.ps1").read_text(
         encoding="utf-8"

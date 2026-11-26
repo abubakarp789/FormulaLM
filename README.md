@@ -115,7 +115,7 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
 .\scripts\run_demo.ps1 -Backend mock   # offline UI smoke mode (no Ollama server needed)
 ```
 
-- **Features:** 5 held-out sheets + CSV/XLSX upload (`<= 1.0 MB`) + pasted column headers (synthesizes 5 sample rows for execution); formula copy button; live `formulas` execution result + ground truth; latency/quantization status box; offline **saved Base `Qwen3-1.7B`** toggle (`results/baseline_*`, never loads a second model on 8 GB RAM); and 8 built-in examples including 1 honestly labeled failure (`real_v2_050`).
+- **Features:** Compact 2-tab 1080p layout (**Held-out examples** + **Your own sheet** with CSV/XLSX upload `<= 1.0 MB` or pasted column headers synthesizing 5 sample rows); 8 short example buttons including 1 red-outlined honest failure (`real_v2_050`); formula copy button; live `formulas` verdict pill + ground truth; one-line latency/quantization meta with background startup warm-up (`keep_alive=30m`); and offline **saved Base `Qwen3-1.7B`** side-by-side cards (`results/baseline_*`, never loads a second model on 8 GB RAM).
 - **Screenshots (placeholders to capture before submission):**
   1. `docs/screenshots/demo_win.png` — _[Placeholder: held-out win (`real_v2_005` / `COUNTIFS`) with saved Base `Qwen3-1.7B` failure side-by-side]_
   2. `docs/screenshots/demo_honest_failure.png` — _[Placeholder: Built-in #8 honest failure (`real_v2_050` wrong `VLOOKUP` column index: `11` vs `533`)]_
