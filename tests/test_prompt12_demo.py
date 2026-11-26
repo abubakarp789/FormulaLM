@@ -66,11 +66,11 @@ def test_mock_backend_runs_wins_and_honest_failure_with_saved_base_comparison() 
         show_base_comparison=True,
     )
     assert formula.startswith("=COUNTIFS(")
-    assert "✅ 16 = ground truth" in verdict_html
+    assert "✅ 16 — matches ground truth" in verdict_html
     assert "Q5_K_M" in meta_html
     assert re.search(r"\d+\.\d s", meta_html)
     assert "Base 0-shot" in base_html and "Base 5-shot" in base_html
-    assert "saved evaluation run, not live" in base_html
+    assert "Saved evaluation runs, not live" in base_html
     assert len(preview_df) == 5
     assert "sales_retail_store" in schema_text
 
@@ -86,7 +86,7 @@ def test_mock_backend_runs_wins_and_honest_failure_with_saved_base_comparison() 
     )
     assert f_fail.startswith("=")
     assert "❌ 11 ≠ 533 (ground truth)" in verdict_fail_html
-    assert "saved evaluation run, not live" in base_fail_html
+    assert "Saved evaluation runs, not live" in base_fail_html
 
 
 def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> None:
@@ -102,7 +102,7 @@ def test_pasted_headers_and_csv_xlsx_uploads_and_size_limit(tmp_path: Path) -> N
         show_base_comparison=True,
     )
     assert formula == "=SUM(C2:C6)"
-    assert "Executed:" in verdict_html
+    assert "Executed:" in verdict_html and "on 5 sample rows" in verdict_html
     assert "No saved base-model prediction exists" in base_html
     assert len(preview_df) == 5
     assert "C: Units (integer)" in schema_text
@@ -226,8 +226,8 @@ def test_gradio_blocks_and_powershell_launcher_config() -> None:
 
     # Exact quoted accuracy caveat in Limits & scope
     assert (
-        "On a 50-request fresh held-out set (small, AI-drafted): "
-        "86-90% (Q5_K_M, Colab 45/50, local Ollama 43/50)"
+        "On a small 50-request fresh held-out set (AI-drafted), "
+        "Q5_K_M scored 86-90% (45/50 on Colab, 43/50 on local Ollama)."
     ) in LIMITS_HTML
 
     ps1 = (Path(__file__).resolve().parents[1] / "scripts" / "run_demo.ps1").read_text(

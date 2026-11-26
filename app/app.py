@@ -1,14 +1,15 @@
 """FormulaLM local Gradio demo application.
 
-Compact, 1080p-ready light UI (fits without scrolling at 100-110% browser zoom):
-- Header + hardware/quantization chips, two tabs: "Held-out examples" and "Your own sheet".
-- 8 short example buttons across all 5 held-out sheets (including 1 red-outlined honest failure).
-- Left (~40%): 5-row horizontally scrollable sheet preview, large request box, primary button.
-- Right (~60%): large monospace formula with copy button, green/red/neutral verdict pill,
-  one-line meta status (with background startup warm-up and Ollama keep_alive="30m"),
-  and optional side-by-side saved Base 0-shot / Base 5-shot cards (never loads a 2nd model).
-- Footer: two collapsed accordions ("Limits & scope" and "Show prompt sent to model").
-- Localhost-only with system fonts only (zero Google Fonts, zero CDN, zero external assets).
+Layout follows the "Formula Precision" Stitch blueprint, rebuilt with Gradio Blocks + local CSS:
+- Header (title, subtitle, 4 chips) and two tabs: "Held-out examples" and "Your own sheet".
+- Held-out tab: 8 numbered example buttons (#8 = red-outlined honest failure); left column with
+  the sheet card (5-row preview with column letters), request card and "Generate & verify";
+  right column with the generated-formula card (large monospace + copy), verdict pill, one meta
+  line, and the optional "Compare with base model" card (saved evaluation runs, not live).
+- Your own sheet tab: paste headers or upload CSV/XLSX (<= 1 MB), request box, same result card.
+- Footer: two accordions closed by default ("Limits & scope", "Show prompt sent to model").
+- Localhost-only: system fonts, inline SVG icons, zero external scripts/stylesheets/fonts/images.
+- Background warm-up request at startup + Ollama ``keep_alive="30m"`` (meta shows "warming up...").
 
 CLI usage:
     uv run python app/app.py
@@ -106,7 +107,7 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
     ),
     BuiltinExample(
         example_id="real_v2_006",
-        short_label="IF + AND",
+        short_label="IF+AND",
         label="2. [Sales — IF + AND] Classify row 10 as 'Bulk High' vs 'Standard'",
         sheet_id="sales_retail_store",
         request=(
@@ -116,14 +117,14 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
     ),
     BuiltinExample(
         example_id="real_v2_015",
-        short_label="SUMIFS (HR)",
+        short_label="SUMIFS",
         label="3. [HR — SUMIFS] Total Annual Salary for Design staff in Stonewick",
         sheet_id="hr_employee_roster",
         request="Total Annual Salary for Design staff based in Stonewick",
     ),
     BuiltinExample(
         example_id="real_v2_017",
-        short_label="INDEX + MATCH",
+        short_label="INDEX+MATCH",
         label="4. [HR — INDEX + MATCH] Find Work Hub for employee EMP-1010",
         sheet_id="hr_employee_roster",
         request="Find the Work Hub for employee EMP-1010 using INDEX and MATCH",
@@ -137,7 +138,7 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
     ),
     BuiltinExample(
         example_id="real_v2_040",
-        short_label="IFERROR + ROUND",
+        short_label="IFERROR+ROUND",
         label="6. [Grades — IFERROR + ROUND + SUMIF/SUM] Physics share of Assignments Done",
         sheet_id="grades_course_scores",
         request=(
@@ -147,7 +148,7 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
     ),
     BuiltinExample(
         example_id="real_v2_045",
-        short_label="SUMIFS (Orders)",
+        short_label="SUMIFS",
         label="7. [Orders — SUMIFS] Shipping Fee for Shipped Marketplace orders",
         sheet_id="orders_ecommerce",
         request="Total Shipping Fee for Marketplace orders that are Shipped",
@@ -163,11 +164,19 @@ BUILTIN_EXAMPLES: tuple[BuiltinExample, ...] = (
         request="VLOOKUP Order Total for ORD-1015 rounded to 1 decimal, returning 0 if not found",
         is_honest_failure=True,
         note=(
-            "Q5_K_M writes valid Excel syntax but picks column 6 (Discount %, 11) instead of "
-            "column 7 (Order Total, 533). Execution catches the mistake."
+            "The model wrote valid Excel but picked column index 6 (Item Count, value 11) "
+            "instead of 7 (Order Total, value 533). Executing the formula on the sheet caught "
+            "the mismatch against the ground truth."
         ),
     ),
 )
+
+_EXAMPLE_BY_ID = {ex.example_id: ex for ex in BUILTIN_EXAMPLES}
+
+
+def example_button_label(index: int, ex: BuiltinExample) -> str:
+    """Numbered short label for the example button row, e.g. ``1 · COUNTIFS``."""
+    return f"{index} · {ex.short_label}"
 
 
 # ---------------------------------------------------------------------------
@@ -357,7 +366,9 @@ class ResolvedSheet:
     preview_df: pd.DataFrame
     source_note: str
     total_rows: int = 5
+    total_cols: int = 0
     is_temp: bool = False
+    synthesized: bool = False
 
 
 def _infer_series_type(series: pd.Series) -> str:
@@ -495,8 +506,9 @@ def resolve_uploaded_file(file_path: str | Path) -> ResolvedSheet:
         schema_text=schema_text,
         xlsx_path=tmp_xlsx,
         preview_df=preview_df,
-        source_note=f"{path.name} ({len(df)} rows, {df.shape[1]} cols)",
+        source_note=f"uploaded {path.name} ({size_bytes / 1024:.1f} KB)",
         total_rows=len(df),
+        total_cols=df.shape[1],
         is_temp=True,
     )
 
@@ -611,8 +623,9 @@ def resolve_pasted_headers(raw_text: str) -> ResolvedSheet:
             schema_text=_format_df_schema("pasted_sheet", df),
             xlsx_path=tmp_xlsx,
             preview_df=_build_preview_df(df),
-            source_note=f"pasted CSV ({len(df)} rows, {df.shape[1]} cols)",
+            source_note="pasted CSV rows",
             total_rows=len(df),
+            total_cols=df.shape[1],
             is_temp=True,
         )
 
@@ -653,9 +666,11 @@ def resolve_pasted_headers(raw_text: str) -> ResolvedSheet:
         schema_text=schema_text,
         xlsx_path=tmp_xlsx,
         preview_df=_build_preview_df(df),
-        source_note=f"{len(headers)} headers · 5 sample rows (2..6)",
+        source_note="pasted headers · synthesized sample rows",
         total_rows=5,
+        total_cols=len(headers),
         is_temp=True,
+        synthesized=True,
     )
 
 
@@ -669,15 +684,34 @@ def resolve_heldout_sheet(sheet_id: str, bundle: SavedEvalBundle) -> ResolvedShe
         schema_text=format_schema_text(ctx),
         xlsx_path=ctx.xlsx_path,
         preview_df=_build_preview_df(df),
-        source_note=f"rows 2..{ctx.last_row} · {len(ctx.columns)} cols · held-out",
+        source_note="held-out sample",
         total_rows=ctx.last_row - 1,
+        total_cols=len(ctx.columns),
         is_temp=False,
     )
 
 
 # ---------------------------------------------------------------------------
-# Clean HTML formatting helpers (high-contrast light cards, zero external CSS)
+# HTML cards (inline SVG icons only; zero external assets)
 # ---------------------------------------------------------------------------
+
+_SVG_ATTRS = (
+    'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" '
+    'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
+    'aria-hidden="true"'
+)
+ICON_TABLE = (
+    f'<svg class="flm-ico" {_SVG_ATTRS}><rect x="3" y="4" width="18" height="16" rx="2"/>'
+    '<path d="M3 10h18M9 4v16"/></svg>'
+)
+ICON_CHECK = (
+    f'<svg class="flm-ico" {_SVG_ATTRS}><circle cx="12" cy="12" r="9"/>'
+    '<path d="m8 12 3 3 5-6"/></svg>'
+)
+ICON_ALERT = (
+    f'<svg class="flm-ico" {_SVG_ATTRS}><path d="M12 3 2 20h20L12 3z"/>'
+    '<path d="M12 10v4M12 17h.01"/></svg>'
+)
 
 
 def format_scalar_value(val: Any) -> str:
@@ -700,32 +734,39 @@ def render_sheet_preview_html(
     sheet_name: str,
     subtitle: str,
     preview_df: pd.DataFrame,
+    *,
+    rows_cols_chip: str = "",
 ) -> str:
-    """Render a compact 5-row horizontally scrollable preview card with column letters."""
-    safe_name = html.escape(sheet_name)
-    safe_sub = html.escape(subtitle)
+    """Sheet card: icon + name + subtitle + rows/cols chip + 5-row table with column letters."""
+    head = (
+        '<div class="flm-card-head">'
+        f'<div class="flm-card-title">{ICON_TABLE}'
+        f'<span class="flm-sheet-name">{html.escape(sheet_name)}</span>'
+        f'<span class="flm-sheet-sub">({html.escape(subtitle)})</span></div>'
+        + (
+            f'<span class="flm-chip-sm">{html.escape(rows_cols_chip)}</span>'
+            if rows_cols_chip
+            else ""
+        )
+        + "</div>"
+    )
     if preview_df.empty:
         return (
-            '<div class="flm-card flm-sheet-card">'
-            '<div class="flm-card-head">'
-            f'<span class="flm-sheet-title">{safe_name}</span>'
-            f'<span class="flm-sheet-sub">{safe_sub}</span>'
-            "</div>"
-            '<div class="flm-empty-table">'
-            "Paste headers or upload a CSV/XLSX above to preview 5 sample rows."
-            "</div></div>"
+            f'<div class="flm-card flm-sheet-card">{head}'
+            '<div class="flm-empty-table">Paste column headers or upload a CSV/XLSX to preview '
+            "5 sample rows here.</div></div>"
         )
 
     ths: list[str] = []
     for col in preview_df.columns:
         col_str = str(col)
         if col_str == "Row":
-            ths.append('<th class="flm-row-col">#</th>')
+            ths.append('<th class="flm-rownum">#</th>')
         elif ": " in col_str:
             letter, cname = col_str.split(": ", 1)
             ths.append(
-                f'<th><span class="flm-col-letter">{html.escape(letter)}</span> '
-                f"{html.escape(cname)}</th>"
+                f'<th><span class="flm-col-letter">{html.escape(letter)}</span>'
+                f'<span class="flm-col-name">{html.escape(cname)}</span></th>'
             )
         else:
             ths.append(f"<th>{html.escape(col_str)}</th>")
@@ -734,20 +775,34 @@ def render_sheet_preview_html(
     for row in preview_df.itertuples(index=False, name=None):
         tds = []
         for idx, cell in enumerate(row):
-            cls = ' class="flm-row-col"' if idx == 0 else ""
+            cls = ' class="flm-rownum"' if idx == 0 else ""
             tds.append(f"<td{cls}>{html.escape(str(cell))}</td>")
         body_rows.append(f"<tr>{''.join(tds)}</tr>")
 
     return (
-        '<div class="flm-card flm-sheet-card">'
-        '<div class="flm-card-head">'
-        f'<span class="flm-sheet-title">{safe_name}</span>'
-        f'<span class="flm-sheet-sub">{safe_sub}</span>'
-        "</div>"
+        f'<div class="flm-card flm-sheet-card">{head}'
         '<div class="flm-table-wrap">'
         f'<table class="flm-table"><thead><tr>{"".join(ths)}</tr></thead>'
         f"<tbody>{''.join(body_rows)}</tbody></table>"
         "</div></div>"
+    )
+
+
+def _sheet_card_for(resolved: ResolvedSheet) -> str:
+    return render_sheet_preview_html(
+        resolved.sheet_id,
+        resolved.source_note,
+        resolved.preview_df,
+        rows_cols_chip=f"{resolved.total_rows} rows · {resolved.total_cols} cols",
+    )
+
+
+def formula_card_header_html(quant_label: str) -> str:
+    return (
+        '<div class="flm-card-head flm-formula-head">'
+        f'<div class="flm-card-title flm-title-lg">{ICON_CHECK}<span>Generated formula</span>'
+        f'<span class="flm-chip-sm">FormulaLM v2 · {html.escape(quant_label)}</span></div>'
+        "</div>"
     )
 
 
@@ -756,67 +811,68 @@ def format_verdict_html(
     exec_res: ExecutionResult | None,
     gt: dict[str, Any] | None,
     *,
+    rows_note: str | None = None,
     error_banner: str | None = None,
     idle_hint: bool = False,
 ) -> str:
-    """Render the verdict pill directly under the formula output."""
+    """Verdict pill (green = matches ground truth, red = wrong/failed, neutral = custom)."""
     if error_banner:
         return (
-            '<div class="flm-verdict-wrap">'
-            f'<span class="flm-pill flm-pill-err">❌ {html.escape(error_banner)}</span>'
-            "</div>"
+            '<div class="flm-verdict">'
+            f'<span class="flm-pill flm-pill-err">❌ {html.escape(error_banner)}</span></div>'
         )
     if idle_hint:
         return (
-            '<div class="flm-verdict-wrap">'
-            '<span class="flm-pill flm-pill-neutral">'
-            "Click Generate &amp; verify to run locally</span>"
-            "</div>"
+            '<div class="flm-verdict"><span class="flm-pill flm-pill-neutral">'
+            "Click Generate &amp; verify to run the local model</span></div>"
         )
     if not formula:
         return (
-            '<div class="flm-verdict-wrap">'
-            '<span class="flm-pill flm-pill-err">❌ Model returned an empty response</span>'
-            "</div>"
+            '<div class="flm-verdict">'
+            '<span class="flm-pill flm-pill-err">❌ Model returned an empty response</span></div>'
         )
     if exec_res is None or not exec_res.ok:
         err_t = exec_res.error_type if exec_res and exec_res.error_type else "runtime_error"
         err_msg = exec_res.error_message if exec_res and exec_res.error_message else ""
-        detail_html = (
-            f'<div class="flm-verdict-detail">{html.escape(err_msg)}</div>' if err_msg else ""
-        )
+        detail = f'<span class="flm-verdict-note">{html.escape(err_msg)}</span>' if err_msg else ""
         return (
-            '<div class="flm-verdict-wrap">'
+            '<div class="flm-verdict">'
             f'<span class="flm-pill flm-pill-err">❌ Execution failed ({html.escape(err_t)})</span>'
-            f"{detail_html}"
-            "</div>"
+            f"{detail}</div>"
         )
 
     pred_str = format_scalar_value(exec_res.value)
     if gt is not None:
         exp_val = gt["expected_value"]
         exp_str = format_scalar_value(exp_val)
-        matched = values_equal(exec_res.value, exp_val)
-        if matched:
+        if values_equal(exec_res.value, exp_val):
             return (
-                '<div class="flm-verdict-wrap">'
-                f'<span class="flm-pill flm-pill-ok">'
-                f"✅ {html.escape(pred_str)} = ground truth</span>"
-                "</div>"
+                '<div class="flm-verdict">'
+                f'<span class="flm-pill flm-pill-ok">✅ {html.escape(pred_str)} '
+                "— matches ground truth</span></div>"
             )
         ref_formula = html.escape(str(gt["reference_formula"]))
+        ex = _EXAMPLE_BY_ID.get(str(gt.get("id", "")))
+        failure_box = ""
+        if ex is not None and ex.is_honest_failure and ex.note:
+            failure_box = (
+                '<div class="flm-failure-box">'
+                f"{ICON_ALERT}<div><strong>Honest failure caught by execution</strong>"
+                f"<p>{html.escape(ex.note)}</p></div></div>"
+            )
         return (
-            '<div class="flm-verdict-wrap">'
-            f'<span class="flm-pill flm-pill-err">'
-            f"❌ {html.escape(pred_str)} ≠ {html.escape(exp_str)} (ground truth)</span>"
-            f'<div class="flm-verdict-detail">Expected: <code>{ref_formula}</code></div>'
-            "</div>"
+            '<div class="flm-verdict">'
+            f'<span class="flm-pill flm-pill-err">❌ {html.escape(pred_str)} ≠ '
+            f"{html.escape(exp_str)} (ground truth)</span>"
+            f'<span class="flm-verdict-note">Reference: <code>{ref_formula}</code></span>'
+            f"</div>{failure_box}"
         )
 
+    suffix = f" on {rows_note}" if rows_note else ""
     return (
-        '<div class="flm-verdict-wrap">'
-        f'<span class="flm-pill flm-pill-neutral">Executed: {html.escape(pred_str)}</span>'
-        "</div>"
+        '<div class="flm-verdict">'
+        f'<span class="flm-pill flm-pill-neutral">Executed: {html.escape(pred_str)}'
+        f"{html.escape(suffix)}</span></div>"
     )
 
 
@@ -829,60 +885,80 @@ def format_meta_line_html(
     warmup_state: str = "ready",
     error_note: str | None = None,
 ) -> str:
-    """Render one compact meta line: 'Q5_K_M · local Ollama · 3.2 s · 9.2 tok/s'."""
+    """One compact meta line: 'Q5_K_M · local Ollama · 3.2 s · 9.2 tok/s'."""
     backend_label = {
         "ollama": "local Ollama",
         "llamacpp": "local llama.cpp",
-        "mock": "mock (offline)",
+        "mock": "mock backend (offline)",
     }.get(backend_kind, backend_kind)
 
     parts = [html.escape(quant_label), html.escape(backend_label)]
+    dot = "flm-dot-ok"
     if error_note:
         parts.append(html.escape(error_note))
+        dot = "flm-dot-err"
     elif latency_s is not None:
         parts.append(f"{latency_s:.1f} s")
         if tok_per_s is not None and tok_per_s > 0 and backend_kind != "mock":
             parts.append(f"{tok_per_s:.1f} tok/s")
     elif warmup_state == "warming":
         parts.append("warming up...")
+        dot = "flm-dot-wait"
     elif warmup_state == "error":
         parts.append("server offline")
+        dot = "flm-dot-err"
     else:
         parts.append("ready")
 
-    return f'<div class="flm-meta-line">{" · ".join(parts)}</div>'
+    return f'<div class="flm-meta"><span class="flm-dot {dot}"></span>{" · ".join(parts)}</div>'
 
 
-def _render_single_base_card(title: str, rec: dict[str, Any] | None) -> str:
+BASE_CAPTION = "Saved evaluation runs, not live"
+
+
+def _render_single_base_card(title: str, tag: str, rec: dict[str, Any] | None) -> str:
+    head = (
+        f'<div class="flm-base-head"><span>{html.escape(title)}</span>'
+        f'<span class="flm-chip-sm">{html.escape(tag)}</span></div>'
+    )
     if rec is None:
         return (
-            '<div class="flm-base-card">'
-            f'<div class="flm-base-head"><span>{html.escape(title)}</span>'
-            '<span class="flm-base-tag">saved evaluation run, not live</span></div>'
-            '<div class="flm-base-outcome">No saved prediction for this request.</div>'
-            "</div>"
+            f'<div class="flm-base-card">{head}'
+            '<div class="flm-base-reason">No saved prediction for this request.</div></div>'
         )
 
     ext = str(rec.get("extracted_formula") or rec.get("raw_output") or "").strip()
     ok = bool(rec.get("exec_correct"))
-    syn = bool(rec.get("syntax_valid"))
     err_t = rec.get("error_type")
     pred_v = rec.get("predicted_value")
-    icon = "✅" if ok else "❌"
-    outcome_cls = "flm-base-ok" if ok else "flm-base-err"
+    exp_v = rec.get("expected_value")
+    err_msg = str(rec.get("error_message") or "").strip()
 
-    if not syn or err_t:
-        outcome = f"{icon} {err_t or 'execution failed'}"
+    if ok:
+        chip = (
+            '<span class="flm-pill-sm flm-pill-ok">'
+            f"✅ {html.escape(format_scalar_value(pred_v))}</span>"
+        )
+    elif err_t:
+        chip = (
+            '<span class="flm-pill-sm flm-pill-err">'
+            f"❌ {html.escape(str(err_t).replace('_', ' '))}</span>"
+        )
     else:
-        outcome = f"{icon} {format_scalar_value(pred_v)}"
+        chip = (
+            '<span class="flm-pill-sm flm-pill-err">'
+            f"❌ Executed: {html.escape(format_scalar_value(pred_v))} "
+            f"(expected {html.escape(format_scalar_value(exp_v))})</span>"
+        )
+
+    reason = ""
+    if not ok and err_msg:
+        short = err_msg if len(err_msg) <= 110 else err_msg[:107] + "..."
+        reason = f'<div class="flm-base-reason">{html.escape(short)}</div>'
 
     return (
-        '<div class="flm-base-card">'
-        f'<div class="flm-base-head"><span>{html.escape(title)}</span>'
-        '<span class="flm-base-tag">saved evaluation run, not live</span></div>'
-        f'<div class="flm-base-formula"><code>{html.escape(ext)}</code></div>'
-        f'<div class="flm-base-outcome {outcome_cls}">{html.escape(outcome)}</div>'
-        "</div>"
+        f'<div class="flm-base-card">{head}{chip}'
+        f'<div class="flm-base-formula"><code>{html.escape(ext)}</code></div>{reason}</div>'
     )
 
 
@@ -892,53 +968,52 @@ def format_saved_base_html(
     bundle: SavedEvalBundle,
     enabled: bool,
 ) -> str:
-    """Render two small side-by-side saved base-model cards when enabled."""
+    """Two side-by-side saved base-model cards (only when the compare toggle is on)."""
     if not enabled:
         return ""
 
     key = _norm_key(sheet_id, request)
     b0 = bundle.base_zeroshot.get(key)
     b5 = bundle.base_5shot.get(key)
+    caption = f'<div class="flm-base-caption">{BASE_CAPTION} · base Qwen3-1.7B, fp16</div>'
     if b0 is None and b5 is None:
         return (
-            '<div class="flm-base-empty">'
-            "No saved base-model prediction exists for this request "
-            "(saved evaluation run, not live)."
-            "</div>"
+            f"{caption}"
+            '<div class="flm-base-empty">No saved base-model prediction exists for this '
+            "request. The base model is never run live (one model in RAM at a time).</div>"
         )
 
     return (
+        f"{caption}"
         '<div class="flm-base-grid">'
-        f"{_render_single_base_card('Base 0-shot', b0)}"
-        f"{_render_single_base_card('Base 5-shot', b5)}"
+        f"{_render_single_base_card('Base 0-shot', 'Qwen3-1.7B · 0-shot', b0)}"
+        f"{_render_single_base_card('Base 5-shot', 'Qwen3-1.7B · 5-shot', b5)}"
         "</div>"
     )
 
 
 LIMITS_HTML = (
     '<div class="flm-limits">'
-    "<p><strong>Excel dialect only:</strong> outputs a single formula starting with "
-    "<code>=</code> (no Google Sheets <code>QUERY</code> or <code>ARRAYFORMULA</code>).</p>"
-    "<p><strong>36 functions:</strong> <code>SUM</code>/<code>COUNT</code>/"
-    "<code>AVERAGE</code> (+ <code>IF</code>/<code>IFS</code>), <code>MIN</code>, "
-    "<code>MAX</code>, <code>IF</code>, <code>IFS</code>, <code>AND</code>, <code>OR</code>, "
-    "<code>VLOOKUP</code>, <code>XLOOKUP</code>, <code>INDEX</code>+<code>MATCH</code>, "
-    "text/date helpers, <code>ROUND</code>, and <code>IFERROR</code> (no volatile "
-    "<code>TODAY</code>/<code>NOW</code>/<code>RAND</code>, <code>SUMPRODUCT</code>, "
-    "<code>FILTER</code>, or <code>LET</code>).</p>"
-    "<p><strong>Single sheet:</strong> bounded ranges (<code>2..N</code>) on one active sheet "
-    "only.</p>"
-    "<p><strong>Short formulas:</strong> up to 96 tokens, trained on synthetic spreadsheet data. "
-    "On a 50-request fresh held-out set (small, AI-drafted): "
-    "86-90% (Q5_K_M, Colab 45/50, local Ollama 43/50).</p>"
-    "<p><strong>Always verify:</strong> check generated formulas before relying on them in "
-    "critical sheets.</p>"
+    "<p><strong>Excel dialect only.</strong> One formula starting with <code>=</code>; "
+    "no Google Sheets <code>QUERY</code> or <code>ARRAYFORMULA</code>.</p>"
+    "<p><strong>36 functions.</strong> Aggregation, conditional aggregation, lookups, text, "
+    "date, <code>ROUND</code> and <code>IFERROR</code>; no <code>SUMPRODUCT</code>, "
+    "<code>FILTER</code>, <code>LET</code>, <code>LAMBDA</code> or volatile "
+    "<code>TODAY</code>/<code>NOW</code>/<code>RAND</code>.</p>"
+    "<p><strong>Single sheet.</strong> One active sheet with bounded ranges; no multi-sheet "
+    "joins.</p>"
+    "<p><strong>Short formulas.</strong> Single-cell formulas up to 96 tokens.</p>"
+    "<p><strong>Synthetic training data.</strong> Trained only on generated spreadsheets "
+    "(9,000 synthetic examples on 20 training sheets).</p>"
+    "<p><strong>Accuracy.</strong> On a small 50-request fresh held-out set (AI-drafted), "
+    "Q5_K_M scored 86-90% (45/50 on Colab, 43/50 on local Ollama).</p>"
+    "<p><strong>Always verify critical sheets</strong> before relying on a generated formula.</p>"
     "</div>"
 )
 
 
 # ---------------------------------------------------------------------------
-# Core runtime, background warm-up & query controller (pure Python, testable)
+# Runtime, background warm-up & query controller (pure Python, testable)
 # ---------------------------------------------------------------------------
 
 
@@ -1113,8 +1188,12 @@ def run_demo_query(
             if resolved.is_temp
             else runtime.bundle.ground_truth.get(_norm_key(resolved.sheet_id, req))
         )
+        rows_note = None
+        if resolved.is_temp:
+            noun = "sample rows" if resolved.synthesized else "rows"
+            rows_note = f"{resolved.total_rows} {noun}"
 
-        verdict_html = format_verdict_html(formula, exec_res, gt)
+        verdict_html = format_verdict_html(formula, exec_res, gt, rows_note=rows_note)
         meta_html = format_meta_line_html(
             backend_kind=runtime.backend_kind,
             quant_label=runtime.quant_label,
@@ -1160,655 +1239,543 @@ def run_demo_query(
 
 
 # ---------------------------------------------------------------------------
-# Compact Light 1080p CSS (system fonts only; zero external assets)
+# CSS ("Formula Precision" tokens; system fonts only; zero external assets)
 # ---------------------------------------------------------------------------
 
-LIGHT_1080P_CSS = """
-:root, body, .gradio-container {
-    --flm-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    --flm-mono: "Cascadia Code", Consolas, "SFMono-Regular", Menlo, ui-monospace, monospace;
+APP_CSS = """
+:root, .dark, body, .gradio-container {
+    --flm-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --flm-mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
     --flm-accent: #2563eb;
     --flm-accent-hover: #1d4ed8;
     --flm-ink: #0f172a;
-    --flm-muted: #475569;
-    --flm-border: #cbd5e1;
-    --flm-bg: #f8fafc;
-    --flm-card: #ffffff;
-    background-color: var(--flm-bg) !important;
-    color: var(--flm-ink) !important;
+    --flm-ink-2: #334155;
+    --flm-muted: #64748b;
+    --flm-border: #e3e6eb;
+    --flm-canvas: #f7f8fa;
+    --flm-tint: #eff4ff;
+    --flm-tint-2: #dce9ff;
+    --flm-ok: #16a34a;
+    --flm-ok-ink: #166534;
+    --flm-ok-bg: #f0fdf4;
+    --flm-ok-border: #bbf7d0;
+    --flm-err: #dc2626;
+    --flm-err-ink: #991b1b;
+    --flm-err-bg: #fef2f2;
+    --flm-err-border: #fecaca;
+    --body-background-fill: #f7f8fa;
+    --background-fill-primary: #ffffff;
+    --background-fill-secondary: #f7f8fa;
+    --block-background-fill: #ffffff;
+    --body-text-color: #0f172a;
+    --body-text-color-subdued: #64748b;
+    --input-background-fill: #ffffff;
+    --border-color-primary: #e3e6eb;
+    --block-border-color: #e3e6eb;
+    color-scheme: light;
+}
+html, body { background: var(--flm-canvas) !important; }
+body, .gradio-container {
     font-family: var(--flm-sans) !important;
     font-size: 18px !important;
+    color: var(--flm-ink) !important;
 }
 .gradio-container {
-    max-width: 1440px !important;
-    margin: 0 auto !important;
-    padding: 12px 20px 14px 20px !important;
+    max-width: 100% !important;
+    padding: 0 20px 8px 20px !important;
+    background: var(--flm-canvas) !important;
 }
 footer { display: none !important; }
+.gradio-container .column, .gradio-container .row { gap: 12px !important; }
 
-/* Header bar + chips */
+/* ---------- Header ---------- */
 .flm-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px 16px;
-    padding: 4px 2px 10px 2px;
-    border-bottom: 1px solid var(--flm-border);
-    margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px 16px; padding: 12px 0 6px 0;
 }
-.flm-brand {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-.flm-badge {
-    display: inline-block;
-    background: var(--flm-ink);
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 1.25rem;
-    padding: 4px 12px;
-    border-radius: 8px;
-    letter-spacing: -0.01em;
-}
-.flm-subtitle {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--flm-ink);
-}
-.flm-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
+.flm-brand { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.flm-title { font-size: 26px; font-weight: 700; letter-spacing: -0.015em; color: var(--flm-ink); }
+.flm-subtitle { font-size: 17px; color: var(--flm-ink-2); }
+.flm-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .flm-chip {
-    background: #ffffff;
-    border: 1px solid var(--flm-border);
-    color: #1e293b;
-    border-radius: 999px;
-    padding: 4px 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    white-space: nowrap;
+    background: var(--flm-tint-2); color: var(--flm-ink-2);
+    border-radius: 6px; padding: 3px 10px; font-size: 14px; font-weight: 600;
+    font-family: var(--flm-mono); white-space: nowrap;
 }
 
-/* Tabs */
-.tabs > .tab-nav {
+/* ---------- Tabs ---------- */
+.flm-tabs { background: transparent !important; border: none !important; }
+.flm-tabs [role="tablist"] {
     border-bottom: 1px solid var(--flm-border) !important;
-    margin-bottom: 10px !important;
-    gap: 6px !important;
+    gap: 6px !important; padding-bottom: 6px !important; margin-bottom: 8px !important;
 }
-.tabs > .tab-nav button {
-    font-size: 0.98rem !important;
-    font-weight: 600 !important;
-    padding: 7px 16px !important;
-    border-radius: 10px 10px 0 0 !important;
-    color: var(--flm-muted) !important;
-}
-.tabs > .tab-nav button.selected {
-    color: var(--flm-accent) !important;
-    border-bottom: 2px solid var(--flm-accent) !important;
-    background: #ffffff !important;
-}
-
-/* 8 short example buttons */
-#ex-btn-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    margin-bottom: 10px !important;
-}
-#ex-btn-row > div, #ex-btn-row button.ex-btn {
-    min-width: 0 !important;
-    flex: 1 1 auto !important;
-}
-button.ex-btn {
-    background: #ffffff !important;
-    color: var(--flm-ink) !important;
-    border: 1px solid var(--flm-border) !important;
-    border-radius: 10px !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    padding: 7px 10px !important;
-    min-height: 38px !important;
-    box-shadow: none !important;
-}
-button.ex-btn:hover {
-    border-color: var(--flm-accent) !important;
-    background: #eff6ff !important;
-}
-button.ex-btn-active {
-    border: 2px solid var(--flm-accent) !important;
-    background: #eff6ff !important;
-    color: #1e3a8a !important;
-}
-button.ex-btn-fail {
-    border: 2px solid #dc2626 !important;
-    color: #991b1b !important;
-    background: #fff5f5 !important;
-}
-button.ex-btn-fail:hover, button.ex-btn-fail.ex-btn-active {
-    background: #fee2e2 !important;
-    border-color: #b91c1c !important;
-}
-
-/* Cards */
-.flm-card, .flm-panel {
-    background: var(--flm-card) !important;
-    border: 1px solid var(--flm-border) !important;
-    border-radius: 12px !important;
-    padding: 14px 16px !important;
-    box-shadow: none !important;
-}
-.flm-panel > .form, .flm-panel .block {
-    background: transparent !important;
+.flm-tabs button[role="tab"] {
+    font-size: 16px !important; font-weight: 600 !important;
+    padding: 6px 14px !important; border-radius: 6px !important;
+    color: var(--flm-ink-2) !important; background: transparent !important;
     border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
+}
+.flm-tabs button[role="tab"][aria-selected="true"], .flm-tabs button[role="tab"].selected {
+    background: var(--flm-accent) !important; color: #ffffff !important;
+}
+.flm-tabs button[role="tab"][aria-selected="true"]::after,
+.flm-tabs button[role="tab"].selected::after { display: none !important; }
+.flm-tabs .tabitem {
+    padding: 0 !important; border: none !important; background: transparent !important;
+}
+
+/* ---------- Example button row ---------- */
+#flm-ex-row { flex-wrap: wrap !important; gap: 6px !important; margin-bottom: 4px !important; }
+#flm-ex-row > * { flex: 0 0 auto !important; min-width: 0 !important; width: auto !important; }
+button.flm-ex {
+    background: #ffffff !important; color: var(--flm-ink-2) !important;
+    border: 1px solid var(--flm-border) !important; border-radius: 6px !important;
+    font-size: 15px !important; font-weight: 600 !important; letter-spacing: 0.02em;
+    padding: 6px 14px !important; min-height: 36px !important; box-shadow: none !important;
+    white-space: nowrap !important;
+}
+button.flm-ex:hover { background: var(--flm-tint) !important; color: var(--flm-ink) !important; }
+button.flm-ex-active {
+    color: var(--flm-accent) !important; border: 2px solid var(--flm-accent) !important;
+    background: #ffffff !important;
+}
+button.flm-ex-fail {
+    color: var(--flm-err) !important; border: 2px solid var(--flm-err) !important;
+    background: #ffffff !important;
+}
+button.flm-ex-fail.flm-ex-active { background: var(--flm-err-bg) !important; }
+button.flm-ex-active::before, button.flm-ex-fail::before {
+    content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    margin-right: 7px; vertical-align: middle; background: currentColor;
+}
+
+/* ---------- Cards ---------- */
+.flm-card, .flm-panel {
+    background: #ffffff !important; border: 1px solid var(--flm-border) !important;
+    border-radius: 12px !important; padding: 14px 16px !important; box-shadow: none !important;
+}
+.flm-panel { gap: 8px !important; }
+.flm-panel > .styler, .flm-panel .block, .flm-panel .form {
+    background: transparent !important; border: none !important; box-shadow: none !important;
+    padding: 0 !important; overflow: visible !important;
 }
 .flm-card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 10px;
 }
-.flm-sheet-title {
-    font-family: var(--flm-mono);
-    font-size: 0.98rem;
-    font-weight: 700;
-    color: var(--flm-ink);
+.flm-card-title {
+    display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600;
+    color: var(--flm-ink); flex-wrap: wrap;
 }
-.flm-sheet-sub {
-    font-size: 0.82rem;
-    color: var(--flm-muted);
+.flm-title-lg { font-size: 20px; }
+.flm-ico { width: 20px; height: 20px; color: var(--flm-accent); flex: 0 0 auto; }
+.flm-formula-head .flm-ico { color: var(--flm-ok); }
+.flm-sheet-name { font-family: var(--flm-mono); font-weight: 700; }
+.flm-sheet-sub { font-size: 14px; color: var(--flm-muted); font-weight: 400; }
+.flm-chip-sm {
+    background: var(--flm-tint-2); color: var(--flm-ink-2); border-radius: 4px;
+    padding: 2px 8px; font-size: 13px; font-weight: 500; font-family: var(--flm-mono);
     white-space: nowrap;
 }
 
-/* Compact 5-row horizontally scrollable table */
+/* ---------- Sheet preview table ---------- */
 .flm-table-wrap {
-    overflow-x: auto;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #ffffff;
+    overflow-x: auto; border-radius: 8px; background: var(--flm-tint);
+    border: 1px solid var(--flm-border);
 }
-.flm-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-    line-height: 1.3;
-    white-space: nowrap;
-}
+.flm-table { width: 100%; border-collapse: collapse; font-size: 14px; white-space: nowrap; }
 .flm-table th {
-    background: #f1f5f9;
-    color: var(--flm-ink);
-    font-weight: 600;
-    text-align: left;
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--flm-border);
+    background: var(--flm-tint-2); color: var(--flm-ink-2); font-weight: 600;
+    text-align: left; padding: 6px 10px; vertical-align: bottom; line-height: 1.2;
 }
 .flm-table td {
-    padding: 5px 10px;
-    border-bottom: 1px solid #f1f5f9;
-    color: #1e293b;
+    padding: 6px 10px; border-top: 1px solid var(--flm-border); color: var(--flm-ink);
+    font-family: var(--flm-mono); font-size: 13.5px; background: #ffffff;
 }
-.flm-table tr:last-child td { border-bottom: none; }
 .flm-col-letter {
-    font-family: var(--flm-mono);
-    font-weight: 700;
-    color: var(--flm-accent);
+    display: block; font-family: var(--flm-mono); font-weight: 700; color: var(--flm-accent);
+    font-size: 13px;
 }
-.flm-row-col {
-    font-family: var(--flm-mono);
-    color: var(--flm-muted) !important;
-    background: #f8fafc;
-    text-align: right;
-    width: 32px;
+.flm-col-name { display: block; font-size: 13.5px; }
+.flm-table .flm-rownum {
+    width: 34px; text-align: center; color: var(--flm-muted) !important;
+    background: var(--flm-tint) !important; font-family: var(--flm-mono); font-size: 12px;
 }
 .flm-empty-table {
-    padding: 16px 12px;
-    color: var(--flm-muted);
-    font-size: 0.92rem;
-    text-align: center;
-    background: #f8fafc;
-    border-radius: 8px;
-    border: 1px dashed var(--flm-border);
+    padding: 18px 12px; color: var(--flm-muted); font-size: 15px; text-align: center;
+    background: var(--flm-tint); border-radius: 8px; border: 1px dashed #c3c6d7;
 }
 
-/* Request input + primary button */
-.flm-request-box textarea {
-    font-family: var(--flm-sans) !important;
-    font-size: 19px !important;
-    line-height: 1.35 !important;
-    color: var(--flm-ink) !important;
-    background: #ffffff !important;
-    border: 1px solid var(--flm-border) !important;
-    border-radius: 10px !important;
-    padding: 10px 12px !important;
+/* ---------- Inputs ---------- */
+.flm-input [data-testid="block-info"], .flm-input label > span:first-child {
+    font-size: 16px !important; font-weight: 600 !important; color: var(--flm-ink) !important;
 }
-.flm-primary-btn {
-    background: var(--flm-accent) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-size: 1.08rem !important;
-    font-weight: 700 !important;
-    padding: 12px 18px !important;
-    min-height: 48px !important;
+.flm-input textarea, .flm-input input[type="text"] {
+    font-family: var(--flm-sans) !important; font-size: 18px !important;
+    line-height: 1.4 !important; color: var(--flm-ink) !important;
+    background: var(--flm-tint) !important;
+    border: 1px solid var(--flm-border) !important; border-radius: 8px !important;
+    padding: 10px 12px !important; box-shadow: none !important;
 }
-.flm-primary-btn:hover {
-    background: var(--flm-accent-hover) !important;
+.flm-input textarea:focus, .flm-input input[type="text"]:focus {
+    border-color: var(--flm-accent) !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
+}
+.flm-upload, .flm-upload .block { min-height: 0 !important; }
+.flm-upload [data-testid="block-info"] {
+    font-size: 16px !important; font-weight: 600 !important; color: var(--flm-ink) !important;
 }
 
-/* Result card: monospace formula + verdict pill + meta line */
-.flm-formula-box textarea, .flm-formula-box input {
-    font-family: var(--flm-mono) !important;
-    font-size: 22px !important;
-    font-weight: 700 !important;
-    line-height: 1.35 !important;
-    color: #0f172a !important;
-    background: #f8fafc !important;
-    border: 1px solid var(--flm-border) !important;
-    border-radius: 10px !important;
-    padding: 12px 14px !important;
+/* ---------- Primary button ---------- */
+button.flm-primary {
+    background: var(--flm-accent) !important; color: #ffffff !important; border: none !important;
+    border-radius: 8px !important; font-size: 18px !important; font-weight: 700 !important;
+    min-height: 48px !important; box-shadow: none !important;
 }
-.flm-verdict-wrap {
-    margin-top: 8px;
+button.flm-primary:hover { background: var(--flm-accent-hover) !important; }
+
+/* ---------- Formula box ---------- */
+.flm-formula textarea, .flm-formula input[type="text"] {
+    font-family: var(--flm-mono) !important; font-size: 23px !important;
+    font-weight: 600 !important; line-height: 1.35 !important;
+    color: #003ea8 !important; background: var(--flm-tint) !important;
+    border: 1px solid var(--flm-border) !important; border-radius: 8px !important;
+    padding: 14px 16px !important; box-shadow: none !important;
 }
+
+/* ---------- Verdict + meta ---------- */
+.flm-verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 2px; }
 .flm-pill {
-    display: inline-block;
-    font-size: 1.02rem;
-    font-weight: 700;
-    padding: 7px 14px;
-    border-radius: 999px;
-    border: 1px solid transparent;
+    display: inline-flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 700;
+    padding: 6px 14px; border-radius: 6px; border: 1px solid transparent;
+}
+.flm-pill-sm {
+    display: inline-flex; align-items: center; font-size: 14px; font-weight: 600;
+    padding: 3px 10px; border-radius: 4px; border: 1px solid transparent; margin-bottom: 8px;
 }
 .flm-pill-ok {
-    background: #dcfce7;
-    color: #166534;
-    border-color: #86efac;
+    background: var(--flm-ok-bg); color: var(--flm-ok-ink); border-color: var(--flm-ok-border);
 }
 .flm-pill-err {
-    background: #fee2e2;
-    color: #991b1b;
-    border-color: #fca5a5;
+    background: var(--flm-err-bg); color: var(--flm-err-ink); border-color: var(--flm-err-border);
 }
-.flm-pill-neutral {
-    background: #f1f5f9;
-    color: #1e293b;
-    border-color: #cbd5e1;
+.flm-pill-neutral { background: #f1f5f9; color: var(--flm-ink-2); border-color: #e2e8f0; }
+.flm-verdict-note { font-size: 14px; color: var(--flm-ink-2); }
+.flm-verdict-note code, .flm-limits code {
+    font-family: var(--flm-mono); font-size: 13.5px; background: var(--flm-tint);
+    padding: 1px 6px; border-radius: 4px; color: var(--flm-ink);
 }
-.flm-verdict-detail {
-    margin-top: 6px;
-    font-size: 0.9rem;
-    color: #334155;
+.flm-failure-box {
+    display: flex; gap: 10px; margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+    background: var(--flm-err-bg); border: 1px solid var(--flm-err-border);
 }
-.flm-verdict-detail code {
-    font-family: var(--flm-mono);
-    background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 6px;
-    color: #0f172a;
+.flm-failure-box .flm-ico { color: var(--flm-err); margin-top: 2px; }
+.flm-failure-box strong { color: var(--flm-err-ink); font-size: 16px; }
+.flm-failure-box p {
+    margin: 4px 0 0 0; font-size: 15.5px; line-height: 1.45; color: var(--flm-ink);
 }
-.flm-meta-line {
-    margin-top: 8px;
-    font-size: 0.88rem;
-    color: var(--flm-muted);
-    font-weight: 500;
+.flm-meta {
+    display: flex; align-items: center; gap: 8px; font-family: var(--flm-mono);
+    font-size: 14px; color: var(--flm-muted); margin-top: 2px;
 }
+.flm-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.flm-dot-ok { background: var(--flm-ok); }
+.flm-dot-wait { background: #f59e0b; }
+.flm-dot-err { background: var(--flm-err); }
 
-/* Base comparison toggle & side-by-side cards */
-.flm-base-toggle {
-    margin-top: 4px !important;
-    padding: 0 2px !important;
+/* ---------- Compare toggle (checkbox styled as a switch) ---------- */
+.flm-toggle { padding: 0 !important; }
+.flm-toggle label {
+    display: flex !important; align-items: center !important; gap: 10px !important;
 }
-.flm-base-toggle label, .flm-base-toggle span {
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-    color: var(--flm-ink) !important;
+.flm-toggle label > span {
+    font-size: 17px !important; font-weight: 600 !important; color: var(--flm-ink) !important;
 }
-.flm-base-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 4px;
+.flm-toggle input[type="checkbox"] {
+    appearance: none !important; -webkit-appearance: none !important;
+    width: 40px !important; height: 22px !important; border-radius: 999px !important;
+    background: #cbd5e1 !important; border: none !important; position: relative !important;
+    cursor: pointer !important; transition: background 0.15s ease; flex: 0 0 auto !important;
+    background-image: none !important;
 }
+.flm-toggle input[type="checkbox"]::before {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+    border-radius: 50%; background: #ffffff; transition: left 0.15s ease;
+}
+.flm-toggle input[type="checkbox"]:checked { background: var(--flm-accent) !important; }
+.flm-toggle input[type="checkbox"]:checked::before { left: 21px; }
+
+/* ---------- Base cards ---------- */
+.flm-base-caption {
+    font-size: 14px; font-style: italic; color: var(--flm-muted); margin: 2px 0 8px 0;
+}
+.flm-base-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .flm-base-card {
-    background: #ffffff;
-    border: 1px solid var(--flm-border);
-    border-radius: 12px;
-    padding: 12px 14px;
+    background: var(--flm-tint); border: 1px solid var(--flm-border); border-radius: 8px;
+    padding: 12px 14px; min-width: 0;
 }
 .flm-base-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--flm-ink);
-    margin-bottom: 6px;
-}
-.flm-base-tag {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--flm-muted);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-size: 16px; font-weight: 600; color: var(--flm-ink); margin-bottom: 8px;
 }
 .flm-base-formula {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 6px 8px;
-    overflow-x: auto;
-    margin-bottom: 6px;
+    background: #ffffff; border: 1px solid var(--flm-border); border-radius: 4px;
+    padding: 6px 8px; overflow-x: auto;
 }
 .flm-base-formula code {
-    font-family: var(--flm-mono);
-    font-size: 0.85rem;
-    color: #0f172a;
-    white-space: nowrap;
+    font-family: var(--flm-mono); font-size: 13.5px; color: var(--flm-ink); white-space: nowrap;
 }
-.flm-base-outcome {
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-.flm-base-ok { color: #166534; }
-.flm-base-err { color: #991b1b; }
+.flm-base-reason { margin-top: 6px; font-size: 13.5px; color: var(--flm-muted); line-height: 1.35; }
 .flm-base-empty {
-    font-size: 0.9rem;
-    color: var(--flm-muted);
-    background: #ffffff;
-    border: 1px solid var(--flm-border);
-    border-radius: 12px;
-    padding: 10px 14px;
+    font-size: 15px; color: var(--flm-muted); background: var(--flm-tint);
+    border: 1px solid var(--flm-border); border-radius: 8px; padding: 10px 14px;
 }
 
-/* Custom upload compact height */
-.flm-upload-box .upload-container, .flm-upload-box .file-preview {
-    min-height: 64px !important;
-    padding: 6px 10px !important;
+/* ---------- Footer accordions ---------- */
+#flm-footer { margin-top: 8px !important; }
+.flm-acc {
+    background: var(--flm-tint) !important; border: 1px solid var(--flm-border) !important;
+    border-radius: 8px !important; box-shadow: none !important;
 }
-
-/* Footer collapsed accordions */
-.flm-footer-row {
-    margin-top: 10px !important;
-    gap: 12px !important;
+.flm-acc > button, .flm-acc button.label-wrap {
+    font-size: 16px !important; font-weight: 600 !important; color: var(--flm-ink-2) !important;
 }
-.flm-footer-acc {
-    background: #ffffff !important;
-    border: 1px solid var(--flm-border) !important;
-    border-radius: 12px !important;
-}
-.flm-footer-acc > button {
-    font-size: 0.92rem !important;
-    font-weight: 600 !important;
-    color: var(--flm-muted) !important;
-    padding: 8px 14px !important;
-}
-.flm-limits p {
-    margin: 4px 0;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    color: #1e293b;
-}
-.flm-limits code {
-    font-family: var(--flm-mono);
-    font-size: 0.84rem;
-    background: #f1f5f9;
-    padding: 1px 5px;
-    border-radius: 4px;
-}
-.flm-schema-box textarea {
-    font-family: var(--flm-mono) !important;
-    font-size: 0.86rem !important;
-    background: #f8fafc !important;
+.flm-limits p { margin: 4px 0; font-size: 15.5px; line-height: 1.45; color: var(--flm-ink); }
+.flm-schema textarea {
+    font-family: var(--flm-mono) !important; font-size: 14px !important;
+    background: #ffffff !important; color: var(--flm-ink) !important;
 }
 """
 
 FORCE_LIGHT_JS = """
 () => {
-    document.body.classList.remove('dark');
-    document.documentElement.style.colorScheme = 'light';
+    const force = () => {
+        document.body.classList.remove('dark');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+    };
+    force();
+    new MutationObserver(force).observe(
+        document.body, { attributes: true, attributeFilter: ['class'] }
+    );
 }
 """
 
 
 def _header_html(quant_label: str) -> str:
-    size_chip = f"{quant_label} 1.2 GB" if quant_label == "Q5_K_M" else quant_label
+    size_chip = f"{quant_label} · 1.2 GB" if quant_label == "Q5_K_M" else quant_label
+    chips = ("Qwen3-1.7B", size_chip, "CPU only", "Offline")
     return (
         '<div class="flm-header">'
-        '<div class="flm-brand">'
-        '<span class="flm-badge">FormulaLM</span>'
-        '<span class="flm-subtitle">Plain-English to verified Excel formula</span>'
-        "</div>"
+        '<div class="flm-brand"><span class="flm-title">FormulaLM</span>'
+        '<span class="flm-subtitle">Plain-English to verified Excel formula</span></div>'
         '<div class="flm-chips">'
-        '<span class="flm-chip">Qwen3-1.7B</span>'
-        f'<span class="flm-chip">{html.escape(size_chip)}</span>'
-        '<span class="flm-chip">CPU only</span>'
-        '<span class="flm-chip">offline</span>'
-        "</div>"
-        "</div>"
+        + "".join(f'<span class="flm-chip">{html.escape(c)}</span>' for c in chips)
+        + "</div></div>"
     )
 
 
 def _button_classes(ex: BuiltinExample, active_id: str) -> list[str]:
-    classes = ["ex-btn"]
+    classes = ["flm-ex"]
     if ex.is_honest_failure:
-        classes.append("ex-btn-fail")
+        classes.append("flm-ex-fail")
     if ex.example_id == active_id:
-        classes.append("ex-btn-active")
+        classes.append("flm-ex-active")
     return classes
 
 
 def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
-    """Construct the compact, 1080p-ready FormulaLM Gradio Blocks application."""
-    example_by_id = {ex.example_id: ex for ex in BUILTIN_EXAMPLES}
+    """Construct the FormulaLM Gradio Blocks application (Stitch "Formula Precision" layout)."""
     first_ex = BUILTIN_EXAMPLES[0]
     initial_sheet = resolve_heldout_sheet(first_ex.sheet_id, runtime.bundle)
 
-    initial_meta = format_meta_line_html(
-        backend_kind=runtime.backend_kind,
-        quant_label=runtime.quant_label,
-        latency_s=None,
-        warmup_state=runtime.warmup_state,
-    )
-    initial_verdict = format_verdict_html("", None, None, idle_hint=True)
-    initial_base = format_saved_base_html(first_ex.sheet_id, first_ex.request, runtime.bundle, True)
-    initial_preview = render_sheet_preview_html(
-        initial_sheet.sheet_id, initial_sheet.source_note, initial_sheet.preview_df
-    )
-    empty_custom_preview = render_sheet_preview_html(
-        "Your sheet", "paste headers or upload CSV/XLSX", pd.DataFrame()
+    def _meta_now() -> str:
+        return format_meta_line_html(
+            backend_kind=runtime.backend_kind,
+            quant_label=runtime.quant_label,
+            latency_s=None,
+            warmup_state=runtime.warmup_state,
+        )
+
+    idle_verdict = format_verdict_html("", None, None, idle_hint=True)
+    empty_custom_card = render_sheet_preview_html(
+        "Your sheet", "paste headers or upload", pd.DataFrame()
     )
 
     with gr.Blocks(
-        analytics_enabled=False, title="FormulaLM — Plain-English to Verified Excel Formula"
+        analytics_enabled=False, title="FormulaLM — Plain-English to verified Excel formula"
     ) as demo:
         gr.HTML(_header_html(runtime.quant_label))
 
         active_sheet_state = gr.State(value=first_ex.sheet_id)
-        active_ex_state = gr.State(value=first_ex.example_id)
-        last_latency_state = gr.State(value=None)
-        custom_latency_state = gr.State(value=None)
+        held_ran_state = gr.State(value=False)
+        custom_ran_state = gr.State(value=False)
 
-        with gr.Tabs():
+        with gr.Tabs(elem_classes=["flm-tabs"]):
             # ---------------------------------------------------------------
             # Tab 1: Held-out examples
             # ---------------------------------------------------------------
             with gr.Tab("Held-out examples"):
                 ex_buttons: list[gr.Button] = []
-                with gr.Row(elem_id="ex-btn-row"):
-                    for ex in BUILTIN_EXAMPLES:
-                        btn = gr.Button(
-                            ex.short_label,
-                            size="sm",
-                            elem_classes=_button_classes(ex, first_ex.example_id),
+                with gr.Row(elem_id="flm-ex-row"):
+                    for i, ex in enumerate(BUILTIN_EXAMPLES, start=1):
+                        ex_buttons.append(
+                            gr.Button(
+                                example_button_label(i, ex),
+                                size="sm",
+                                elem_classes=_button_classes(ex, first_ex.example_id),
+                            )
                         )
-                        ex_buttons.append(btn)
 
                 with gr.Row(equal_height=False):
-                    # LEFT (~40%): Sheet preview card + Request card + Primary button
-                    with gr.Column(scale=4, min_width=360):
-                        sheet_preview_html = gr.HTML(initial_preview)
+                    with gr.Column(scale=2, min_width=420):
+                        sheet_card = gr.HTML(_sheet_card_for(initial_sheet))
                         with gr.Group(elem_classes=["flm-panel"]):
                             request_box = gr.Textbox(
                                 value=first_ex.request,
-                                label="Request",
-                                placeholder="e.g., Total Net Amount for the Mirehaven branch",
+                                label="Plain-English request",
                                 lines=2,
-                                elem_classes=["flm-request-box"],
+                                max_lines=3,
+                                elem_classes=["flm-input"],
                             )
-                        run_btn = gr.Button(
-                            "Generate & verify",
-                            variant="primary",
-                            size="lg",
-                            elem_classes=["flm-primary-btn"],
-                        )
+                            run_btn = gr.Button(
+                                "Generate & verify",
+                                variant="primary",
+                                elem_classes=["flm-primary"],
+                            )
 
-                    # RIGHT (~60%): Formula + Verdict pill + Meta line + Base toggle/cards
-                    with gr.Column(scale=6, min_width=440):
+                    with gr.Column(scale=3, min_width=560):
                         with gr.Group(elem_classes=["flm-panel"]):
+                            gr.HTML(formula_card_header_html(runtime.quant_label))
                             formula_out = gr.Textbox(
                                 value="",
-                                label="Excel Formula",
-                                lines=2,
+                                show_label=False,
+                                lines=1,
+                                max_lines=3,
                                 interactive=False,
                                 buttons=["copy"],
-                                elem_classes=["flm-formula-box"],
+                                placeholder="=…",
+                                elem_classes=["flm-formula"],
                             )
-                            verdict_out = gr.HTML(initial_verdict)
-                            meta_out = gr.HTML(initial_meta)
+                            verdict_out = gr.HTML(idle_verdict)
+                            meta_out = gr.HTML(_meta_now())
 
-                        compare_toggle = gr.Checkbox(
-                            value=True,
-                            label="Compare with base model",
-                            elem_classes=["flm-base-toggle"],
-                        )
-                        base_out = gr.HTML(initial_base)
+                        with gr.Group(elem_classes=["flm-panel"]):
+                            compare_toggle = gr.Checkbox(
+                                value=True,
+                                label="Compare with base model",
+                                elem_classes=["flm-toggle"],
+                            )
+                            base_out = gr.HTML(
+                                format_saved_base_html(
+                                    first_ex.sheet_id, first_ex.request, runtime.bundle, True
+                                )
+                            )
 
             # ---------------------------------------------------------------
-            # Tab 2: Your own sheet (clean two-field form, no accordion)
+            # Tab 2: Your own sheet
             # ---------------------------------------------------------------
             with gr.Tab("Your own sheet"):
                 with gr.Row(equal_height=False):
-                    with gr.Column(scale=4, min_width=360):
+                    with gr.Column(scale=2, min_width=420):
                         with gr.Group(elem_classes=["flm-panel"]):
-                            pasted_input = gr.Textbox(
-                                label="Paste column headers or mini-CSV",
-                                placeholder="Region, Sales Rep, Units, Net Sales",
-                                lines=2,
-                                elem_classes=["flm-request-box"],
-                            )
-                            upload_input = gr.File(
-                                label="Or upload CSV / XLSX (up to 1 MB)",
-                                file_count="single",
-                                file_types=[".csv", ".xlsx"],
-                                type="filepath",
-                                elem_classes=["flm-upload-box"],
-                            )
-                        custom_preview_html = gr.HTML(empty_custom_preview)
+                            with gr.Row(equal_height=True):
+                                pasted_input = gr.Textbox(
+                                    label="Paste column headers",
+                                    placeholder="Region, Sales Rep, Units, Net Sales",
+                                    lines=2,
+                                    scale=3,
+                                    elem_classes=["flm-input"],
+                                )
+                                upload_input = gr.File(
+                                    label="or upload CSV / XLSX (max 1 MB)",
+                                    file_count="single",
+                                    file_types=[".csv", ".xlsx"],
+                                    type="filepath",
+                                    height=96,
+                                    scale=2,
+                                    elem_classes=["flm-upload"],
+                                )
+                        custom_sheet_card = gr.HTML(empty_custom_card)
                         with gr.Group(elem_classes=["flm-panel"]):
                             custom_request_box = gr.Textbox(
                                 value="",
-                                label="Request",
+                                label="Plain-English request",
                                 placeholder="e.g., Total Net Sales for North",
                                 lines=2,
-                                elem_classes=["flm-request-box"],
+                                max_lines=3,
+                                elem_classes=["flm-input"],
                             )
-                        custom_run_btn = gr.Button(
-                            "Generate & verify",
-                            variant="primary",
-                            size="lg",
-                            elem_classes=["flm-primary-btn"],
-                        )
+                            custom_run_btn = gr.Button(
+                                "Generate & verify",
+                                variant="primary",
+                                elem_classes=["flm-primary"],
+                            )
 
-                    with gr.Column(scale=6, min_width=440):
+                    with gr.Column(scale=3, min_width=560):
                         with gr.Group(elem_classes=["flm-panel"]):
+                            gr.HTML(formula_card_header_html(runtime.quant_label))
                             custom_formula_out = gr.Textbox(
                                 value="",
-                                label="Excel Formula",
-                                lines=2,
+                                show_label=False,
+                                lines=1,
+                                max_lines=3,
                                 interactive=False,
                                 buttons=["copy"],
-                                elem_classes=["flm-formula-box"],
+                                placeholder="=…",
+                                elem_classes=["flm-formula"],
                             )
-                            custom_verdict_out = gr.HTML(initial_verdict)
-                            custom_meta_out = gr.HTML(initial_meta)
+                            custom_verdict_out = gr.HTML(idle_verdict)
+                            custom_meta_out = gr.HTML(_meta_now())
 
         # -------------------------------------------------------------------
-        # Footer: two collapsed accordions (both closed by default)
+        # Footer: two accordions, closed by default
         # -------------------------------------------------------------------
-        with gr.Row(elem_classes=["flm-footer-row"]):
-            with gr.Accordion("Limits & scope", open=False, elem_classes=["flm-footer-acc"]):
+        with gr.Row(elem_id="flm-footer"):
+            with gr.Accordion("Limits & scope", open=False, elem_classes=["flm-acc"]):
                 gr.HTML(LIMITS_HTML)
-            with gr.Accordion(
-                "Show prompt sent to model", open=False, elem_classes=["flm-footer-acc"]
-            ):
+            with gr.Accordion("Show prompt sent to model", open=False, elem_classes=["flm-acc"]):
                 schema_box = gr.Textbox(
                     value=initial_sheet.schema_text,
                     show_label=False,
-                    lines=7,
+                    lines=8,
                     interactive=False,
-                    elem_classes=["flm-schema-box"],
+                    elem_classes=["flm-schema"],
                 )
 
-        # Lightweight timer to update "warming up..." -> "ready" once startup warm-up completes.
-        warmup_timer = gr.Timer(
-            value=1.5, active=(runtime.backend_kind != "mock" and runtime.warmup_state != "ready")
-        )
+        # Poll the background warm-up so the meta line flips from "warming up..." to "ready".
+        warmup_timer = gr.Timer(value=1.0, active=runtime.warmup_state in ("warming", "idle"))
 
-        def _poll_warmup(held_lat: float | None, cust_lat: float | None):
-            still_warming = runtime.warmup_state == "warming"
-            held_update = (
-                gr.update()
-                if held_lat is not None
-                else format_meta_line_html(
-                    backend_kind=runtime.backend_kind,
-                    quant_label=runtime.quant_label,
-                    latency_s=None,
-                    warmup_state=runtime.warmup_state,
-                )
+        def _poll_warmup(held_ran: bool, custom_ran: bool):
+            still = runtime.warmup_state in ("warming", "idle")
+            meta = _meta_now()
+            return (
+                gr.update() if held_ran else meta,
+                gr.update() if custom_ran else meta,
+                gr.Timer(active=still),
             )
-            cust_update = (
-                gr.update()
-                if cust_lat is not None
-                else format_meta_line_html(
-                    backend_kind=runtime.backend_kind,
-                    quant_label=runtime.quant_label,
-                    latency_s=None,
-                    warmup_state=runtime.warmup_state,
-                )
-            )
-            return held_update, cust_update, gr.Timer(active=still_warming)
 
         warmup_timer.tick(
             fn=_poll_warmup,
-            inputs=[last_latency_state, custom_latency_state],
+            inputs=[held_ran_state, custom_ran_state],
             outputs=[meta_out, custom_meta_out, warmup_timer],
         )
 
-        # Event handlers — Held-out examples tab
+        # ---- Held-out tab events ----
         def _select_example(ex_id: str, show_base: bool):
-            ex = example_by_id[ex_id]
+            ex = _EXAMPLE_BY_ID[ex_id]
             resolved = resolve_heldout_sheet(ex.sheet_id, runtime.bundle)
-            preview = render_sheet_preview_html(
-                resolved.sheet_id, resolved.source_note, resolved.preview_df
-            )
-            base_html = format_saved_base_html(ex.sheet_id, ex.request, runtime.bundle, show_base)
             btn_updates = [
                 gr.update(elem_classes=_button_classes(item, ex.example_id))
                 for item in BUILTIN_EXAMPLES
             ]
             return (
                 ex.sheet_id,
-                ex.example_id,
-                preview,
+                _sheet_card_for(resolved),
                 ex.request,
                 "",
-                format_verdict_html("", None, None, idle_hint=True),
-                base_html,
+                idle_verdict,
+                format_saved_base_html(ex.sheet_id, ex.request, runtime.bundle, show_base),
                 resolved.schema_text,
                 *btn_updates,
             )
@@ -1819,8 +1786,7 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 inputs=[compare_toggle],
                 outputs=[
                     active_sheet_state,
-                    active_ex_state,
-                    sheet_preview_html,
+                    sheet_card,
                     request_box,
                     formula_out,
                     verdict_out,
@@ -1830,11 +1796,10 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 ],
             )
 
-        def _on_toggle_base(show_base: bool, sheet_id: str, req: str):
-            return format_saved_base_html(sheet_id or "", req or "", runtime.bundle, show_base)
-
         compare_toggle.change(
-            fn=_on_toggle_base,
+            fn=lambda show_b, sid, req: format_saved_base_html(
+                sid or "", req or "", runtime.bundle, show_b
+            ),
             inputs=[compare_toggle, active_sheet_state, request_box],
             outputs=[base_out],
         )
@@ -1848,23 +1813,16 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 request_text=req,
                 show_base_comparison=show_base,
             )
-            return formula, verdict, meta, base_html, schema_txt, 1.0
+            return formula, verdict, meta, base_html, schema_txt or gr.update(), True
 
         for trigger in (run_btn.click, request_box.submit):
             trigger(
                 fn=_on_run_heldout,
                 inputs=[active_sheet_state, request_box, compare_toggle],
-                outputs=[
-                    formula_out,
-                    verdict_out,
-                    meta_out,
-                    base_out,
-                    schema_box,
-                    last_latency_state,
-                ],
+                outputs=[formula_out, verdict_out, meta_out, base_out, schema_box, held_ran_state],
             )
 
-        # Event handlers — Your own sheet tab
+        # ---- Your own sheet tab events ----
         def _preview_custom(pasted: str, uploaded: str | None):
             resolved: ResolvedSheet | None = None
             try:
@@ -1873,17 +1831,14 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 elif (pasted or "").strip():
                     resolved = resolve_pasted_headers(pasted)
                 else:
-                    return empty_custom_preview, gr.update()
-                html_tbl = render_sheet_preview_html(
-                    resolved.sheet_id, resolved.source_note, resolved.preview_df
-                )
-                return html_tbl, resolved.schema_text
+                    return empty_custom_card, gr.update()
+                return _sheet_card_for(resolved), resolved.schema_text
             except ValueError as exc:
-                err_tbl = (
-                    '<div class="flm-card flm-sheet-card">'
-                    f'<div class="flm-empty-table">❌ {html.escape(str(exc))}</div></div>'
+                err = (
+                    '<div class="flm-card flm-sheet-card"><div class="flm-empty-table">'
+                    f"❌ {html.escape(str(exc))}</div></div>"
                 )
-                return err_tbl, gr.update()
+                return err, gr.update()
             finally:
                 if resolved is not None and resolved.is_temp and resolved.xlsx_path.is_file():
                     try:
@@ -1891,16 +1846,12 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                     except OSError:
                         pass
 
-        pasted_input.change(
-            fn=_preview_custom,
-            inputs=[pasted_input, upload_input],
-            outputs=[custom_preview_html, schema_box],
-        )
-        upload_input.change(
-            fn=_preview_custom,
-            inputs=[pasted_input, upload_input],
-            outputs=[custom_preview_html, schema_box],
-        )
+        for change_evt in (pasted_input.change, upload_input.change):
+            change_evt(
+                fn=_preview_custom,
+                inputs=[pasted_input, upload_input],
+                outputs=[custom_sheet_card, schema_box],
+            )
 
         def _on_run_custom(pasted: str, uploaded: str | None, req: str):
             formula, verdict, meta, _, preview_df, schema_txt = run_demo_query(
@@ -1912,12 +1863,18 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 show_base_comparison=False,
             )
             if not preview_df.empty:
-                title = Path(uploaded).stem if uploaded else "custom_headers"
-                sub = f"first {len(preview_df)} rows"
-                prev_html = render_sheet_preview_html(title, sub, preview_df)
+                cname = Path(uploaded).stem if uploaded else "custom_headers"
+                sub = "uploaded sheet" if uploaded else "pasted headers · synthesized sample rows"
+                ncols = max(0, len(preview_df.columns) - 1)
+                card = render_sheet_preview_html(
+                    cname,
+                    sub,
+                    preview_df,
+                    rows_cols_chip=f"{len(preview_df)} rows · {ncols} cols",
+                )
             else:
-                prev_html = empty_custom_preview
-            return formula, verdict, meta, prev_html, schema_txt or gr.update(), 1.0
+                card = gr.update()
+            return formula, verdict, meta, card, schema_txt or gr.update(), True
 
         for trigger in (custom_run_btn.click, custom_request_box.submit):
             trigger(
@@ -1927,9 +1884,9 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                     custom_formula_out,
                     custom_verdict_out,
                     custom_meta_out,
-                    custom_preview_html,
+                    custom_sheet_card,
                     schema_box,
-                    custom_latency_state,
+                    custom_ran_state,
                 ],
             )
 
@@ -1942,8 +1899,24 @@ def build_offline_theme() -> gr.themes.Base:
         primary_hue="blue",
         secondary_hue="slate",
         neutral_hue="slate",
+        radius_size="md",
         font=["system-ui", "-apple-system", "Segoe UI", "Roboto", "Arial", "sans-serif"],
-        font_mono=["Cascadia Code", "Consolas", "SFMono-Regular", "ui-monospace", "monospace"],
+        font_mono=["Cascadia Mono", "Consolas", "SFMono-Regular", "ui-monospace", "monospace"],
+    ).set(
+        body_background_fill="#f7f8fa",
+        body_background_fill_dark="#f7f8fa",
+        body_text_color="#0f172a",
+        body_text_color_dark="#0f172a",
+        block_background_fill="#ffffff",
+        block_background_fill_dark="#ffffff",
+        block_border_color="#e3e6eb",
+        block_border_color_dark="#e3e6eb",
+        input_background_fill="#ffffff",
+        input_background_fill_dark="#ffffff",
+        button_primary_background_fill="#2563eb",
+        button_primary_background_fill_dark="#2563eb",
+        button_primary_background_fill_hover="#1d4ed8",
+        button_primary_background_fill_hover_dark="#1d4ed8",
     )
 
 
@@ -1998,7 +1971,7 @@ def main(argv: list[str] | None = None) -> int:
         share=False,
         max_file_size="1mb",
         theme=build_offline_theme(),
-        css=LIGHT_1080P_CSS,
+        css=APP_CSS,
         js=FORCE_LIGHT_JS,
     )
     return 0
