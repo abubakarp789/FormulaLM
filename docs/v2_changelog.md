@@ -34,5 +34,5 @@ All hyperparameter changes below were motivated strictly by v1's validation loss
 - **Base model & LoRA architecture:** `Qwen/Qwen3-1.7B`, 4-bit QLoRA, `r=16`, `lora_alpha=32`, `lora_dropout=0.0`, all 7 linear projections, `max_seq_length=512`, `batch_size=4 × grad_accum=4 = 16`, `adamw_8bit`, `cosine` schedule, `enable_thinking=false`, `train_on_responses_only=true`, `seed=42`.
 - **Validation split (`data/processed/val.jsonl`):** **bit-for-bit identical** to v1 (`SHA-256 = f2cf0d3181baee06`, 500 examples).
 - **Synthetic test split (`data/processed/test_synthetic.jsonl`):** **bit-for-bit identical** to v1 (`SHA-256 = ec6348fef4ca3b6a`, 500 examples, 5 held-out sheets, 2 reserved test phrasings/template).
-- **Hand-written v1 test split (`data/test_real/test_real_DRAFT.csv`):** untouched (80 examples).
+- **Original realistic v1 test split (`data/test_real/test_real_DRAFT.csv`):** untouched (80 examples, kept as an unreviewed AI-assisted draft).
 - **Fresh held-out test split (`data/test_real_v2/`):** 50 post-v2 requests across the 5 held-out sheets (drafted after `qlora_v2` training finished by an AI assistant with repo access, including v1 error analysis; therefore not fully independent).

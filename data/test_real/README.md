@@ -1,8 +1,8 @@
-# Real-World Hand-Written Test Set (`DRAFT`)
+# Original Realistic Test Set (`test_real_DRAFT.csv`)
 
-**Status: DRAFT — awaiting Abubakar's review and edits.**
+**Status: Unreviewed AI-assisted draft.**
 
-`test_real_DRAFT.csv` contains **80 realistic hand-written requests** (16 per held-out test sheet across all 5 held-out sheets in `data/sheets/manifest.json`).
+`test_real_DRAFT.csv` contains **80 executor-verified realistic requests** (16 per held-out test sheet across all 5 held-out sheets in `data/sheets/manifest.json`), kept as an **unreviewed AI-assisted draft** (written with an AI coding assistant and verified against `src/eval/executor.py`, not independently human-authored or human-reviewed).
 
 ## Guidelines used while drafting
 
