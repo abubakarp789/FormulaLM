@@ -1,0 +1,60 @@
+{
+  "run_name": "ext_base_1_7b_5shot",
+  "model": "qwen3:1.7b",
+  "few_shot": 5,
+  "dataset": "data/external_bench/external_bench.csv",
+  "seed": 42,
+  "max_tokens": 96,
+  "num_ctx": 4096,
+  "peak_ram_mb": 2011.6,
+  "overall": {
+    "n": 56,
+    "k": 6,
+    "execution_accuracy": 0.1071,
+    "wilson_95_ci": [
+      0.05,
+      0.2147
+    ],
+    "syntax_valid_rate": 0.6429,
+    "exec_ok_rate": 0.3929,
+    "exact_match_rate": 0.0357,
+    "raw_format_ok_rate": 1.0,
+    "avg_latency_ms": 11646.51,
+    "median_latency_ms": 10854.06,
+    "avg_gen_tok_s": 8.83
+  },
+  "by_task_kind": {
+    "col_fill_first_cell": {
+      "n": 45,
+      "k": 5,
+      "execution_accuracy": 0.1111,
+      "wilson_95_ci": [
+        0.0484,
+        0.235
+      ],
+      "syntax_valid_rate": 0.6222,
+      "exec_ok_rate": 0.3778,
+      "exact_match_rate": 0.0222,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 11866.37,
+      "median_latency_ms": 11569.64,
+      "avg_gen_tok_s": 8.81
+    },
+    "single_cell": {
+      "n": 11,
+      "k": 1,
+      "execution_accuracy": 0.0909,
+      "wilson_95_ci": [
+        0.0162,
+        0.3774
+      ],
+      "syntax_valid_rate": 0.7273,
+      "exec_ok_rate": 0.4545,
+      "exact_match_rate": 0.0909,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 10747.09,
+      "median_latency_ms": 7987.57,
+      "avg_gen_tok_s": 8.87
+    }
+  }
+}

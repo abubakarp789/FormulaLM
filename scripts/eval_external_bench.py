@@ -37,6 +37,7 @@ if str(_REPO_ROOT) not in sys.path:
 from src.data.build_dataset import SYSTEM_PROMPT, build_user_prompt  # noqa: E402
 from src.eval.executor import run_formula  # noqa: E402
 from src.eval.normalize import exact_match, values_equal  # noqa: E402
+from src.eval.prompt_parity import STOP_TOKENS, render_qwen3_non_thinking_prompt  # noqa: E402
 from src.eval.run_eval import FEW_SHOT_EXAMPLES, extract_formula  # noqa: E402
 
 DEFAULT_DATASET = Path("data/external_bench/external_bench.csv")
@@ -104,23 +105,46 @@ def call_ollama(
     seed: int,
     num_ctx: int,
     timeout: float,
+    raw_qwen3_prompt: bool = False,
 ) -> tuple[str, dict[str, float]]:
-    payload = {
-        "model": model,
-        "messages": messages,
-        "stream": False,
-        "think": False,
-        "keep_alive": "15m",
-        "options": {
-            "temperature": 0.0,
-            "num_predict": max_tokens,
-            "num_ctx": num_ctx,
-            "seed": seed,
-        },
-    }
-    resp = requests.post(f"{base_url.rstrip('/')}/api/chat", json=payload, timeout=timeout)
-    resp.raise_for_status()
-    data = resp.json()
+    if raw_qwen3_prompt:
+        payload: dict[str, Any] = {
+            "model": model,
+            "prompt": render_qwen3_non_thinking_prompt(messages),
+            "raw": True,
+            "stream": False,
+            "keep_alive": "15m",
+            "options": {
+                "temperature": 0.0,
+                "num_predict": max_tokens,
+                "num_ctx": num_ctx,
+                "seed": seed,
+                "stop": list(STOP_TOKENS),
+            },
+        }
+        resp = requests.post(f"{base_url.rstrip('/')}/api/generate", json=payload, timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        text = str(data.get("response", ""))
+    else:
+        payload = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "think": False,
+            "keep_alive": "15m",
+            "options": {
+                "temperature": 0.0,
+                "num_predict": max_tokens,
+                "num_ctx": num_ctx,
+                "seed": seed,
+            },
+        }
+        resp = requests.post(f"{base_url.rstrip('/')}/api/chat", json=payload, timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        text = str(data.get("message", {}).get("content", ""))
+
     timings: dict[str, float] = {}
     if data.get("eval_count") and data.get("eval_duration"):
         timings["gen_tok_s"] = float(data["eval_count"]) / (float(data["eval_duration"]) / 1e9)
@@ -128,7 +152,7 @@ def call_ollama(
         timings["prompt_tok_s"] = float(data["prompt_eval_count"]) / (
             float(data["prompt_eval_duration"]) / 1e9
         )
-    return str(data.get("message", {}).get("content", "")), timings
+    return text, timings
 
 
 def unload_ollama_model(base_url: str, model: str) -> None:
@@ -208,6 +232,7 @@ def run_evaluation(
     num_ctx: int,
     timeout: float,
     limit: int | None,
+    raw_qwen3_prompt: bool = False,
 ) -> dict[str, Any]:
     rows = load_external_rows(dataset_path, limit=limit)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -246,6 +271,7 @@ def run_evaluation(
                     seed=seed,
                     num_ctx=num_ctx,
                     timeout=timeout,
+                    raw_qwen3_prompt=raw_qwen3_prompt,
                 )
                 peak_ram_mb = max(peak_ram_mb, measure_ollama_ram_mb())
             latency_ms = round((time.perf_counter() - t0) * 1000.0, 2)
@@ -253,7 +279,7 @@ def run_evaluation(
             extracted = extract_formula(raw_out)
             raw_format_ok = raw_out.strip().startswith("=") and "\n" not in raw_out.strip()
             wb_path = _REPO_ROOT / row["workbook_path"]
-            exec_res = run_formula(extracted, wb_path)
+            exec_res = run_formula(extracted, wb_path, target_cell=row["target_cell"])
             exp_val = parse_expected_value(row["expected_value"], row["expected_type"])
             exec_correct = bool(exec_res.ok and values_equal(exec_res.value, exp_val))
             em = bool(exact_match(extracted, row["reference_formula"]))
@@ -319,7 +345,7 @@ def summarize_results(results_root: Path) -> str:
     order = [
         ("ext_base_1_7b_0shot", "Base `Qwen3-1.7B` (0-shot, Ollama Q4_K_M)"),
         ("ext_base_1_7b_5shot", "Base `Qwen3-1.7B` (5-shot, Ollama Q4_K_M)"),
-        ("ext_base_4b_0shot", "Base `Qwen3-4B` (0-shot, Ollama Q4_K_M)"),
+        ("ext_base_4b_0shot", "Base `Qwen3-4B-Instruct-2507` (0-shot, Ollama Q4_K_M)"),
         ("ext_formulalm_q5_k_m", "**FormulaLM `Q5_K_M` (Shipped 1.7B, 0-shot)**"),
     ]
     loaded: list[tuple[str, str, dict[str, Any]]] = []
@@ -423,6 +449,57 @@ def summarize_results(results_root: Path) -> str:
     return md
 
 
+def rescore_run(dataset_path: Path, run_dir: Path) -> dict[str, Any]:
+    rows = {r["id"]: r for r in load_external_rows(dataset_path)}
+    preds_path = run_dir / "predictions.jsonl"
+    old_metrics = json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
+    old_records = [
+        json.loads(ln) for ln in preds_path.read_text(encoding="utf-8").splitlines() if ln.strip()
+    ]
+    new_records: list[dict[str, Any]] = []
+    for rec in old_records:
+        row = rows[rec["id"]]
+        extracted = extract_formula(rec["raw_output"])
+        wb_path = _REPO_ROOT / row["workbook_path"]
+        exec_res = run_formula(extracted, wb_path, target_cell=row["target_cell"])
+        exp_val = parse_expected_value(row["expected_value"], row["expected_type"])
+        pred_val = (
+            exec_res.value.isoformat()
+            if isinstance(exec_res.value, (date, datetime))
+            else exec_res.value
+        )
+        updated = dict(rec)
+        updated.update(
+            {
+                "extracted_formula": extracted,
+                "predicted_value": pred_val,
+                "syntax_valid": exec_res.error_type not in ("syntax_error", "unsupported_function"),
+                "exec_ok": bool(exec_res.ok),
+                "exec_correct": bool(exec_res.ok and values_equal(exec_res.value, exp_val)),
+                "exact_match": bool(exact_match(extracted, row["reference_formula"])),
+                "error_type": exec_res.error_type,
+                "error_message": exec_res.error_message,
+            }
+        )
+        new_records.append(updated)
+    preds_path.write_text(
+        "\n".join(json.dumps(r, default=str) for r in new_records) + "\n", encoding="utf-8"
+    )
+    metrics = compute_metrics(
+        new_records,
+        run_name=old_metrics["run_name"],
+        model=old_metrics["model"],
+        few_shot=old_metrics["few_shot"],
+        dataset=old_metrics["dataset"],
+        seed=old_metrics["seed"],
+        max_tokens=old_metrics["max_tokens"],
+        num_ctx=old_metrics["num_ctx"],
+        peak_ram_mb=old_metrics["peak_ram_mb"],
+    )
+    (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
+    return metrics
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
@@ -437,9 +514,17 @@ def main() -> int:
     parser.add_argument("--num-ctx", type=int, default=4096)
     parser.add_argument("--timeout", type=float, default=180.0)
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--raw-qwen3-prompt", action="store_true")
+    parser.add_argument("--rescore", action="store_true")
     parser.add_argument("--summarize", action="store_true")
     args = parser.parse_args()
 
+    if args.rescore:
+        if not args.run_name:
+            raise SystemExit("--run-name is required with --rescore")
+        m = rescore_run(args.dataset, args.results_root / args.run_name)
+        print(json.dumps(m, indent=2))
+        return 0
     if args.summarize:
         print(summarize_results(args.results_root))
         return 0
@@ -459,6 +544,7 @@ def main() -> int:
         num_ctx=args.num_ctx,
         timeout=args.timeout,
         limit=args.limit,
+        raw_qwen3_prompt=args.raw_qwen3_prompt,
     )
     print(json.dumps(m, indent=2))
     return 0

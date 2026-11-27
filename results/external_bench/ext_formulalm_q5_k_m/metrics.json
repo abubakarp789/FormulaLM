@@ -1,0 +1,60 @@
+{
+  "run_name": "ext_formulalm_q5_k_m",
+  "model": "formulalm:latest",
+  "few_shot": 0,
+  "dataset": "data/external_bench/external_bench.csv",
+  "seed": 42,
+  "max_tokens": 96,
+  "num_ctx": 4096,
+  "peak_ram_mb": 2006.2,
+  "overall": {
+    "n": 56,
+    "k": 12,
+    "execution_accuracy": 0.2143,
+    "wilson_95_ci": [
+      0.1271,
+      0.3382
+    ],
+    "syntax_valid_rate": 0.8929,
+    "exec_ok_rate": 0.6071,
+    "exact_match_rate": 0.0179,
+    "raw_format_ok_rate": 0.9821,
+    "avg_latency_ms": 12162.02,
+    "median_latency_ms": 11308.77,
+    "avg_gen_tok_s": 9.01
+  },
+  "by_task_kind": {
+    "col_fill_first_cell": {
+      "n": 45,
+      "k": 9,
+      "execution_accuracy": 0.2,
+      "wilson_95_ci": [
+        0.109,
+        0.3382
+      ],
+      "syntax_valid_rate": 0.8667,
+      "exec_ok_rate": 0.5778,
+      "exact_match_rate": 0.0,
+      "raw_format_ok_rate": 0.9778,
+      "avg_latency_ms": 12543.56,
+      "median_latency_ms": 12589.99,
+      "avg_gen_tok_s": 9.03
+    },
+    "single_cell": {
+      "n": 11,
+      "k": 3,
+      "execution_accuracy": 0.2727,
+      "wilson_95_ci": [
+        0.0975,
+        0.5656
+      ],
+      "syntax_valid_rate": 1.0,
+      "exec_ok_rate": 0.7273,
+      "exact_match_rate": 0.0909,
+      "raw_format_ok_rate": 1.0,
+      "avg_latency_ms": 10601.17,
+      "median_latency_ms": 8339.29,
+      "avg_gen_tok_s": 8.94
+    }
+  }
+}
