@@ -1,0 +1,839 @@
+id,source_dataset,source_id,task_kind,sheet_name,target_cell,answer_position,workbook_path,nrows,ncols,schema_text,request,reference_formula,expected_value,expected_type
+ssb_10747,KAKA22/SpreadsheetBench@ab0b742b,10747,single_cell,גיליון1,K6,K6,data/external_bench/workbooks/ssb_10747.xlsx,8,12,"Sheet: גיליון1 (rows 3..8)
+Columns:
+A: Year (integer)
+B: Share No (integer)
+C: Net profit (integer)
+D: Cash flow (integer)
+E: Tax (integer)
+F: Selling exp (integer)
+I: Year (text)
+J: Share No (integer)
+K: Net profit (integer)
+L: Tax (integer)
+Sample cells:
+Row 1: I1=The desirable table
+Row 2: A2=Year, B2=Share No, C2=Net profit, D2=Cash flow, E2=Tax, F2=Selling exp, I2=Year, J2=Share No, K2=Net profit, L2=Tax
+Row 3: A3=2013, B3=101010, C3=-5300, D3=12000, E3=2000, F3=200, I3=2012, J3=101010, K3=-10600, L3=4000
+Row 4: A4=2012, B4=101010, C4=-10600, D4=24000, E4=4000, F4=400, I4=2013, J4=202020, K4=-4240, L4=1600
+Row 5: A5=2011, B5=101010, C5=-11660, D5=26400, E5=4400, F5=440
+Row 6: A6=2013, B6=202020, C6=-4240, D6=9600, E6=1600, F6=160, I6=The wrong formula, K6=0","Write the Excel formula for cell K6. I've attached a file containing a basic table and another table showing only a portion of that basic data. I've also included a formula that is supposed to extract the desired part, but it isn't working, and I can't identify the mistake. Could you please help me understand where I've gone wrong with the formula? IF((@$A$3:$A$8=$I3)*(@$B$3:$B$8=$J3),C3,0). The correct formula should sum the net profit from the first table based on the year and share no values in cells I3 and J3. It should be placed into cell K6.","=SUMIFS(C3:C8,A3:A8,I3,B3:B8,J3)",-10600,number
+ssb_1563,KAKA22/SpreadsheetBench@ab0b742b,1563,col_fill_first_cell,Sheet1,B2,B2:B30,data/external_bench/workbooks/ssb_1563.xlsx,30,2,"Sheet: Sheet1 (rows 2..30)
+Columns:
+A: OldColumn (text)
+B: NewColumn (text)
+Sample cells:
+Row 1: A1=OldColumn, B1=NewColumn
+Row 2: A2=Red, B2=Red
+Row 3: B3=Red
+Row 4: B4=Red
+Row 5: B5=Red
+Row 6: B6=Red","Write the Excel formula for cell B2. In an Excel column (column A), I have a mixture of numbers and characters with some blank cells. How can I fill the blank cells in column B so that the result looks like the example shown in column B, where the blank cells are filled with the value of the closest non-blank cell above them? I am looking to perform this operation and generate the results all in one go, completing the answers in column B.","=IF(A2="""",B1,A2)",Red,string
+ssb_16511,KAKA22/SpreadsheetBench@ab0b742b,16511,col_fill_first_cell,Sheet1,F2,F2:F10,data/external_bench/workbooks/ssb_16511.xlsx,10,6,"Sheet: Sheet1 (rows 2..10)
+Columns:
+D: Album Name (text)
+E: Song Title (text)
+F: Track No (integer)
+Sample cells:
+Row 1: D1=Album Name, E1=Song Title, F1=Track No
+Row 2: D2=Aabaka Sutab, E2=Aba Ka Satab, F2=1
+Row 3: D3=Aabaka Sutab, E3=Anhar Bhail Jingi, F3=2
+Row 4: D4=Aabaka Sutab, E4=Ho Gelak Bhor, F4=3
+Row 5: D5=Aabaka Sutab, E5=Hum Hain Bir Nepali, F5=4
+Row 6: D6=Aabaka Sutab, E6=Kala Re Badal, F6=5",Write the Excel formula for cell F2. How can I create a formula in Excel to increment track numbers for songs that correspond to their respective album names?,"=COUNTIF($D$2:D2,D2)",1,number
+ssb_3002,KAKA22/SpreadsheetBench@ab0b742b,3002,col_fill_first_cell,Sheet1,G5,G5:G15,data/external_bench/workbooks/ssb_3002.xlsx,15,7,"Sheet: Sheet1 (rows 4..15)
+Columns:
+E: Data (text)
+F: Column F (text)
+G: Desired Output (text)
+Sample cells:
+Row 3: E3=Data, G3=Desired Output
+Row 4: E4=Mat Doc, F4=Doc No, G4=Remark
+Row 5: E5=1941546513, F5=90176278, G5=Multiple
+Row 6: E6=1941546513, F6=90176278, G6=Multiple
+Row 7: E7=1941546513, F7=90176279, G7=Multiple
+Row 8: E8=1941546514, F8=90180157, G8=Single","Write the Excel formula for cell G5. I need help resolving an issue with my Excel file regarding the Remark column. Originally, I sought help and received a solution involving a formula. However, I have since made modifications to the Remark column that affects the provided formula. I am including the modified example file for reference. How can I adjust the formula to work with the changes made to the Remark column? I want to see if there are multiple instances of Mat Doc and Doc No combinations. Then, remove all color and border formatting, while retaining any other formatting. Finally, re-apply thin, all borders to all populated cells except ones that say “Multiple” or “Single”.","=IF(COUNTIFS($E$5:$E$15,E5,$F$5:$F$15,F5)>1,""Multiple"",""Single"")",Multiple,string
+ssb_31202,KAKA22/SpreadsheetBench@ab0b742b,31202,col_fill_first_cell,NOMINA,J2,J2:J47,data/external_bench/workbooks/ssb_31202.xlsx,48,18,"Sheet: NOMINA (rows 2..48)
+Columns:
+A: DATE (date)
+B: MONTH (text)
+C: WEEK (integer)
+D: WORKER (text)
+E: DAILY WAGE (decimal)
+F: DAYS WORKED (integer)
+G: DEDUCTIONS (integer)
+H: ADDITIONS (integer)
+I: TOTAL (integer)
+J: DEBT (integer)
+L: EMPLEADOS ACTIVOS (text)
+M: Column M (text)
+N: Column N (text)
+O: Column O (text)
+P: Column P (text)
+Q: Column Q (text)
+R: Column R (text)
+Sample cells:
+Row 1: A1=DATE, B1=MONTH, C1=WEEK, D1=WORKER, E1=DAILY WAGE, F1=DAYS WORKED, G1=DEDUCTIONS, H1=ADDITIONS, I1=TOTAL, J1=DEBT
+Row 2: A2=2024-01-06, B2=enero, C2=1, D2=DAWSON ALEXANDRO BROWN MAGAÑA, E2=1071.43, F2=6, G2=0, H2=0, I2=7500, J2=0
+Row 3: A3=2024-01-06, B3=enero, C3=1, D3=GABRIELA BOJORQUEZ BOJORQUEZ, E3=285.714, F3=6, G3=0, H3=0, I3=2000, J3=0
+Row 4: A4=2024-01-06, B4=enero, C4=1, D4=JAIRO MANUEL LOPEZ ESPINOZA, E4=542.857, F4=6, G4=0, H4=0, I4=3800, J4=0
+Row 5: A5=2024-01-06, B5=enero, C5=1, D5=GREGORIO COTA ESCOBAR, E5=314.286, F5=6, G5=0, H5=0, I5=2200, J5=0
+Row 6: A6=2024-01-06, B6=enero, C6=1, D6=MARTIN PARRA, E6=257.143, F6=6, G6=0, H6=0, I6=1800, J6=0",Write the Excel formula for cell J2. How can I automatically update the 'debt' column in my payroll table based on the deductions or additions made each week? I need to find the previous week's debt value for a specific worker and either add or subtract the new value depending on whether it's a deduction or addition.,"=SUMIFS(H$2:H2,D$2:D2,D2)-SUMIFS(G$2:G2,D$2:D2,D2)",0,number
+ssb_32255,KAKA22/SpreadsheetBench@ab0b742b,32255,col_fill_first_cell,Sheet1,D2,D2:D13,data/external_bench/workbooks/ssb_32255.xlsx,13,11,"Sheet: Sheet1 (rows 4..13)
+Columns:
+A: -1 (decimal)
+B: 1 (integer)
+C: 0 (integer)
+D: 0 (integer)
+H: Column H (text)
+I: Column I (integer)
+J: % Total (decimal)
+K: % Total Less BE (decimal)
+Sample cells:
+Row 1: A1=Profit
+Row 2: A2=-1, B2=1, C2=0, D2=0
+Row 3: A3=-1, B3=1, C3=0, D3=0, J3=% Total, K3=% Total Less BE
+Row 4: A4=-1, B4=1, C4=0, D4=0, H4=Wins, I4=1, J4=8.33333, K4=14.2857
+Row 5: A5=-1, B5=1, C5=0, D5=0, H5=Losses, I5=6, J5=50, K5=85.7143
+Row 6: A6=-1, B6=1, C6=0, D6=0, H6=BE, I6=5, J6=41.6667","Write the Excel formula for cell D2. I'm not an expert with spreadsheets, but I have a specific problem I can't figure out. I'm working on a spreadsheet and have run into an issue regarding how to ignore empty or blank cells in a formula I'm using. The formula needs to perform a certain action only on cells that contain data, and I need help adjusting it accordingly. An example of my problem should be evident in the attached spreadsheet I've provided. How can I modify my formula to ignore these empty or blank cells? A10 through A13 has no data entered, I need column D to ignore these cells (i.e., empty), until there is data entered.","=IF(A2="""","""",IF(A2=0,1,0))",0,number
+ssb_32293,KAKA22/SpreadsheetBench@ab0b742b,32293,col_fill_first_cell,Sheet1,B14,B14:B17,data/external_bench/workbooks/ssb_32293.xlsx,17,2,"Sheet: Sheet1 (rows 1..17)
+Columns:
+A: MNQ (text)
+B: 0.56 (decimal)
+Sample cells:
+Row 1: A1=MNQ, B1=0.56
+Row 2: A2=MES, B2=0.56
+Row 3: A3=NQ, B3=2.09
+Row 4: A4=ES, B4=2.04
+Row 12: A12=OUTPUT
+Row 14: A14=MNQ, B14=0.56","Write the Excel formula for cell B14. How can I create a formula in Excel to populate cells B14 through B17 based on the values in cell A14? The logic should be as follows: if A14 equals MNQ, then B14 should equal the value in B1; if A14 equals MES, then B14 should equal the value in B2; if A14 equals NQ, then B14 should equal the value in B3; if A14 equals ES, then B14 should equal the value in B4. Additionally, based on the value of A14, the respective values should be .56 for MNQ and MES, 2.09 for NQ, and 2.04 for ES. Is there also a way with the INDEX function to reference non-adjacent cells on a separate sheet without mentioning each cell explicitly? (IF A14 = MNQ THEN CELL B14 = CELL B1) OR (IF A14 = MES THEN CELL 14 = CELL B2) OR (IF A14 = NQ THEN CELL 14 = CELL B3) OR (IF A14 = ES THEN CELL 14 = CELL B4)","=INDEX($B$1:$B$4,MATCH(A14,$A$1:$A$4,0))",0.56,number
+ssb_32562,KAKA22/SpreadsheetBench@ab0b742b,32562,col_fill_first_cell,Sheet2,B2,B2:B21,data/external_bench/workbooks/ssb_32562.xlsx,21,2,"Sheet: Sheet2 (rows 2..21)
+Columns:
+A: Item (integer)
+B: Count Of Item (integer)
+Sample cells:
+Row 1: A1=Item, B1=Count Of Item
+Row 2: A2=86, B2=1
+Row 3: A3=503, B3=0
+Row 4: A4=142, B4=0
+Row 5: A5=216, B5=0
+Row 6: A6=125, B6=0","Write the Excel formula for cell B2. Automate the process of identifying each unique number in Column A and counting its order of occurrences without having to manually create an ascending list, such as from 1 to 10,000 and replacing it with the current data in column B.","=COUNTIF($A$2:$A2,A2)",1,number
+ssb_32612,KAKA22/SpreadsheetBench@ab0b742b,32612,col_fill_first_cell,Sheet1,E2,E2:E75,data/external_bench/workbooks/ssb_32612.xlsx,75,10,"Sheet: Sheet1 (rows 2..75)
+Columns:
+A: DATE (date)
+B: IN (text)
+C: OUT (text)
+D: TOTAL HOURS (text)
+E: WORKDAY (text)
+H: Holiday Name (text)
+I: Date (date)
+J: Type (text)
+Sample cells:
+Row 1: A1=DATE, B1=IN, C1=OUT, D1=TOTAL HOURS, E1=WORKDAY, H1=Holiday Name, I1=Date, J1=Type
+Row 2: A2=2023-01-09, B2=03:56:00, C2=08:04:00, D2=04:08:00, H2=New Year's Day, I2=2023-01-01, J2=PH(non-working)
+Row 3: A3=2023-01-10, B3=04:00:00, C3=08:04:00, D3=04:04:00, H3=New Year's Day, I3=2023-01-02, J3=PH(non-working)
+Row 4: A4=2023-01-11, B4=03:59:00, C4=08:08:00, D4=04:09:00, H4=Australia Day, I4=2023-01-26, J4=PH(non-working)
+Row 5: A5=2023-01-12, B5=03:57:00, C5=08:04:00, D5=04:07:00, H5=Labour Day, I5=2023-03-13, J5=PH(working)
+Row 6: A6=2023-01-13, B6=03:59:00, C6=08:00:00, D6=04:01:00, H6=Good Friday, I6=2023-04-07, J6=PH(non-working)","Write the Excel formula for cell E2. How can I create a workday column in an Excel file that identifies each date as the day of the week (e.g., Mon, Tue, Wed, etc.)? Additionally, when the date is a holiday, you do not need to fill in the day of the week, instead you need to marks the date as a public holiday, specifying if it's a working public holiday (PH(working)) or a non-working public holiday (PH(non-working)), using a provided list of public holidays.","=IFERROR(VLOOKUP(A2,$I$2:$K$16,2,0),TEXT(A2,""ddd""))",Mon,string
+ssb_36097,KAKA22/SpreadsheetBench@ab0b742b,36097,col_fill_first_cell,Sheet1,H3,H3:H6,data/external_bench/workbooks/ssb_36097.xlsx,7,8,"Sheet: Sheet1 (rows 3..7)
+Columns:
+A: Column A (text)
+B: Year of purchase (integer)
+C: Cost (integer)
+D: `Book value (integer)
+E: ITV (integer)
+F: Profit (integer)
+G: Proceeds (integer)
+H: Column H (integer)
+Sample cells:
+Row 1: H1=Recoupment/ Scrapping All.
+Row 2: B2=Year of purchase, C2=Cost, D2=`Book value, E2=ITV, F2=Profit, G2=Proceeds
+Row 3: A3=Caterpillar, B3=2017, C3=4000, D3=0, E3=0, F3=34600, G3=34600, H3=5000
+Row 4: A4=Utility truck, B4=2019, C4=3000, D4=1200, E4=750, F4=6900, G4=8100, H4=2250
+Row 5: A5=Computer equipment, B5=2017, C5=1000, D5=0, E5=0, F5=800, G5=800
+Row 6: A6=Compressor, B6=2019, C6=500, D6=300, E6=150, F6=-200, G6=100","Write the Excel formula for cell H3. I need a formula to calculate tax recoupment and scrapping allowance in column H: if the asset sold at a loss, recoup ITV adjusted by the loss; if profit is less than original cost, recoup the full profit; otherwise recoup the cost basis reduced by ITV. Preserve the formatting of the cells in column I.","=IF(F3<0,E3+F3,IF(F3<C3,F3,C3-E3))",4000,number
+ssb_36277,KAKA22/SpreadsheetBench@ab0b742b,36277,col_fill_first_cell,Sheet2,I2,I2:I5,data/external_bench/workbooks/ssb_36277.xlsx,25,9,"Sheet: Sheet2 (rows 2..25)
+Columns:
+A: Category (text)
+B: Name (text)
+C: Type (text)
+D: Revenue (integer)
+E: Profit (integer)
+H: Name (text)
+I: H (text)
+Sample cells:
+Row 1: A1=Category, B1=Name, C1=Type, D1=Revenue, E1=Profit, H1=Name, I1=H
+Row 2: A2=Game, B2=A, C2=Purchase, D2=100, E2=200, H2=Category, I2=Social Media
+Row 3: A3=Game, B3=B, C3=Purchase, D3=300, E3=400, H3=Type, I3=Free
+Row 4: A4=Game, B4=C, C4=Purchase, D4=500, E4=600, H4=Revenue
+Row 5: A5=Game, B5=D, C5=Purchase, D5=700, E5=800, H5=Profit
+Row 6: A6=Productivity, B6=E, C6=Free, D6=900, E6=1000","Write the Excel formula for cell I2. How can I create a lookup formula that returns results based on header names, which works correctly when dragged down in Excel 2019?","=IFERROR(INDEX($A$1:$E$25,MATCH($I$1,$B$1:$B$25,0),MATCH(H2,$1:$1,0)),"""")",Social Media,string
+ssb_37086,KAKA22/SpreadsheetBench@ab0b742b,37086,col_fill_first_cell,Sheet1,D2,D2:D5,data/external_bench/workbooks/ssb_37086.xlsx,5,4,"Sheet: Sheet1 (rows 2..5)
+Columns:
+A: Column1 (text)
+B: Column2 (integer)
+C: Column3 (integer)
+D: Total (integer)
+Sample cells:
+Row 1: A1=Column1, B1=Column2, C1=Column3, D1=Total
+Row 2: A2=A, B2=100, C2=100, D2=200
+Row 3: A3=A, B3=200, C3=200, D3=400
+Row 4: A4=B, B4=300, C4=300, D4=600
+Row 5: A5=B, B5=400, C5=400, D5=800","Write the Excel formula for cell D2. I need a formula for a column named 'Total' where, if a value in column1 is 'A', it should add 10, but if the value is 'B', it should subtract 10. I have included a file that may help illustrate this.","=IF(A2=""A"",SUM(B2:C2)+10,SUM(B2:C2)-10)",210,number
+ssb_38823,KAKA22/SpreadsheetBench@ab0b742b,38823,col_fill_first_cell,Sheet1,I4,I4:I7,data/external_bench/workbooks/ssb_38823.xlsx,15,9,"Sheet: Sheet1 (rows 3..15)
+Columns:
+A: Date (date)
+B: Fabric (text)
+C: Units Sold (integer)
+E: Column E (text)
+F: Column F (date)
+H: Column H (text)
+I: Column I (text)
+Sample cells:
+Row 1: E1=OUTPUT NEEDED
+Row 2: A2=Date, B2=Fabric, C2=Units Sold
+Row 3: A3=2022-01-01, B3=fabric_crepe,fabric_velvet, C3=5, E3=Between dates, I3=Total Units Sold
+Row 4: A4=2022-01-02, B4=fabric_velvet, C4=1, E4=2022-01-01, F4=2022-01-05, H4=fabric_velvet, I4=22
+Row 5: A5=2022-01-03, B5=fabric_sequin,fabric_poly, C5=4, H5=fabric_crepe, I5=12
+Row 6: A6=2022-01-04, B6=fabric_crepe,fabric_velvet, C6=7, H6=texture_feather",Write the Excel formula for cell I4. I need a formula to sum values in a range between two dates where a cell contains a specific search term. The values to sum are based on whether the corresponding date falls within the given date range and if the associated cell includes the search term. An example of the expected output is provided in the attached file. Apply to all search terms in column H.,"=SUMIFS($C$3:$C$15,$A$3:$A$15,"">=""&$E$4,$A$3:$A$15,""<=""&$F$4,$B$3:$B$15,""*""&H4&""*"")",22,number
+ssb_39515,KAKA22/SpreadsheetBench@ab0b742b,39515,col_fill_first_cell,Sheet1,O2,O2:O13,data/external_bench/workbooks/ssb_39515.xlsx,13,15,"Sheet: Sheet1 (rows 2..13)
+Columns:
+A: Month Available (text)
+B: Year Available (integer)
+C: JAN (integer)
+D: FEB (integer)
+E: MAR (integer)
+F: APR (integer)
+G: MAY (integer)
+H: JUN (integer)
+I: JUL (integer)
+J: AUG (integer)
+K: SEP (integer)
+L: OCT (integer)
+M: NOV (integer)
+N: DEC (integer)
+O: Increase Based on Availability (integer)
+Sample cells:
+Row 1: A1=Month Available, B1=Year Available, C1=JAN, D1=FEB, E1=MAR, F1=APR, G1=MAY, H1=JUN, I1=JUL, J1=AUG
+Row 2: A2=Mar, B2=2023, C2=1235, D2=1235, E2=1235, F2=1240, G2=1250, H2=1270, I2=1300, J2=1315
+Row 3: A3=Oct, B3=2022, C3=1350, D3=1350, E3=1350, F3=1355, G3=1370, H3=1390, I3=1425, J3=1440
+Row 4: A4=Apr, B4=2023, C4=1235, D4=1235, E4=1235, F4=1240, G4=1250, H4=1270, I4=1300, J4=1315
+Row 5: A5=Mar, B5=2023, C5=1235, D5=1235, E5=1235, F5=1240, G5=1250, H5=1270, I5=1300, J5=1315
+Row 6: A6=Oct, B6=2022, C6=1455, D6=1455, E6=1455, F6=1460, G6=1475, H6=1495, I6=1530, J6=1545","Write the Excel formula for cell O2. How can I modify my Excel formula to return a value based on both month and year, rather than just month? I have a worksheet where I want to pull a specific value into column O based on the given month and year. The current formula only extracts the value for the current year (2023), but I need it to correctly extract the value for January of the previous year (2022) for all rows corresponding to that year. All 2022 rows should have the value for Jan. Can someone provide an updated formula that handles this two-parameter lookup? @INDEX($C2:$N2,MATCH($A2,$C$1:$N$1,0)) Now please apply this formula to my worksheet.","=IF(B2=2022,C2,INDEX($C2:$N2,MATCH($A2,$C$1:$N$1,0)))",1235,number
+ssb_40959,KAKA22/SpreadsheetBench@ab0b742b,40959,col_fill_first_cell,Sheet1,C2,C2:C7,data/external_bench/workbooks/ssb_40959.xlsx,7,4,"Sheet: Sheet1 (rows 2..7)
+Columns:
+A: Name (text)
+B: Sub-Dept (text)
+C: Excel Formula (text)
+Sample cells:
+Row 1: A1=Name, B1=Sub-Dept, C1=Excel Formula
+Row 2: A2=Sales, C2=Sales
+Row 3: A3=Sales-Marketing, C3=Marketing
+Row 4: A4=Sales-Marketing, C4=Marketing
+Row 5: A5=Sales-Marketing, C5=Marketing
+Row 6: A6=Sales, B6=General, C6=Sales","Write the Excel formula for cell C2. Is there a way to create a formula in Excel that acts like an 'If UNLESS' condition? Specifically, I have a spreadsheet with two columns: Column A, which contains the values 'Sales' or 'Sales-Marketing', and Column B, which is either empty or contains the word 'General'. The requirement is to have a third column, Column C, display 'Sales' if Column A is 'Sales' and Column B is empty, 'Marketing' if Column A is 'Sales-Marketing' and Column B is empty, and 'Marketing' if Column A is 'Sales' and Column B contains 'General'. I am finding it challenging to construct a formula when there is a value in Column B. I want cell C6 to show ""Marketing"" when sub-dept = ""General"" and name is ""Sales"" My current formula is:IF(A2="""","""",IF(ISERROR(SEARCH(""-"",A2,1)),""Sales"",""Marketing"")) Apply new formula.","=IF(A2="""","""",IF(AND(A2=""Sales"",B2=""""),A2,""Marketing""))",Sales,string
+ssb_41348,KAKA22/SpreadsheetBench@ab0b742b,41348,col_fill_first_cell,Sheet1,Q2,Q2:Q11,data/external_bench/workbooks/ssb_41348.xlsx,11,17,"Sheet: Sheet1 (rows 2..11)
+Columns:
+A: Fiscal Year (text)
+B: Billable Code (text)
+C: Project Name (text)
+D: Product Code (text)
+E: Actual Hours (decimal)
+F: Actual Revenue (decimal)
+G: Actual Costs (decimal)
+H: Project ID (integer)
+I: Linked to Budget (text)
+J: Budget ID (text)
+K: Budget Name (text)
+L: Budget Type (text)
+M: Budgeted Revenue (decimal)
+N: Budgeted Hours (decimal)
+O: Budgeted Margin (decimal)
+P: Technology Revenue (integer)
+Q: Project includes tech? (text)
+Sample cells:
+Row 1: A1=Fiscal Year, B1=Billable Code, C1=Project Name, D1=Product Code, E1=Actual Hours, F1=Actual Revenue, G1=Actual Costs, H1=Project ID, I1=Linked to Budget, J1=Budget ID
+Row 2: A2=2023, B2=12345, C2=Tool/Service Sale 1, D2=ABC12, E2=0, F2=0, G2=0, H2=331709, I2=Y, J2=635396
+Row 3: A3=2023, B3=23456, C3=Tool/Service Sale 1, D3=ABC12, E3=0, F3=0, G3=0, H3=331709, I3=Y, J3=635397
+Row 4: A4=2022, B4=34567, C4=Tool/Service Sale 1, D4=ABC12, E4=62, F4=5118.74, G4=1615, H4=331709, I4=Y, J4=635396
+Row 5: A5=2022, B5=45678, C5=Tool/Service Sale 1, D5=ABC12, E5=0, F5=25000, G5=0, H5=331709, I5=Y, J5=635397
+Row 6: A6=2023, B6=56789, C6=Tool/Service Sale 2, D6=ABC12, E6=839, F6=175612, G6=129191, H6=247673, I6=Y, J6=415893","Write the Excel formula for cell Q2. In my Excel file containing project data, each project, identified by a consistent budget ID in column H, may have multiple lines representing different components, such as technology and services listed in column L as revenue types. I need to determine which projects include technology and then mark all associated lines of such projects, regardless of whether a line item itself is technology or service, with a 'Y' in column Q. Projects without a linked budget should be marked as 'N' in column Q. The current formula only marks technology revenue lines and thus doesn't accurately reflect projects that include technology. The sample workbook provided contains sample projects","=IF(I2=""N"",""N"",IF(COUNTIFS($H$2:$H$200,H2,$L$2:$L$200,""Technology""),""Y"",""N""))",Y,string
+ssb_41691,KAKA22/SpreadsheetBench@ab0b742b,41691,single_cell,Sheet1,B7,B7,data/external_bench/workbooks/ssb_41691.xlsx,7,2,"Sheet: Sheet1 (rows 1..7)
+Columns:
+A: 1 (integer)
+B: one (text)
+Sample cells:
+Row 1: A1=1, B1=one
+Row 2: A2=2, B2=two
+Row 3: A3=3, B3=three
+Row 4: A4=4, B4=four
+Row 5: A5=5, B5=five
+Row 7: A7=2, B7=#REF!",Write the Excel formula for cell B7. Edit cell B:7 so that it is not #REF!.,"=VLOOKUP(A7,$A$1:$B$5,2,FALSE)",two,string
+ssb_41978,KAKA22/SpreadsheetBench@ab0b742b,41978,col_fill_first_cell,Cumulative,I2,I2:I11,data/external_bench/workbooks/ssb_41978.xlsx,185,13,"Sheet: Cumulative (rows 2..185)
+Columns:
+A: Column A (text)
+B: Last Name (text)
+C: First Name (text)
+D: 170 (integer)
+E: Violation (text)
+F: 0 (integer)
+G: Year (integer)
+H: 170 (integer)
+J: Resolution (text)
+K: 170 (integer)
+Sample cells:
+Row 1: B1=Last Name, C1=First Name, D1=170, E1=Violation, F1=0, G1=Year, H1=170, J1=Resolution, K1=170
+Row 2: F2=0, G2=2013, H2=2, J2=Closed, K2=130
+Row 3: F3=0, G3=2014, H3=15, J3=Open, K3=40
+Row 4: F4=0, G4=2015, H4=0, J4=Blank, K4=0
+Row 5: F5=0, G5=2016, H5=38, K5=170
+Row 6: F6=0, G6=2017, H6=11","Write the Excel formula for cell I2. How can I create a formula in Excel that counts the number of open cases for each year? Specifically, I need the formula to examine a range from G14 to G185 for the year and then count if the corresponding cells from J14 to J185 are marked as 'open'. If necessary for the formula to work, I am willing to alter or unmerge the cells that identify the 'alpha organization'. Apply it and retain all original formatting in column I.","=COUNTIFS($G$14:$G$200,G2,$J$14:$J$200,""open"")",0,number
+ssb_42198,KAKA22/SpreadsheetBench@ab0b742b,42198,col_fill_first_cell,Sheet1,C2,C2:C7,data/external_bench/workbooks/ssb_42198.xlsx,7,3,"Sheet: Sheet1 (rows 2..7)
+Columns:
+A: Fruit (text)
+B: State (text)
+C: Result (text)
+Sample cells:
+Row 1: A1=Fruit, B1=State, C1=Result
+Row 2: A2=Potato, B2=True
+Row 3: A3=Potato, B3=True
+Row 4: A4=Tomato, B4=none
+Row 5: A5=Pickle, B5=False
+Row 6: A6=Potato, B6=True","Write the Excel formula for cell C2. Apply formula for cells C2:C7 that evaluates each row cumulatively by looking at all the data from row 2 down to the current row, so that C2 only checks row 2, C3 checks rows 2 through 3, C4 checks rows 2 through 4, and so on. The formula should use COUNTIFS to check in this priority order: first, if there's any ""Potato"" in column A with a corresponding FALSE in column B within that expanding range, return ""Worst""; otherwise if there's any ""Tomato"" with FALSE, return ""Ignore""; otherwise if there's any ""Pickle"" with FALSE, return ""Bad""; and if none of those conditions are met, return ""Good"". What would the appropriate Excel formula be to achieve this cumulative row-by-row evaluation?","=IF(COUNTIFS(A$2:A2,""Potato"",B$2:B2,FALSE)>0,""Worst"",IF(COUNTIFS(A$2:A2,""tomato"",B$2:B2,FALSE)>0,""Ignore"",IF(COUNTIFS(A$2:A2,""pickle"",B$2:B2,FALSE)>0,""Bad"",""Good"")))",Good,string
+ssb_42930,KAKA22/SpreadsheetBench@ab0b742b,42930,col_fill_first_cell,Sheet1,C2,C2:C22,data/external_bench/workbooks/ssb_42930.xlsx,22,6,"Sheet: Sheet1 (rows 2..22)
+Columns:
+A: Year House Built (integer)
+B: Subdivision Name (text)
+C: Order of Subd build (text)
+E: Subdivisions in order of earl... (text)
+F: Number I'd like to assign to ... (integer)
+Sample cells:
+Row 1: A1=Year House Built, B1=Subdivision Name, C1=Order of Subd build, E1=Subdivisions in order of earl..., F1=Number I'd like to assign to ...
+Row 2: A2=1910, B2=C, E2=C, F2=1
+Row 3: A3=1910, B3=G, E3=G, F3=2
+Row 4: A4=1911, B4=B, E4=B, F4=3
+Row 5: A5=1912, B5=A, E5=A, F5=4
+Row 6: A6=1913, B6=D, E6=D, F6=5","Write the Excel formula for cell C2. How can I assign a unique number to each subdivision based on the earliest house built within it, to sort a longer list of houses by this number, ensuring that the subdivisions are clustered together in the order of the earliest built houses, without manually 'Find and Replace' in an Excel sheet containing several thousand houses and hundreds of subdivisions?","=IFERROR(VLOOKUP(B2,E:F,2,FALSE),0)",1,number
+ssb_43213,KAKA22/SpreadsheetBench@ab0b742b,43213,col_fill_first_cell,Blad1,B12,B12:B15,data/external_bench/workbooks/ssb_43213.xlsx,16,6,"Sheet: Blad1 (rows 2..16)
+Columns:
+A: Value (decimal)
+B: Average (text)
+Sample cells:
+Row 1: A1=Value, B1=Average
+Row 2: A2=0
+Row 3: A3=0
+Row 4: A4=0
+Row 5: A5=0
+Row 6: A6=0","Write the Excel formula for cell B12. How can I calculate the average of a changing range in Excel, where the range increases as new data is added, and have this average automatically update as the range expands?B12 should contain the average of B11:B12,B13 should contain the average of B11:B13, output should be in 3 decimal places.",=AVERAGE($A$11:A12),238.0965,number
+ssb_44628,KAKA22/SpreadsheetBench@ab0b742b,44628,col_fill_first_cell,Sheet1,D3,D3:G3,data/external_bench/workbooks/ssb_44628.xlsx,10,7,"Sheet: Sheet1 (rows 3..10)
+Columns:
+A: A1 (text)
+B: 10 (integer)
+D: A (text)
+E: B (text)
+F: C (text)
+G: D (text)
+Sample cells:
+Row 1: A1=Product, B1=Quantity, D1=ProductSum
+Row 2: A2=A1, B2=10, D2=A, E2=B, F2=C, G2=D
+Row 3: A3=B2, B3=5
+Row 4: A4=C3, B4=25
+Row 5: A5=D1, B5=35
+Row 6: A6=B1, B6=15","Write the Excel formula for cell D3. Group and sum the total sales of all products by using the first letter of each product's name, such as 'A' from the product SKU 'A2-3442-2244', and aggregate the sales for all SKUs starting with the same letter. Display these results in D3:G3.","=SUMIF($A$2:$A$10,D2&""*"",$B$2:$B$10)",30,number
+ssb_45372,KAKA22/SpreadsheetBench@ab0b742b,45372,col_fill_first_cell,Sheet1,E2,E2:E15,data/external_bench/workbooks/ssb_45372.xlsx,15,5,"Sheet: Sheet1 (rows 2..15)
+Columns:
+A: Time (text)
+B: Actual Value (integer)
+C: Forecast Value (integer)
+E: Forecast VALUE (integer)
+Sample cells:
+Row 1: A1=Time, B1=Actual Value, C1=Forecast Value, E1=Forecast VALUE
+Row 2: A2=08:00:00, B2=42, E2=42
+Row 3: A3=08:15:00, B3=45, E3=45
+Row 4: A4=08:30:00, B4=45, E4=45
+Row 5: A5=08:45:00, B5=24, E5=24
+Row 6: A6=09:00:00, B6=48","Write the Excel formula for cell E2. Calculate a forecast total value in Excel column E based on the time. For instance, before 09:45, the value should come from column B, and after 09:45, it should switch to the value in column C. Finish by applying fill hex color #FFC000 to E2:E15 and ensuring all other formatting remains unchanged from the original file. If it's 0, just leave blank",=SUM(B2:C2),42,number
+ssb_45635,KAKA22/SpreadsheetBench@ab0b742b,45635,col_fill_first_cell,Sheet1,B5,B5:E7,data/external_bench/workbooks/ssb_45635.xlsx,9,5,"Sheet: Sheet1 (rows 1..9)
+Columns:
+A: A (text)
+B: 5 (integer)
+C: 4 (integer)
+D: 3 (integer)
+E: 3 (integer)
+Sample cells:
+Row 1: A1=A, B1=5, C1=4, D1=3, E1=3
+Row 2: A2=B, B2=4, C2=2, D2=3, E2=4
+Row 3: A3=C, B3=3, C3=4, D3=3, E3=5
+Row 5: A5=A
+Row 6: A6=B
+Row 7: A7=C","Write the Excel formula for cell B5. I need a formula for an Excel sheet that assigns a score of 6, 3, 2, or 0 in rows 5, 6, and 7 across columns B, C, D, and E. The score should be based on the highest total scores from the top three rows. Specifically, if one person has the highest score alone, they receive the full 6 points. If the highest score is tied between two people, they both receive 3 points each. If all three share the highest score, they each get 2 points. Anyone without the highest score gets 0 points. The columns each represent 6 points.","=IF(B1=MAX(B$1:B$3),6/COUNTIF(B$1:B$3,MAX(B$1:B$3)),0)",6,number
+ssb_45937,KAKA22/SpreadsheetBench@ab0b742b,45937,col_fill_first_cell,Current,E7,E7:E9,data/external_bench/workbooks/ssb_45937.xlsx,22,14,"Sheet: Current (rows 1..22)
+Columns:
+B: Column B (text)
+C: Column C (text)
+D: Column D (text)
+E: Column E (text)
+H: Column H (text)
+I: Column I (text)
+J: Column J (text)
+K: Column K (text)
+L: Column L (text)
+M: Column M (text)
+N: Column N (text)
+Sample cells:
+Row 6: B6=Number, C6=kms, D6=Category, E6=%, H6=Category
+Row 7: B7=59, C7=25000, D7=A, E7=22.5, H7=A, I7=0 up to and including 59
+Row 8: B8=60, C8=25000, D8=B, H8=B, I8=More than 59 up to and includ...
+Row 9: B9=100, C9=26002, D9=C, H9=C, I9=More than 99 up to and includ...
+Row 10: H10=D, I10=More than 139 up to and inclu...
+Row 11: H11=E, I11=More than 179","Write the Excel formula for cell E7. How can I create a formula in Excel that automatically calculates the percentage category based on a range of values in another cell? The user has a legend with categories and corresponding percentages in rows H17 to N22, and wants to determine the category for a value in cell E7, based on the value in D7 which is already using a formula related to the category legend in H6 to I11. Note that the kms ranges are specified in cells H20:I22. Finish the table by completing column E.","=INDEX($J$20:$N$22,MATCH(C7,$H$20:$H$22),MATCH(D7,$J$18:$N$18,0))",22.5,number
+ssb_46167,KAKA22/SpreadsheetBench@ab0b742b,46167,single_cell,Sheet1,D2,D2,data/external_bench/workbooks/ssb_46167.xlsx,12,4,"Sheet: Sheet1 (rows 2..12)
+Columns:
+A: PRODUCT ID (integer)
+B: QTY (integer)
+D: answer (text)
+Sample cells:
+Row 1: A1=PRODUCT ID, B1=QTY, D1=answer
+Row 2: A2=111111, B2=50
+Row 3: A3=222222, B3=22
+Row 4: A4=111111, B4=60
+Row 5: A5=222222, B5=22
+Row 6: A6=222222, B6=22","Write the Excel formula for cell D2. How can I create a formula in Excel that will calculate the sum of multiple cells subject to a specific criterion? Specifically, I want to sum the quantities (QTY) in a column for the rows where the 'PRODUCT ID' matches a given value (e.g., 111111). Please output the answer in D2. For example, the expected result of this sum for 'PRODUCT ID' 111111 should be 270, deriving from the individual QTY values of 50, 60, 70, and 90. Sum of QTYs where PRODUCT ID=111111.","=SUMIF($A$2:$A$12,""111111"",$B$2:$B$12)",270,number
+ssb_46897,KAKA22/SpreadsheetBench@ab0b742b,46897,single_cell,Sheet1,I3,I3,data/external_bench/workbooks/ssb_46897.xlsx,15,9,"Sheet: Sheet1 (rows 2..15)
+Columns:
+A: Animals (text)
+B: Fruits (text)
+C: Bevarages (text)
+D: Colors (text)
+H: Coulum Header (text)
+I: Fruits (text)
+Sample cells:
+Row 1: A1=Animals, B1=Fruits, C1=Bevarages, D1=Colors, H1=Coulum Header, I1=Fruits
+Row 2: A2=Turkey, B2=Apple, C2=Milk, D2=Red, H2=Value, I2=Apple
+Row 3: A3=Rooster, B3=Watermelon, C3=Tea, D3=Yellow, H3=Result
+Row 4: A4=Hen, B4=Orange, C4=Coffee, D4=Blue
+Row 5: A5=Sheep, B5=Pear, C5=Water, D5=Brown
+Row 6: A6=Rabbit, B6=Cherry, C6=Juice, D6=Orange",Write the Excel formula for cell I3. How can I create a formula in Excel that counts the instances of a specific text or number in a column that matches a specified header title?,"=IF(A1=$I$1,COUNTIF(A2:A15,I2),IF(B1=$I$1,COUNTIF(B2:B15,I2),IF(C1=$I$1,COUNTIF(C2:C15,$I$2),IF(D1=$I$1,COUNTIF(D2:D15,I2),""""))))",3,number
+ssb_47842,KAKA22/SpreadsheetBench@ab0b742b,47842,col_fill_first_cell,Sheet1,F2,F2:F16,data/external_bench/workbooks/ssb_47842.xlsx,16,6,"Sheet: Sheet1 (rows 2..16)
+Columns:
+A: ID (integer)
+B: <> 'Simple Present Tense' (text)
+C: = 'Simple Present Tense' (text)
+D: Status (text)
+E: Comment (text)
+F: Update To (Column C) (text)
+Sample cells:
+Row 1: A1=ID, B1=<> 'Simple Present Tense', C1== 'Simple Present Tense', D1=Status, E1=Comment, F1=Update To (Column C)
+Row 2: A2=1, B2=achieve, C2=achieve, D2=Ok, E2=1. No difference between word...
+Row 3: A3=2, B3=Acquire, C3=Acquire, D3=Ok, E3=1. No difference between word...
+Row 4: A4=3, B4=Acquired, C4=Acquire, D4=Ok, E4=1. Tense was changed correctl...
+Row 5: A5=4, B5=act, C5=act, D5=Ok, E5=1. No difference between word...
+Row 6: A6=5, B6=Acted, C6=Act, D6=Ok, E6=1. Tense was changed correctl...","Write the Excel formula for cell F2. I have a VBA routine that standardizes job descriptions by updating words in the past tense to the simple present tense. The routine generally works fine, but I have a problem with the capitalization of the first letters. For example, a word like 'Acquired' might be converted into 'Acquire' correctly in terms of tense, but the first letter's case could incorrectly change, such as from 'a' to 'A' or vice versa. In my spreadsheet, column B contains various sample words in different tenses, and column C has the correct tense forms but sometimes with the wrong case for the initial letter. I need an Excel formula that will look at the first letter case in column C and compare it to the first letter in column B. If the case is different, the formula should update the first letter in column C to match the case of column B's first letter, ensuring the word in column C remains in the correct tense. Which formula could I use in a new column F to achieve this correction without affecting the existing tense forms?Formula needs to change word from ""address"" to ""Address"" to match source word's ""A"" in col B.","=LEFT(B2)&RIGHT(C2,LEN(C2)-1)",achieve,string
+ssb_47933,KAKA22/SpreadsheetBench@ab0b742b,47933,col_fill_first_cell,master,E2,E2:E154,data/external_bench/workbooks/ssb_47933.xlsx,154,5,"Sheet: master (rows 2..154)
+Columns:
+A: Employee Number (integer)
+B: Hours (decimal)
+C: Amount (decimal)
+D: Rate (decimal)
+E: Sum (text)
+Sample cells:
+Row 1: A1=Employee Number, B1=Hours, C1=Amount, D1=Rate, E1=Sum
+Row 2: A2=525794, B2=40, C2=38708.8, D2=18.61, E2=#VALUE!
+Row 3: A3=526050, B3=37.5, C3=60411.6, D3=30.98, E3=0
+Row 4: A4=526149, B4=35, C4=57005.2, D4=31.32, E4=0
+Row 5: A5=524844, B5=40, C5=17971.5, D5=8.64, E5=#VALUE!
+Row 6: A6=525838, B6=37.5, C6=60845.8, D6=31.2, E6=0","Write the Excel formula for cell E2. How do I correct my IF formula in Excel so that in cell E2 it looks up the value in the hours column (B2), and multiplies the rate column (D2) by 2 if the number of hours is less than 37.5, or by 1.5 if the hours are 37.5 or more? My current formula is : If =IF(B2<37.5,""*D2,""2"",)if(B2<37.5,""*D2,""1.5"",)","=IF(B2="""","""",IF(B2<37.5,D2*2,D2*1.5))",27.915,number
+ssb_48921,KAKA22/SpreadsheetBench@ab0b742b,48921,col_fill_first_cell,Sheet1,A2,A2:A4452,data/external_bench/workbooks/ssb_48921.xlsx,4452,2,"Sheet: Sheet1 (rows 2..4452)
+Columns:
+A: Result (integer)
+B: Code (text)
+Sample cells:
+Row 1: A1=Result, B1=Code
+Row 2: A2=1, B2=4000001
+Row 3: A3=2, B3=4000002
+Row 4: A4=3, B4=4000003
+Row 5: B5=4000004
+Row 6: B6=4000005","Write the Excel formula for cell A2. How can I create an Excel formula that removes the leading characters from a variable-length number, where the specific characters to be deleted differ depending on the size of the original number? For example, from the number '4000001', I need to get '1', and from '4004045', the result should be '4045'. The solution should not be as simple as subtracting 400 since the number of characters to be removed can vary.","=RIGHT(B2,LEN(B2)-1)*1",1,number
+ssb_48969,KAKA22/SpreadsheetBench@ab0b742b,48969,col_fill_first_cell,Sheet1,J3,J3:N5,data/external_bench/workbooks/ssb_48969.xlsx,10,14,"Sheet: Sheet1 (rows 3..10)
+Columns:
+A: Source 1 (text)
+B: Name (text)
+C: 2021-12-04 (text)
+D: 2021-12-05 (text)
+E: 2021-12-06 (text)
+F: 2021-12-07 (text)
+G: 2021-12-08 (text)
+I: Name (text)
+J: 2021-12-04 (boolean)
+K: 2021-12-05 (boolean)
+L: 2021-12-06 (boolean)
+M: 2021-12-07 (text)
+N: 2021-12-08 (text)
+Sample cells:
+Row 1: B1=Source, I1=Result
+Row 2: A2=Source 1, B2=Name, C2=2021-12-04, D2=2021-12-05, E2=2021-12-06, F2=2021-12-07, G2=2021-12-08, I2=Name, J2=2021-12-04, K2=2021-12-05
+Row 3: B3=Dhaka, C3=12, D3=19, E3=26, F3=33, G3=40, I3=Dhaka, J3=False, K3=True, L3=True
+Row 4: B4=Khulna, C4=13, D4=11, E4=9, F4=19, G4=21, I4=Khulna, J4=False, K4=True, L4=True
+Row 5: B5=Rajshahi, C5=16, D5=12, E5=18, F5=11, G5=10, I5=Rajshahi, J5=False, K5=False
+Row 7: A7=Source 2, B7=Name, C7=2021-12-05, D7=2021-12-06, E7=2021-12-07, F7=2021-12-08, G7=2021-12-09","Write the Excel formula for cell J3. How can I compare and match the columns and rows of two separate data sources in Excel to get a result, as demonstrated in the attached file?","=IF(IFERROR(INDEX($C$3:$G$5,MATCH($I3,$B$3:$B$5,0),MATCH(J$2,$C$2:$G$2,0)),"""")=IFERROR(INDEX($C$8:$G$10,MATCH($I3,$B$8:$B$10,0),MATCH(J$2,$C$7:$G$7,0)),""""),TRUE,FALSE)",FALSE,bool
+ssb_48982,KAKA22/SpreadsheetBench@ab0b742b,48982,single_cell,Sheet1,B323,B323,data/external_bench/workbooks/ssb_48982.xlsx,326,2,"Sheet: Sheet1 (rows 1..326)
+Columns:
+B: Column B (text)
+Sample cells:
+Row 5: B5=Check #
+Row 7: B7=417
+Row 8: B8=418
+Row 10: B10=419
+Row 11: B11=420
+Row 13: B13=421","Write the Excel formula for cell B323. Why does the formula max.number in cell B323 not return the maximum+1 but shows 000, and why does it result in a circular reference error? The formula I'm using is =IF(A323=""E"","""",MAX(B$7:B377)+1). If I press the formula in B323 using F9 key, it shows 606.","=IF(A323=""E"","""",MAX(B$7:B322)+1)",606,number
+ssb_48983,KAKA22/SpreadsheetBench@ab0b742b,48983,col_fill_first_cell,Hárok1,M6,M6:S11,data/external_bench/workbooks/ssb_48983.xlsx,19,19,"Sheet: Hárok1 (rows 1..19)
+Columns:
+A: Column A (text)
+B: Column B (text)
+C: Column C (text)
+D: Column D (text)
+E: Column E (text)
+F: Column F (text)
+G: Column G (text)
+H: Column H (text)
+I: Column I (text)
+K: Column K (text)
+L: Column L (text)
+M: Column M (text)
+N: Column N (text)
+O: Column O (text)
+P: Column P (text)
+Q: Column Q (text)
+R: Column R (text)
+S: Column S (text)
+Sample cells:
+Row 4: C4=Category, M4=Category
+Row 5: C5=HDD, D5=SPD, E5=FFI, F5=ADW, G5=HDW, H5=LAD, I5=TWC, M5=TWC, N5=LAD, O5=HDW
+Row 6: A6=Brand, B6=Persil, E6=2005, K6=Brand, L6=Persil
+Row 7: B7=Bref, C7=730, H7=4575, L7=Silan
+Row 8: B8=Cif, C8=3772, H8=3867, I8=3121, L8=Pur
+Row 9: B9=Clin, I9=2269, L9=Bref","Write the Excel formula for cell M6. I'm struggling to transfer data from one table to another using Excel, which both have data that starts in row 6. I attempted to use the INDEX/MATCH method but it didn't work for me. Specifically, I have one table with categories like HDD, SPD, FFI, ADW, HDW, LAD, TWC, and brands such as Persil, Bref, Cif, Clin, Coccolino, Domestos, Finish, Jar, Lenor, Pur, Silan, TS, Dylon, and Bloo, with various numerical values beneath each brand and category. How can I correctly apply the INDEX/MATCH method to copy data across and down to the applicable rows and columns in L:S?","=INDEX($C$6:$I$19,MATCH($L6,$B$6:$B$19,0),MATCH(M$5,$C$5:$I$5,0))",0,number
+ssb_49237,KAKA22/SpreadsheetBench@ab0b742b,49237,single_cell,Sheet1,F7,F7,data/external_bench/workbooks/ssb_49237.xlsx,27,12,"Sheet: Sheet1 (rows 3..27)
+Columns:
+A: SSN (text)
+B: 123456789 (text)
+E: Column E (text)
+F: Column F (text)
+G: Open AEW (text)
+Sample cells:
+Row 1: B1=2024-05-15
+Row 2: A2=SSN, B2=123456789, G2=Open AEW
+Row 3: A3=Address, B3=Joe George Veteran 8675309 La...
+Row 4: A4=Date, E4=00:00:00, F4=00:00:00, G4=Download AEW/FY2021
+Row 5: A5=Date, E5=Joe
+Row 6: A6=Award, E6=Geor, F6=Joe, G6=Reopen AEW","Write the Excel formula for cell F7. How can I add a period to a cell in Excel if there is a middle initial present, and leave it blank if there is no middle initial? The middle initial is obtained from the full name in cell E19 with first name in E5 and last name in E7. The extraction formula I'm using for the middle name is `=TRIM(MID(E19,LEN(E5)+1,LEN(E19)-LEN(E5&E7)))`, which gives the middle name in E9. Then I'm converting it to proper case with `=PROPER(E9)` in F10, and I'm taking the initial from that result with `=LEFT(F10)` in F7. If F7 contains an initial, I want to add a period after it. Otherwise, F7 should remain blank. Every formula I've tried results in a `#VALUE` error. What formula should I use to achieve this?","=IF(LEFT(F10)="""","""",LEFT(F10)&""."")",G.,string
+ssb_49801,KAKA22/SpreadsheetBench@ab0b742b,49801,single_cell,Sheet1,C1,C1,data/external_bench/workbooks/ssb_49801.xlsx,1,3,"Sheet: Sheet1 (rows 1..1)
+Columns:
+A: SL-BK56-OWWFST-0035 (text)
+B: SL (text)
+C: -0035 (text)
+Sample cells:
+Row 1: A1=SL-BK56-OWWFST-0035, B1=SL, C1=-0035","Write the Excel formula for cell C1. In Excel, combine the results of both the LEFT 2 characters of a cell and RIGHT 3 characters of another cell into a single cell. I have the value 'SL-BK56-OWWFST-0035' and I use '=LEFT(A1,2)'in Column B which returns 'SL', and I use '=RIGHT(A1,5)' which returns '-0035'. Please concatenate these two formulas into one to get the result 'SL-0035' in column C. Do not add any additional labels or examples.","=LEFT(A1,2)&RIGHT(A1,5)",SL-0035,string
+ssb_49857,KAKA22/SpreadsheetBench@ab0b742b,49857,col_fill_first_cell,Sub CO's,G4,G4:G10,data/external_bench/workbooks/ssb_49857.xlsx,50,9,"Sheet: Sub CO's (rows 4..50)
+Columns:
+A: Sub (text)
+B: Cost Code (text)
+C: Date Change requested from Sub (date)
+D: Date Pricing Received from Sub (date)
+E: Date CO sent back to Sub (date)
+F: Pass on to owner? (text)
+G: PCO # (integer)
+H: Sub cost (integer)
+I: Description (text)
+Sample cells:
+Row 2: A2=SUB CHANGE ORDERS
+Row 3: A3=Sub, B3=Cost Code, C3=Date Change requested from Sub, D3=Date Pricing Received from Sub, E3=Date CO sent back to Sub, F3=Pass on to owner?, G3=PCO #, H3=Sub cost, I3=Description
+Row 4: A4=Huff, B4=03 05 00, C4=2021-08-01, D4=2021-08-10, E4=2021-08-11, F4=Yes, G4=1, H4=1400
+Row 5: A5=Leo, B5=04 21 13, C5=2021-08-20, D5=2021-09-02, E5=2021-09-03, F5=No, G5=0, H5=985
+Row 6: A6=Smith, B6=05 10 00, C6=2021-09-15, D6=2021-09-21, E6=2021-09-22, F6=No, G6=0, H6=230
+Row 7: A7=Aero, B7=23 31 00, C7=2021-08-28, D7=2021-09-25, E7=2021-09-26, F7=Yes, G7=2, H7=9250","Write the Excel formula for cell G4. I'm working on a spreadsheet and would like to create a sequence of numbers in column G that starts with 1 and continues in order only if the cell directly to the left in column F says ""YES"". If the cell in column F doesn't say ""YES"", then column G should display 0. I've manually filled out the sequence in column G as an example, but I am seeking a way for the sheet to auto-fill this sequence. I've attempted to use nested IF functions without success and need guidance on the correct method to achieve this.","=IF(F4="""","""",IF(F4=""No"",0,COUNTIF(F$4:F4,""Yes"")))",1,number
+ssb_49945,KAKA22/SpreadsheetBench@ab0b742b,49945,col_fill_first_cell,Sheet1,G4,G4:G6,data/external_bench/workbooks/ssb_49945.xlsx,11,7,"Sheet: Sheet1 (rows 4..11)
+Columns:
+B: Year (integer)
+C: Model (text)
+D: Qty (integer)
+F: Column F (text)
+G: Total (text)
+Sample cells:
+Row 3: B3=Year, C3=Model, D3=Qty, G3=Total
+Row 4: B4=2010, C4=Honda, D4=5, F4=Honda
+Row 5: B5=2015, C5=Honda, D5=8, F5=Suzuki
+Row 6: B6=2018, C6=Suzuki, D6=15, F6=Mitsubishi
+Row 7: B7=2019, C7=Mitsubishi, D7=19
+Row 8: B8=2007, C8=Mitsubishi, D8=4","Write the Excel formula for cell G4. How can I create an Excel formula that will allow me to sum the quantities in range D4:D4 associated with a specific model listed in range C4:C11, regardless of the year, with the goal of entering this formula in cell G4? My attempt using SUM and XLOOKUP only sums the first value and does not aggregate across multiple columns. I have provided an example spreadsheet with the data.","=SUMIF($C$4:$C$11,F4,$D$4:$D$11)",27,number
+ssb_50088,KAKA22/SpreadsheetBench@ab0b742b,50088,col_fill_first_cell,Sheet1,F6,F6:F8,data/external_bench/workbooks/ssb_50088.xlsx,11,6,"Sheet: Sheet1 (rows 2..11)
+Columns:
+A: A List (text)
+B: B List (text)
+E: Column E (text)
+F: Column F (text)
+Sample cells:
+Row 1: A1=A List, B1=B List
+Row 2: A2=A, B2=A
+Row 3: A3=A, B3=A
+Row 4: A4=B, B4=B
+Row 5: A5=B, E5=Item, F5=Expected Answer
+Row 6: A6=C, B6=C, E6=A, F6=3","Write the Excel formula for cell F6. I am currently faced with the problem of not being able to count items in adjacent cells for each Item below Expected Answer if the cell in a particular column is empty. How can I count the occurrences of the letter 'A' in column B, but also count 'A' in column A if the corresponding cell in column B is empty? For example, if B5 is empty, I want to check if A5 contains 'A' and include it in my count. The formula I tried is not working: =COUNTIFS($B:$B,""A"",$B:$B,=IF($B:$B="""",=countif($A:$A,""A""))). I have provided a sample file for reference.","=IF(E6="""","""",COUNTIF($A$2:$A$11,E6))",3,number
+ssb_50796,KAKA22/SpreadsheetBench@ab0b742b,50796,col_fill_first_cell,Sheet1,B2,B2:B5,data/external_bench/workbooks/ssb_50796.xlsx,22,3,"Sheet: Sheet1 (rows 2..22)
+Columns:
+A: Item (text)
+B: Preorder Total (text)
+C: Column C (text)
+Sample cells:
+Row 1: A1=Item, B1=Preorder Total
+Row 2: A2=Swimming Pool, B2=12
+Row 3: A3=Dresser, B3=15
+Row 4: A4=Couch
+Row 5: A5=TV
+Row 11: A11=Buyer, B11=Item, C11=Preorder","Write the Excel formula for cell B2. I am seeking a more efficient way to handle increasing preorder products in Excel as manual counting has become too time consuming. I need a formula that operates such that if cell B1 equals a specific value, for example 'ABC', then it should count the value in cell C1. In my current method, I use the formula '=COUNTIFS(B:B,""TV"")' which counts the number of rows containing 'TV', but instead I need it to count the value in the cell to the immediate right of each 'TV' descriptor. Attached is a sample Excel file where A1:B5 shows the intended results for the data in A12:C22.","=SUMIF($B$12:$B$22,A2,$C$12:$C$22)",12,number
+ssb_50916,KAKA22/SpreadsheetBench@ab0b742b,50916,col_fill_first_cell,21-22 Schedule,C12,C12:H14,data/external_bench/workbooks/ssb_50916.xlsx,301,12,"Sheet: 21-22 Schedule (rows 2..301)
+Columns:
+A: Column A (text)
+B: Day (text)
+C: H1 (text)
+D: P1 (text)
+E: P2 (text)
+F: P3 (text)
+G: P4 (text)
+H: P5 (text)
+Sample cells:
+Row 1: B1=Day, C1=H1, D1=P1, E1=P2, F1=P3, G1=P4, H1=P5
+Row 2: B2=1, C2=Homeroom, D2=French, E2=Math, F2=Science, G2=Eng. Lang. Arts, H2=Social Studies
+Row 3: B3=2, C3=Homeroom, D3=RE, E3=Art, F3=PE, G3=Social Studies, H3=Math
+Row 4: B4=3, C4=Homeroom, D4=French, E4=Science, F4=Math, G4=RE, H4=Eng. Lang. Arts
+Row 5: B5=4, C5=Homeroom, D5=Art, E5=Eng. Lang. Arts, F5=Math, G5=Science, H5=French
+Row 6: B6=5, C6=Homeroom, D6=Eng. Lang. Arts, E6=Math, F6=Science, G6=Home Economics","Write the Excel formula for cell C12. How can I create an Excel school calendar where typing a cycle day number into a column automatically populates the classes for that day across each row? My children's school operates on a seven-day cycle, and there's a double period that could complicate matters. I want to avoid manual copy/paste because of irregular 'off days' that require adjusting the cycle day and associated classes. I managed a formula that works in one cell but am struggling to copy it across other cells as shown by the problems in cells C12, E12:H12, and D13:D14. IF(A$12=A$2,C$2,IF(A$12=A$3,C$3,IF(A$12=A$4,C$4,IF(A$12=A$5,C$5,IF(A$12=A$6,C$6,IF(A$12=A$7,C$7,IF(A$12=A$8,C$8)))))))","=INDEX($C$2:$H$8,MATCH($B12,$B$2:$B$8,0),MATCH(C$11,$C$1:$H$1,0))",Homeroom,string
+ssb_51586,KAKA22/SpreadsheetBench@ab0b742b,51586,col_fill_first_cell,Sheet1,C2,C2:C6,data/external_bench/workbooks/ssb_51586.xlsx,6,3,"Sheet: Sheet1 (rows 2..6)
+Columns:
+A: Store Name (text)
+B: City (text)
+C: Formula Required to check if ... (boolean)
+Sample cells:
+Row 1: A1=Store Name, B1=City, C1=Formula Required to check if ...
+Row 2: A2=ABC Melbourne, B2=Melbourne, C2=True
+Row 3: A3=ABC Eastland, B3=Ringwood, C3=False
+Row 4: A4=ABC Watergardens, B4=Taylors Lake
+Row 5: A5=ABC Melbourne Central, B5=Melbourne
+Row 6: A6=ABC Sydney, B6=Sydney","Write the Excel formula for cell C2. I need a formula to check if the text from one cell is found within another cell that contains additional text. For example, if I have a list of store names and cities, I want to determine if the city is mentioned in the store's name. If any additional text exists after the city name in column A, mark it as False. I've provided an example worksheet to illustrate what I'm trying to achieve. Recreate Sheet1 with the same fonts and fill colors. Then, change the fill color of the values in column C (not including title) to #00B050. Use Calibri font throughout.","=RIGHT(A2,LEN(B2))=B2",TRUE,bool
+ssb_52575,KAKA22/SpreadsheetBench@ab0b742b,52575,col_fill_first_cell,Sheet2,F2,F2:F92,data/external_bench/workbooks/ssb_52575.xlsx,92,5,"Sheet: Sheet2 (rows 2..92)
+Columns:
+A: Date (date)
+B: Employee Number (integer)
+C: Abs. Name (text)
+D: Atts. Name (text)
+E: Week (integer)
+Sample cells:
+Row 1: A1=Date, B1=Employee Number, C1=Abs. Name, D1=Atts. Name, E1=Week
+Row 2: A2=2021-04-20, B2=133049, E2=17
+Row 3: A3=2021-04-21, B3=133049, C3=Sick Day, E3=17
+Row 4: A4=2021-04-22, B4=133049, D4=Overtime, E4=17
+Row 5: A5=2021-04-23, B5=133049, E5=17
+Row 6: A6=2021-04-24, B6=133049, E6=17","Write the Excel formula for cell F2. How can I use Excel to count the number of weeks year-to-date in which an employee, identified by an employee number, has both worked overtime and taken a sick day within the same week, given that the data for overtime and sick days are in non-contiguous cells? Please return ""y"" if there is at least one of each of ""Sick day"" and ""Overtime"" for a week number, and only for instances of a week number where it is preceded by a different week number. Do not alter any formatting and add any headers.","=IF(E2<>E1,IF(AND(COUNTIFS($B:$B,B2,$C:$C,""Sick Day"",$E:$E,E2)>0,COUNTIFS($B:$B,B2,$D:$D,""Overtime"",$E:$E,E2)>0),""y"",""""),"""")",y,string
+ssb_52917,KAKA22/SpreadsheetBench@ab0b742b,52917,col_fill_first_cell,whole date,J2,J2:J9,data/external_bench/workbooks/ssb_52917.xlsx,9,10,"Sheet: whole date (rows 2..9)
+Columns:
+A: Day (integer)
+B: Month (integer)
+C: Year (integer)
+J: Date (date)
+Sample cells:
+Row 1: A1=Day, B1=Month, C1=Year, J1=Date
+Row 2: A2=1, B2=1, C2=2021, J2=2021-01-01
+Row 3: A3=2, B3=1, C3=2021, J3=2021-01-02
+Row 4: A4=3, B4=1, C4=2021, J4=2021-01-03
+Row 5: A5=4, B5=1, C5=2021, J5=2021-01-04
+Row 6: A6=5, B6=1, C6=2021","Write the Excel formula for cell J2. I need to create a formula that can combine day, month, and year data from separate columns A, B, and C into a complete date format in column J, as shown in my attached file.","=DATE(C2,B2,A2)",2021-01-01,date
+ssb_54242,KAKA22/SpreadsheetBench@ab0b742b,54242,col_fill_first_cell,Sheet1,E6,E6:E13,data/external_bench/workbooks/ssb_54242.xlsx,13,5,"Sheet: Sheet1 (rows 1..13)
+Columns:
+A: Column A (text)
+B: Column B (text)
+C: Column C (text)
+D: Column D (text)
+E: Column E (text)
+Sample cells:
+Row 5: A5=Date, B5=Description, C5=Name, D5=Amount, E5=Type
+Row 6: A6=2021-03-10, B6=Deposit, C6=Harvey, D6=4700, E6=Revenue
+Row 7: A7=2021-04-15, B7=Deposit, C7=Omin, D7=1500, E7=Revenue
+Row 8: A8=2021-04-15, B8=Withdrawal, C8=George, D8=40020, E8=Expenses
+Row 9: A9=2021-04-15, B9=Deposit, C9=Joe, D9=40020, E9=Revenue
+Row 10: A10=2021-04-15, B10=Withdrawal, C10=Patience, D10=15","Write the Excel formula for cell E6. How can I create a formula for column E in Excel that will display 'Revenue' in each cell if the corresponding cell in the range B6 to B13 contains the word 'deposit', and 'Expenses' if it contains the word 'withdrawal'?","=IF(B6=""Deposit"",""Revenue"",""Expenses"")",Revenue,string
+ssb_54274,KAKA22/SpreadsheetBench@ab0b742b,54274,single_cell,Sheet1,G4,G4,data/external_bench/workbooks/ssb_54274.xlsx,15,8,"Sheet: Sheet1 (rows 4..15)
+Columns:
+B: Target (integer)
+C: Stretch (decimal)
+D: Over Stretch (decimal)
+E: Weight (decimal)
+F: Total (integer)
+G: Points (text)
+Sample cells:
+Row 3: B3=Target, C3=Stretch, D3=Over Stretch, E3=Weight, F3=Total, G3=Points
+Row 4: B4=840, C4=1120.67, D4=1399.93, E4=0.15, F4=1094","Write the Excel formula for cell G4. I'm new to Excel and need assistance with creating a nested IF formula for a problem I'm working on. Although I've attached the file with the details for reference, I'm not sure if what I'm trying to achieve is overly complicated for a nested IF formula or even possible. Can someone please guide me on how to go about this? What I want the points cell to reflect If total is less or equal to target, then total divided by target If total is greater than target but less than stretch, then total divided by target to a maximum of 1.09 If total is equal to stretch, then total divided by target to a maximum of 1.1 If total is greater than stretch but less than overstretch, then total divided by target to a maximum of 1.19 If total is greater than or equal to overstretch, then total divided by target to a maximum of 1.2","=MIN(F4/B4,IF(F4>D4,1.2,IF(F4>C4,1.19,IF(F4=C4,1.1,IF(F4>B4,1.09,F4/B4)))))",1.09,number
+ssb_54513,KAKA22/SpreadsheetBench@ab0b742b,54513,single_cell,Sheet1,F8,F8,data/external_bench/workbooks/ssb_54513.xlsx,19,14,"Sheet: Sheet1 (rows 4..19)
+Columns:
+B: Quantity (text)
+C: Discount (text)
+D: Wholesale (text)
+E: 1 (text)
+F: 0 (text)
+G: Column G (text)
+H: Column H (text)
+I: Column I (decimal)
+J: Column J (decimal)
+K: Column K (decimal)
+L: Column L (decimal)
+M: Column M (decimal)
+N: Column N (decimal)
+Sample cells:
+Row 3: B3=Quantity, C3=Discount, D3=Wholesale, E3=1, F3=0
+Row 4: B4=12, C4=0.5, E4=12, F4=0.5
+Row 5: B5=84, C5=0.55, E5=84, F5=0.55
+Row 7: B7=ITEM, C7=MSRP, D7=Quantity ò, E7=Wholesale markdown, F7=Wholesale price
+Row 8: C8=34.99, D8=96, E8=0.55
+Row 10: G10=Unit purchase options",Write the Excel formula for cell F8. How can I calculate and display the price of an item after applying a 55% discount to its original price of $34.99 in Excel? I've attached my workbook for reference.,"=ROUND(C8*(1-E8),2)",15.75,number
+ssb_54675,KAKA22/SpreadsheetBench@ab0b742b,54675,single_cell,Sheet1,F3,F3,data/external_bench/workbooks/ssb_54675.xlsx,2452,6,"Sheet: Sheet1 (rows 2..2452)
+Columns:
+A: Month (integer)
+B: Investigating Officer (s) (text)
+F: Column F (integer)
+Sample cells:
+Row 1: A1=Month, B1=Investigating Officer (s)
+Row 2: A2=4, B2=Lorraine Donnelly
+Row 3: A3=4, B3=Building Services, Marc Garland, F3=7
+Row 4: A4=4, B4=Gary Stoddard, Gary Stoddart,...
+Row 5: A5=4, B5=Gary Stoddard
+Row 6: A6=4, B6=Building Services","Write the Excel formula for cell F3. How can I modify my Excel formula in cell F3 so it counts all occurrences of the name 'Gary Stoddard' in column B, including those that appear in a cell with other names, as long as column A contains the number '4'? COUNTIFS(B:B,""Gary Stoddard"",A:A,""4"")","=COUNTIFS(B:B,""*""&B5&""*"",A:A,""4"")",14,number
+ssb_55977,KAKA22/SpreadsheetBench@ab0b742b,55977,col_fill_first_cell,WEEKDAY,C2,C2:C16,data/external_bench/workbooks/ssb_55977.xlsx,16,3,"Sheet: WEEKDAY (rows 2..16)
+Columns:
+A: Date (date)
+B: Day No. (integer)
+C: Day (date)
+Sample cells:
+Row 1: A1=Date, B1=Day No., C1=Day
+Row 2: A2=1972-03-13, B2=1, C2=1900-01-07
+Row 3: A3=1983-06-21, B3=2, C3=1900-01-01
+Row 4: A4=1974-11-24, B4=7, C4=1900-01-06
+Row 5: A5=1976-01-12, B5=1, C5=1900-01-07
+Row 6: A6=1977-07-22, B6=5, C6=1900-01-04","Write the Excel formula for cell C2. Replace the data in Columns B:C where Monday is to be represented as day 1 and Sunday as day 7 in column B, and Column C is the actual day of the week corresponding to the Date in Column A. Despite setting Monday as day 1 in the calendar, Excel might be defaulting to Sunday as day 1 for some reason. Even trying to change the format to 'DDD' hasn't yielded the right results. The INDEX solution provided seems to solve the problem, but I'm still unsure about the reason why the WEEKDAY function isn't performing as expected. Do not change any formatting.","=TEXT(A2,""DDD"")",Mon,string
+ssb_56599,KAKA22/SpreadsheetBench@ab0b742b,56599,single_cell,Sheet1,B2,B2,data/external_bench/workbooks/ssb_56599.xlsx,30,10,"Sheet: Sheet1 (rows 1..30)
+Columns:
+G: Column G (text)
+H: Column H (text)
+I: Column I (text)
+J: Column J (text)
+Sample cells:
+Row 5: G5=Slip fm, H5=slip to, I5=total slips in book, J5=BookNo
+Row 6: G6=5871001, H6=5871010, I6=10, J6=477101
+Row 7: G7=5871011, H7=5871020, I7=10, J7=477102
+Row 8: G8=5871021, H8=5871030, I8=10, J8=477103
+Row 9: G9=5871031, H9=5871040, I9=10, J9=477104
+Row 10: G10=5871041, H10=5871050, I10=10, J10=477105","Write the Excel formula for cell B2. How can I find the Book Number associated with a given slip number on my Excel sheet where each book contains 10 slips, each with a unique number? I attempted using a formula in B2 by provided Looking Slip number in M5 and if Cell is blank or not found write ""not found - please re-enter"". Each number in my Excel sheet has seven digits.","=IFERROR(INDEX(J:J,MATCH(M5,G:G)),""not found - please re-enter"")",not found - please re-enter,string
+ssb_57117,KAKA22/SpreadsheetBench@ab0b742b,57117,col_fill_first_cell,Sheet1,F2,F2:F5,data/external_bench/workbooks/ssb_57117.xlsx,5,8,"Sheet: Sheet1 (rows 2..5)
+Columns:
+A: First Name (text)
+B: Last Name (text)
+C: Position (text)
+D: FY20 Lane (text)
+E: FY20 Step (integer)
+F: BA/MA (text)
+G: FY21 Lane (text)
+H: FY21 Step (integer)
+Sample cells:
+Row 1: A1=First Name, B1=Last Name, C1=Position, D1=FY20 Lane, E1=FY20 Step, F1=BA/MA, G1=FY21 Lane, H1=FY21 Step
+Row 2: A2=Lauri, B2=Allen, C2=HS Social Studies, D2=BA, E2=1, G2=BA, H2=2
+Row 3: A3=Shannon, B3=Bates, C3=Spanish, D3=BA+10, E3=12, G3=BA+10, H3=12
+Row 4: A4=Jeremy, B4=Blankenship, C4=HS Science, D4=MA, E4=7, G4=BA, H4=8
+Row 5: A5=Sherrie, B5=Dotson, C5=Grade 1, D5=MA+30, E5=18, G5=MA+30, H5=18","Write the Excel formula for cell F2. I need to create an Excel formula that looks up text within a cell and returns a specific text result in another cell. For example, if cell D2 contains the abbreviation 'BA', then cell F2 should display 'BA', and similarly, if D2 contains 'MA', then F2 should display 'MA'. How can I achieve this?","=IF(COUNTIF(D2,""*BA*""),""BA"",IF(COUNTIF(D2,""*MA*""),""MA"",""""))",BA,string
+ssb_5835,KAKA22/SpreadsheetBench@ab0b742b,5835,col_fill_first_cell,גיליון1,C3,C3:C19,data/external_bench/workbooks/ssb_5835.xlsx,19,9,"Sheet: גיליון1 (rows 3..19)
+Columns:
+A: Stock (integer)
+B: Year (integer)
+C: Log Value (decimal)
+G: Year (integer)
+H: Stock (integer)
+I: Log Value (decimal)
+Sample cells:
+Row 1: A1=Requested table, G1=Basic Table
+Row 2: A2=Stock, B2=Year, C2=Log Value, G2=Year, H2=Stock, I2=Log Value
+Row 3: A3=102012, B3=2012, C3=4.2694, G3=2012, H3=102012, I3=4.2694
+Row 4: A4=102012, B4=2011, C4=5.44724, G4=2011, H4=102012, I4=5.44724
+Row 5: A5=102012, B5=2010, C5=5.12252, G5=2010, H5=102012, I5=5.12252
+Row 6: A6=102012, B6=2009, C6=0, G6=2009, H6=102012","Write the Excel formula for cell C3. I have a basic table with relevant data and a requested table. How do I add the LOG VALUE from column I to the corresponding items in column C? I attempted to use an array function as previously learned from this forum, but it's not working as expected. Can someone guide me on how to achieve this?","=SUMIFS(I:I,G:G,B3,H:H,A3)",4.269400429118602,number
+ssb_58723,KAKA22/SpreadsheetBench@ab0b742b,58723,col_fill_first_cell,Лист1,M2,M2:M41,data/external_bench/workbooks/ssb_58723.xlsx,41,13,"Sheet: Лист1 (rows 2..41)
+Columns:
+A: Name (text)
+B: PL_Code (text)
+C: A_Name (text)
+D: A_Code (text)
+E: % Contribution of Weekly Hours (decimal)
+F: Actual Work Days (integer)
+G: Extra (text)
+H: Entry Date (date)
+I: Entry Time (date)
+J: Week Start Date (date)
+K: Week End Date (date)
+L: W_User (text)
+M: Max (text)
+Sample cells:
+Row 1: A1=Name, B1=PL_Code, C1=A_Name, D1=A_Code, E1=% Contribution of Weekly Hours, F1=Actual Work Days, G1=Extra, H1=Entry Date, I1=Entry Time, J1=Week Start Date
+Row 2: A2=Johnny, B2=ALE, C2=Anna, D2=ANN, E2=0.5, F2=1, H2=2020-12-11, I2=2020-12-11, J2=2020-09-07, K2=2020-09-11
+Row 3: A3=Johnny, B3=ALE, C3=Dalibor, D3=DAL, E3=0.3, F3=1, H3=2020-12-11, I3=2020-12-11, J3=2020-09-07, K3=2020-09-11
+Row 4: A4=Johnny, B4=ALE, C4=Christopher, D4=CHR, E4=0.2, F4=1, H4=2020-12-11, I4=2020-12-11, J4=2020-09-07, K4=2020-09-11
+Row 5: A5=Johnny, B5=ALE, C5=Christopher, D5=CHR, E5=0.5, F5=4, H5=2020-12-11, I5=2020-12-11, J5=2020-09-07, K5=2020-09-11
+Row 6: A6=Johnny, B6=ALE, C6=Dalibor, D6=DAL, E6=0.5, F6=4, H6=2020-12-11, I6=2020-12-11, J6=2020-09-07, K6=2020-09-11","Write the Excel formula for cell M2. Create a formula that examines a range in Excel to 1. Look for a particular Name in column C and Entry Time in column I, 2. Identify the latest Entry Time for that Name and label it as 'Latest', and 3. Mark any other Entry Times that are not the most recent for the same Name as 'Not Latest'. Note that I'm using Excel 2013 and I'm struggling to achieve the result I manually entered in the MAX column of my worksheet (colored green).","=IF(MAX(IF(($A$2:$A$41=A2)*($J$2:$J$41=J2),$I$2:$I$41))=I2,""Latest"",""Not Latest"")",Latest,string
+ssb_59196,KAKA22/SpreadsheetBench@ab0b742b,59196,col_fill_first_cell,Sheet1,H3,H3:H5,data/external_bench/workbooks/ssb_59196.xlsx,5,8,"Sheet: Sheet1 (rows 3..5)
+Columns:
+D: A (integer)
+E: B (integer)
+F: C (integer)
+G: D (integer)
+H: MAX (text)
+Sample cells:
+Row 2: D2=A, E2=B, F2=C, G2=D, H2=MAX
+Row 3: D3=0, E3=0, F3=1, G3=2, H3=D
+Row 4: D4=2, E4=0, F4=0, G4=1
+Row 5: D5=0, E5=1, F5=0, G5=2","Write the Excel formula for cell H3. I need a formula to determine which column contains the highest value in a row, and then return the heading of that column. My Excel sheet example is attached.","=INDEX($D$2:$G$2,MATCH(MAX(D3:G3),D3:G3,0))",D,string
+ssb_59224,KAKA22/SpreadsheetBench@ab0b742b,59224,col_fill_first_cell,Sheet1,E4,E4:E14,data/external_bench/workbooks/ssb_59224.xlsx,14,5,"Sheet: Sheet1 (rows 4..14)
+Columns:
+C: On or after (date)
+D: To (date)
+E: Initial Date (text)
+Sample cells:
+Row 1: A1=Date of Payout, B1=2020-11-30
+Row 2: A2=Project Start Date, B2=2019-07-04
+Row 3: C3=On or after, D3=To, E3=Initial Date
+Row 4: C4=2020-10-01, D4=2020-12-31, E4=Do Not Select
+Row 5: C5=2020-07-01, D5=2020-09-30, E5=Do Not Select
+Row 6: C6=2020-04-01, D6=2020-06-30, E6=Do Not Select","Write the Excel formula for cell E4. I need assistance with an Excel spreadsheet where I have a range of predetermined dates in columns C and D. In column E, I've input a formula that will display ""Select Period"" based on a date specified in cell B2 compared to that date range, in this case cells E4 through E8. I want to have all the cells above the one displaying ""Select Period"" automatically filled with ""Select Period"" as well, with this setup responding accordingly when the Project Start Date in B2 changes. Could someone provide a solution? The spreadsheet is attached for reference. My current formula is: =IF(AND($B$2>C4,$B$2<D4),""Select Period"",""Do Not Select"")","=IF(B$2<=C4,""Select Period"",IF(AND($B$2>=C4,$B$2<D4),""Select Period"",""Do Not Select""))",Select Period,string
+ssb_59595,KAKA22/SpreadsheetBench@ab0b742b,59595,col_fill_first_cell,Sheet1,C4,C4:C19,data/external_bench/workbooks/ssb_59595.xlsx,19,3,"Sheet: Sheet1 (rows 3..19)
+Columns:
+A: Reporting (text)
+B: Points (text)
+C: Rolling Last (text)
+Sample cells:
+Row 2: A2=Reporting, B2=Points, C2=Rolling Last
+Row 3: A3=Date, B3=that Day, C3=7 Day Total
+Row 4: A4=2020-03-05, B4=4, C4=n/a
+Row 5: A5=2020-03-08, B5=2, C5=n/a
+Row 6: A6=2020-03-09, B6=6, C6=n/a
+Row 7: A7=2020-03-11, B7=6, C7=18","Write the Excel formula for cell C4. In my Excel spreadsheet, I have a column A with non-continuous but sequentially increasing dates and a column B with points recorded for each date. I'm looking for a formula that I can enter into column C, which will calculate the total sum of points from column B for the past seven days relative to each date in addition to the points listed for that date in column A. The number of rows to be summed can vary since the dates aren't consecutive. For example, if today's date is in row 10, I need to look back in column A to find the date that is seven days earlier and sum all the points in column B from that found date to the date in row 10. The total sum should then be displayed in the corresponding cell in column C.","=SUMIFS($B$4:$B$19,$A$4:$A$19,""<=""&A4,$A$4:$A$19,"">=""&A4-7)",4,number
+ssb_9111,KAKA22/SpreadsheetBench@ab0b742b,9111,col_fill_first_cell,Sheet1,D2,D2:D7,data/external_bench/workbooks/ssb_9111.xlsx,22,11,"Sheet: Sheet1 (rows 2..22)
+Columns:
+A: Column A (integer)
+B: Column B (text)
+C: Column C (text)
+D: Column D (integer)
+G: NAME (text)
+H: ID (integer)
+J: JOB (text)
+K: IDSj (integer)
+Sample cells:
+Row 1: G1=NAME, H1=ID, J1=JOB, K1=IDSj
+Row 2: A2=1, B2=bob, C2=ff, D2=6678, G2=Jack, H2=1320, J2=aa, K2=11
+Row 3: A3=2, B3=John, C3=bb, D3=3628, G3=Rony, H3=2563, J3=bb, K3=3628
+Row 4: A4=3, G4=EVA, H4=2314, J4=cc, K4=8920
+Row 5: A5=4, C5=ff, D5=3016, G5=Jane, H5=98, J5=dd, K5=201
+Row 6: A6=5, C6=aab, G6=Suzi, H6=25, J6=ff, K6=3016","Write the Excel formula for cell D2. I have two lists with names and corresponding IDs. How can I fill a table where I need to return specific IDs from these lists based on the following conditions? If both columns B and C are blank, then column D should also be blank. If the name in column B exists in list 1, then column D should show the corresponding ID from list 1 regardless of column C. If the name in column B does not exist in list 1 and the name in column C does not exist in list 2, then column D should be 2500. If the name in column B does not exist in list 1 but the name in column C exists in list 2, then column D should show the corresponding ID from list 2. Finally, if column B is blank but the name in column C exists in list 2, then column D should show the corresponding ID from list 2; if column C does not exist in list 2, then column D should be 2500. I've included a sample of the expected results and mentioned that I managed to create a solution using a formula with a length of 241 characters. let say we have 2 lists list1 Jack 1320 Rony 2563 EVA 2314 Jane 98 Suzi 25 Rose 1222 Sarah 2586 Dani 3950 Anne 5314 Bob 6678 Carla 8042 Ddiana 9406 List2 aa 11 bb 3628 cc 8920 dd 201 ff 3016 We need to fill the below table to get the ID's form the above lists in the following conditions: If column B and column C are blank Dshoul be blank If the name in column B is exisit in list 1; D column should be the ID for the existing name what ever column C is If the name in column B is not exisit in list1; and column C not exist in list2 then D should be 2500 If the name in column B is not exisit in list1; and column C exist in list2 then D should be ids If the cell in column B is blank; and cell in column C exist in list2 then D should be ids If the cell in column B is blank; and cell in column C not exist in list2 then D should be 2500 sample of results expected: Jack ff 1320 John bb 3628 ff 3016 aab 2500 Rissa dd 201","=IF((B2="""")*(C2=""""),"""",IFERROR(VLOOKUP(B2,G$2:H$13,2,0),IFERROR(VLOOKUP(C2,J$2:K$6,2,0),2500)))",6678,number

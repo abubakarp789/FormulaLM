@@ -1,0 +1,27 @@
+{
+  "source_dataset": "KAKA22/SpreadsheetBench",
+  "source_revision": "ab0b742b0fc95b946f212d80ac7771b5531272e4",
+  "archive_name": "spreadsheetbench_verified_400.tar.gz",
+  "archive_sha256": "10ef893dd29cb13ab97143ea787e68cdc9574a13873ab9a54e50b31dc03fc949",
+  "total_raw_items": 400,
+  "kept_count": 56,
+  "single_cell_count": 11,
+  "col_fill_count": 45,
+  "workbooks_total_kb": 745.8,
+  "csv_sha256": "d528d4e8ffc1cc0b788a7292d8e039670b45f3e1a3d0410592d3e59b0849bb61",
+  "manifest_sha256": "78dfaeddff08fcd4b78d414421a6298484b42e1196d668b7ed1e4ebc992c2b96",
+  "skipped_counts": {
+    "cached_val_none": 8,
+    "cross_sheet_formula": 18,
+    "gold_exec_runtime_error": 3,
+    "gold_exec_syntax_error": 2,
+    "gold_value_mismatch": 5,
+    "missing_xlsx": 5,
+    "non_contiguous_position": 2,
+    "non_first_sheet": 3,
+    "non_formula_gold": 114,
+    "out_of_scope_function": 49,
+    "sheet_level": 125,
+    "too_many_cols": 10
+  }
+}
