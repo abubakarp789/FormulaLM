@@ -46,7 +46,7 @@ def test_readme_length_and_first_screen_q5_k_m_headline() -> None:
         "https://github.com/abubakarp789/FormulaLM",
         "https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-gguf",
         "https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf",
-        "placeholder until uploaded",
+        "https://x.com/abubakarp56/status/2126392963379179557",
     ):
         assert required_top in first_screen, f"Missing in first screen of README: {required_top!r}"
 
@@ -111,7 +111,7 @@ def test_prompt13b_wording_accuracy_across_docs_cards_and_app() -> None:
         "docs/screenshots/demo_win.png",
         "docs/screenshots/demo_honest_failure.png",
         "docs/screenshots/demo_custom_headers.png",
-        "Pending upload",
+        "https://x.com/abubakarp56/status/2126392963379179557",
         "junaiddshaukat/finetune-anywhere",
         "Apache-2.0",
         "MIT",
@@ -126,6 +126,8 @@ def test_prompt13b_wording_accuracy_across_docs_cards_and_app() -> None:
         "unreviewed",
         "spot-checked outputs",
         "Discount %",
+        "Pending upload",
+        "placeholder until uploaded",
     ):
         assert forbidden not in readme, f"Forbidden wording still in README: {forbidden!r}"
 
