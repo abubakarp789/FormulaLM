@@ -19,6 +19,7 @@ from app.app import (
     build_demo_app,
     build_offline_theme,
     create_runtime,
+    export_custom_xlsx,
     format_meta_line_html,
     run_demo_query,
 )
@@ -234,3 +235,45 @@ def test_gradio_blocks_and_powershell_launcher_config() -> None:
         encoding="utf-8"
     )
     assert "OLLAMA_MAX_LOADED_MODELS = '1'" in ps1
+
+
+def test_custom_sheet_export_xlsx_injection_and_validation(tmp_path: Path) -> None:
+    # 1. Uploaded CSV -> exported .xlsx with auto summary cell
+    csv_file = tmp_path / "mini_sales.csv"
+    csv_file.write_text("Branch,Amount\nNorth,120.5\nSouth,79.5\n", encoding="utf-8")
+    out_csv, note_csv = export_custom_xlsx(
+        uploaded_file=csv_file,
+        pasted_headers="",
+        formula="=SUM(B2:B3)",
+        target_cell="",
+        out_dir=tmp_path,
+    )
+    assert out_csv is not None and out_csv.is_file()
+    assert "B5" in note_csv
+    wb = openpyxl.load_workbook(out_csv, data_only=False)
+    ws = wb.active
+    assert ws is not None and ws["B5"].value == "=SUM(B2:B3)"
+    wb.close()
+
+    # 2. Pasted headers -> exported .xlsx with explicit target cell
+    out_pasted, note_pasted = export_custom_xlsx(
+        uploaded_file=None,
+        pasted_headers="Region, Units, Net Sales",
+        formula="=SUM(C2:C6)",
+        target_cell="E2",
+        out_dir=tmp_path,
+    )
+    assert out_pasted is not None and out_pasted.is_file()
+    assert "E2" in note_pasted
+
+    # 3. Non-empty cell rejected without overwrite flag
+    out_err, note_err = export_custom_xlsx(
+        uploaded_file=csv_file,
+        pasted_headers="",
+        formula="=SUM(B2:B3)",
+        target_cell="A1",
+        allow_overwrite=False,
+        out_dir=tmp_path,
+    )
+    assert out_err is None
+    assert "already contains" in note_err

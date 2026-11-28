@@ -61,6 +61,7 @@ from src.eval.run_eval import (  # noqa: E402
     extract_formula,
     load_eval_examples,
 )
+from src.eval.xlsx_writer import inject_formula_into_xlsx  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Constants & safety limits
@@ -1549,6 +1550,16 @@ button.flm-primary:hover { background: var(--flm-accent-hover) !important; }
     text-align: center; font-size: 13px; color: var(--flm-muted);
     padding: 4px 0 2px 0;
 }
+.flm-export-note {
+    font-size: 14px; color: var(--flm-ok-ink); background: var(--flm-ok-bg);
+    border: 1px solid var(--flm-ok-border); border-radius: 6px;
+    padding: 6px 10px; margin-top: 4px;
+}
+.flm-export-err {
+    font-size: 14px; color: var(--flm-err-ink); background: var(--flm-err-bg);
+    border: 1px solid var(--flm-err-border); border-radius: 6px;
+    padding: 6px 10px; margin-top: 4px;
+}
 """
 
 FORCE_LIGHT_JS = """
@@ -1586,6 +1597,62 @@ def _button_classes(ex: BuiltinExample, active_id: str) -> list[str]:
     if ex.example_id == active_id:
         classes.append("flm-ex-active")
     return classes
+
+
+def export_custom_xlsx(
+    *,
+    uploaded_file: str | Path | None,
+    pasted_headers: str,
+    formula: str,
+    target_cell: str = "",
+    allow_overwrite: bool = False,
+    out_dir: Path | None = None,
+) -> tuple[Path | None, str]:
+    """Inject a verified formula into the user's uploaded CSV/XLSX (or pasted sample sheet)."""
+    if not (formula or "").strip().startswith("="):
+        return None, ""
+
+    temp_pasted: Path | None = None
+    try:
+        if uploaded_file:
+            src_path = Path(uploaded_file)
+            out_path, chosen_cell = inject_formula_into_xlsx(
+                src_path,
+                sheet_name=None,
+                formula=formula,
+                target_cell=target_cell or None,
+                allow_overwrite=allow_overwrite,
+                out_dir=out_dir,
+            )
+        elif (pasted_headers or "").strip():
+            resolved = resolve_pasted_headers(pasted_headers)
+            temp_pasted = resolved.xlsx_path if resolved.is_temp else None
+            out_path, chosen_cell = inject_formula_into_xlsx(
+                resolved.xlsx_path,
+                sheet_name=None,
+                formula=formula,
+                target_cell=target_cell or None,
+                allow_overwrite=allow_overwrite,
+                out_dir=out_dir,
+            )
+        else:
+            return None, ""
+    except ValueError as exc:
+        return None, f'<div class="flm-export-err">⚠ {html.escape(str(exc))}</div>'
+    finally:
+        if temp_pasted is not None and temp_pasted.is_file():
+            try:
+                temp_pasted.unlink()
+            except OSError:
+                pass
+
+    note = (
+        '<div class="flm-export-note">'
+        f"✓ Verified formula written to cell <code>{html.escape(chosen_cell)}</code> "
+        "— ready to download as <code>.xlsx</code>."
+        "</div>"
+    )
+    return out_path, note
 
 
 def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
@@ -1731,6 +1798,28 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                             )
                             custom_verdict_out = gr.HTML(idle_verdict)
                             custom_meta_out = gr.HTML(_meta_now())
+                            with gr.Row(equal_height=True):
+                                custom_target_cell = gr.Textbox(
+                                    value="",
+                                    label="Target cell (optional)",
+                                    placeholder="Auto (summary row), e.g. G2",
+                                    lines=1,
+                                    scale=3,
+                                    elem_classes=["flm-input"],
+                                )
+                                custom_overwrite_chk = gr.Checkbox(
+                                    value=False,
+                                    label="Allow overwrite",
+                                    scale=1,
+                                    elem_classes=["flm-toggle"],
+                                )
+                            custom_download_btn = gr.DownloadButton(
+                                label="Download updated .xlsx",
+                                value=None,
+                                visible=False,
+                                variant="secondary",
+                            )
+                            custom_export_note = gr.HTML("")
 
         # -------------------------------------------------------------------
         # Footer: two accordions, closed by default
@@ -1862,7 +1951,13 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 outputs=[custom_sheet_card, schema_box],
             )
 
-        def _on_run_custom(pasted: str, uploaded: str | None, req: str):
+        def _on_run_custom(
+            pasted: str,
+            uploaded: str | None,
+            req: str,
+            target_cell: str,
+            allow_overwrite: bool,
+        ):
             formula, verdict, meta, _, preview_df, schema_txt = run_demo_query(
                 runtime,
                 sheet_choice=CUSTOM_SHEET_KEY,
@@ -1881,12 +1976,50 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                 )
             else:
                 card = gr.update()
-            return formula, verdict, meta, card, schema_txt or gr.update(), True
+
+            verified_ok = (
+                bool(formula.strip().startswith("="))
+                and "Execution failed" not in verdict
+                and "Input validation error" not in verdict
+            )
+            if verified_ok:
+                export_path, export_note = export_custom_xlsx(
+                    uploaded_file=uploaded,
+                    pasted_headers=pasted,
+                    formula=formula,
+                    target_cell=target_cell,
+                    allow_overwrite=allow_overwrite,
+                )
+                dl_update = (
+                    gr.update(value=str(export_path), visible=True)
+                    if export_path is not None
+                    else gr.update(value=None, visible=False)
+                )
+            else:
+                dl_update = gr.update(value=None, visible=False)
+                export_note = ""
+
+            return (
+                formula,
+                verdict,
+                meta,
+                card,
+                schema_txt or gr.update(),
+                True,
+                dl_update,
+                export_note,
+            )
 
         for trigger in (custom_run_btn.click, custom_request_box.submit):
             trigger(
                 fn=_on_run_custom,
-                inputs=[pasted_input, upload_input, custom_request_box],
+                inputs=[
+                    pasted_input,
+                    upload_input,
+                    custom_request_box,
+                    custom_target_cell,
+                    custom_overwrite_chk,
+                ],
                 outputs=[
                     custom_formula_out,
                     custom_verdict_out,
@@ -1894,7 +2027,52 @@ def build_demo_app(runtime: DemoRuntime) -> gr.Blocks:
                     custom_sheet_card,
                     schema_box,
                     custom_ran_state,
+                    custom_download_btn,
+                    custom_export_note,
                 ],
+            )
+
+        def _on_reexport_custom(
+            pasted: str,
+            uploaded: str | None,
+            formula: str,
+            verdict: str,
+            target_cell: str,
+            allow_overwrite: bool,
+        ):
+            verified_ok = (
+                bool((formula or "").strip().startswith("="))
+                and "Execution failed" not in (verdict or "")
+                and "Input validation error" not in (verdict or "")
+            )
+            if not verified_ok:
+                return gr.update(value=None, visible=False), ""
+            export_path, export_note = export_custom_xlsx(
+                uploaded_file=uploaded,
+                pasted_headers=pasted,
+                formula=formula,
+                target_cell=target_cell,
+                allow_overwrite=allow_overwrite,
+            )
+            dl_update = (
+                gr.update(value=str(export_path), visible=True)
+                if export_path is not None
+                else gr.update(value=None, visible=False)
+            )
+            return dl_update, export_note
+
+        for reexport_evt in (custom_target_cell.submit, custom_overwrite_chk.change):
+            reexport_evt(
+                fn=_on_reexport_custom,
+                inputs=[
+                    pasted_input,
+                    upload_input,
+                    custom_formula_out,
+                    custom_verdict_out,
+                    custom_target_cell,
+                    custom_overwrite_chk,
+                ],
+                outputs=[custom_download_btn, custom_export_note],
             )
 
     return demo
