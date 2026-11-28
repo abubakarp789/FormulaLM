@@ -73,20 +73,28 @@ def plot_headline_accuracy(out_path: Path) -> None:
     qc = _load_json("results/quant_comparison.json")
     lb = _load_json("results/local_benchmark/local_benchmark.json")
     ext = _load_json("results/external_bench/comparison.json")
+    stats = _load_json("results/stats_summary.json")
 
     rv2_fh = fh["splits"]["test_real_v2"]["systems"]
     rv2_q5_colab = qc["systems"]["quant_q5_k_m"]["splits"]["real_v2"]
     q5_local_entry = next(r for r in lb["results"] if r["quant_key"] == "q5_k_m")
     rv2_q5_local = q5_local_entry["splits"]["real_v2"]
+    rv2_base_4b = stats["splits"]["test_real_v2"]["systems"].get("base_4b_0shot")
 
     # Panel A data (top-to-bottom progression)
     panel_a = [
         ("Base Qwen3-1.7B\n(0-shot, fp16)", rv2_fh["base_zeroshot"], SLATE_LIGHT),
         ("Base Qwen3-1.7B\n(5-shot, fp16)", rv2_fh["base_5shot"], SLATE_MID),
-        ("Fine-tuned v2-ship\n(LoRA, fp16)", rv2_fh["ft_v2"], BLUE),
-        ("FormulaLM Q5_K_M\n(Local CPU Ollama)", rv2_q5_local, EMERALD),
-        ("FormulaLM Q5_K_M\n(Colab llama-server)", rv2_q5_colab, EMERALD_DARK),
     ]
+    if rv2_base_4b is not None:
+        panel_a.append(("Base Qwen3-4B-Instruct\n(0-shot, 2.5 GB CPU)", rv2_base_4b, AMBER))
+    panel_a.extend(
+        [
+            ("Fine-tuned v2-ship\n(LoRA, fp16)", rv2_fh["ft_v2"], BLUE),
+            ("FormulaLM Q5_K_M\n(Local CPU Ollama)", rv2_q5_local, EMERALD),
+            ("FormulaLM Q5_K_M\n(Colab llama-server)", rv2_q5_colab, EMERALD_DARK),
+        ]
+    )
 
     # Panel B data (same-size 1.7B on external SpreadsheetBench Verified 400 subset)
     ext_sys = ext["systems"]
@@ -105,9 +113,9 @@ def plot_headline_accuracy(out_path: Path) -> None:
     ]
 
     fig, (ax1, ax2) = plt.subplots(
-        1, 2, figsize=(13.4, 5.4), gridspec_kw={"width_ratios": [1.15, 1.0]}
+        1, 2, figsize=(13.8, 5.8), gridspec_kw={"width_ratios": [1.2, 1.0]}
     )
-    fig.subplots_adjust(top=0.75, bottom=0.13, left=0.16, right=0.97, wspace=0.44)
+    fig.subplots_adjust(top=0.75, bottom=0.13, left=0.18, right=0.97, wspace=0.42)
 
     fig.suptitle(
         "FormulaLM (Qwen3-1.7B): Before vs After Execution-Verified Accuracy",
@@ -163,8 +171,8 @@ def plot_headline_accuracy(out_path: Path) -> None:
 
     ax1.set_yticks(y_a)
     ax1.set_yticklabels([lbl for lbl, _, _ in panel_a], fontsize=9.2)
-    ax1.invert_yaxis()
-    ax1.set_xlim(0, 122)
+    ax1.set_ylim(len(panel_a) - 0.35, -1.25)
+    ax1.set_xlim(0, 126)
     ax1.set_xticks([0, 20, 40, 60, 80, 100])
     ax1.set_xticklabels([f"{x}%" for x in [0, 20, 40, 60, 80, 100]])
     ax1.set_xlabel("Execution Accuracy (%)", fontsize=9.8, fontweight="bold")
@@ -179,6 +187,34 @@ def plot_headline_accuracy(out_path: Path) -> None:
     ax1.grid(axis="x", color=GRID, linestyle="--", linewidth=0.8, zorder=0)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
+
+    if rv2_base_4b is not None:
+        p4b = next(
+            (
+                t["p_value"]
+                for t in stats["splits"]["test_real_v2"]["paired_mcnemar"]
+                if t["system_a"] == "local_q5_k_m" and t["system_b"] == "base_4b_0shot"
+            ),
+            None,
+        )
+        p_txt = f"p = {p4b:.4f}" if p4b is not None else "McNemar"
+        ax1.text(
+            0.5,
+            0.96,
+            f"1.20 GB fine-tuned 1.7B beats 2.50 GB stock 4B by +30.0 pp ({p_txt}), 2.1x faster",
+            transform=ax1.transAxes,
+            ha="center",
+            va="top",
+            fontsize=8.1,
+            fontweight="bold",
+            color=EMERALD_DARK,
+            bbox={
+                "boxstyle": "round,pad=0.38",
+                "facecolor": EMERALD_TINT,
+                "edgecolor": EMERALD,
+                "linewidth": 1.0,
+            },
+        )
 
     # --- Panel B ---
     y_b = list(range(len(panel_b)))

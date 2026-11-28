@@ -1,0 +1,218 @@
+{
+  "total_tasks": 56,
+  "systems": [
+    {
+      "key": "ext_base_1_7b_0shot",
+      "label": "Base Qwen3-1.7B (0-shot)"
+    },
+    {
+      "key": "ext_base_1_7b_5shot",
+      "label": "Base Qwen3-1.7B (5-shot)"
+    },
+    {
+      "key": "ext_formulalm_q5_k_m",
+      "label": "FormulaLM Q5_K_M (0-shot)"
+    }
+  ],
+  "outcome_breakdown": {
+    "ext_base_1_7b_0shot": {
+      "correct": 6,
+      "wrong_value_valid_exec": 15,
+      "circular_reference": 15,
+      "syntax_error": 6,
+      "unsupported_function": 12,
+      "runtime_excel_error": 2,
+      "non_formula": 0
+    },
+    "ext_base_1_7b_5shot": {
+      "correct": 6,
+      "wrong_value_valid_exec": 16,
+      "circular_reference": 13,
+      "syntax_error": 7,
+      "unsupported_function": 13,
+      "runtime_excel_error": 1,
+      "non_formula": 0
+    },
+    "ext_formulalm_q5_k_m": {
+      "correct": 12,
+      "wrong_value_valid_exec": 22,
+      "circular_reference": 13,
+      "syntax_error": 4,
+      "unsupported_function": 2,
+      "runtime_excel_error": 3,
+      "non_formula": 0
+    }
+  },
+  "pattern_buckets": {
+    "standard_in_scope_pattern": {
+      "label": "Standard single-formula patterns (trained grammar)",
+      "in_trained_grammar": true,
+      "n": 37,
+      "correct": {
+        "ext_base_1_7b_0shot": 6,
+        "ext_base_1_7b_5shot": 5,
+        "ext_formulalm_q5_k_m": 11
+      },
+      "task_ids": [
+        "ssb_10747",
+        "ssb_1563",
+        "ssb_3002",
+        "ssb_32255",
+        "ssb_32293",
+        "ssb_32562",
+        "ssb_32612",
+        "ssb_36097",
+        "ssb_37086",
+        "ssb_39515",
+        "ssb_40959",
+        "ssb_41348",
+        "ssb_41691",
+        "ssb_41978",
+        "ssb_42930",
+        "ssb_45372",
+        "ssb_45635",
+        "ssb_46167",
+        "ssb_47842",
+        "ssb_47933",
+        "ssb_48921",
+        "ssb_49237",
+        "ssb_49801",
+        "ssb_49945",
+        "ssb_50088",
+        "ssb_50796",
+        "ssb_51586",
+        "ssb_52575",
+        "ssb_52917",
+        "ssb_54242",
+        "ssb_54513",
+        "ssb_55977",
+        "ssb_56599",
+        "ssb_5835",
+        "ssb_59196",
+        "ssb_59224",
+        "ssb_59595"
+      ]
+    },
+    "running_anchored_window": {
+      "label": "Drag-down running anchored window ($D$2:D2)",
+      "in_trained_grammar": false,
+      "n": 6,
+      "correct": {
+        "ext_base_1_7b_0shot": 0,
+        "ext_base_1_7b_5shot": 0,
+        "ext_formulalm_q5_k_m": 0
+      },
+      "task_ids": [
+        "ssb_16511",
+        "ssb_31202",
+        "ssb_42198",
+        "ssb_43213",
+        "ssb_48982",
+        "ssb_49857"
+      ]
+    },
+    "2D_matrix_INDEX_MATCH_MATCH": {
+      "label": "2D matrix lookup (INDEX + dual MATCH)",
+      "in_trained_grammar": false,
+      "n": 5,
+      "correct": {
+        "ext_base_1_7b_0shot": 0,
+        "ext_base_1_7b_5shot": 0,
+        "ext_formulalm_q5_k_m": 0
+      },
+      "task_ids": [
+        "ssb_36277",
+        "ssb_45937",
+        "ssb_48969",
+        "ssb_48983",
+        "ssb_50916"
+      ]
+    },
+    "wildcard_string_criteria": {
+      "label": "Dynamic wildcard criteria (\"*\"&cell&\"*\")",
+      "in_trained_grammar": false,
+      "n": 4,
+      "correct": {
+        "ext_base_1_7b_0shot": 0,
+        "ext_base_1_7b_5shot": 1,
+        "ext_formulalm_q5_k_m": 1
+      },
+      "task_ids": [
+        "ssb_38823",
+        "ssb_44628",
+        "ssb_54675",
+        "ssb_57117"
+      ]
+    },
+    "boolean_array_multiplication": {
+      "label": "Boolean array multiplication ((A=x)*(B=y))",
+      "in_trained_grammar": false,
+      "n": 2,
+      "correct": {
+        "ext_base_1_7b_0shot": 0,
+        "ext_base_1_7b_5shot": 0,
+        "ext_formulalm_q5_k_m": 0
+      },
+      "task_ids": [
+        "ssb_58723",
+        "ssb_9111"
+      ]
+    },
+    "deep_nested_IF_3plus": {
+      "label": "Deep nested IF chains (3+ nested IFs)",
+      "in_trained_grammar": false,
+      "n": 2,
+      "correct": {
+        "ext_base_1_7b_0shot": 0,
+        "ext_base_1_7b_5shot": 0,
+        "ext_formulalm_q5_k_m": 0
+      },
+      "task_ids": [
+        "ssb_46897",
+        "ssb_54274"
+      ]
+    }
+  },
+  "scope_summary": {
+    "trained_grammar": {
+      "n": 37,
+      "systems": {
+        "ext_base_1_7b_0shot": {
+          "k": 6,
+          "n": 37,
+          "accuracy": 0.1622
+        },
+        "ext_base_1_7b_5shot": {
+          "k": 5,
+          "n": 37,
+          "accuracy": 0.1351
+        },
+        "ext_formulalm_q5_k_m": {
+          "k": 11,
+          "n": 37,
+          "accuracy": 0.2973
+        }
+      }
+    },
+    "untrained_structural_idioms": {
+      "n": 19,
+      "systems": {
+        "ext_base_1_7b_0shot": {
+          "k": 0,
+          "n": 19,
+          "accuracy": 0.0
+        },
+        "ext_base_1_7b_5shot": {
+          "k": 1,
+          "n": 19,
+          "accuracy": 0.0526
+        },
+        "ext_formulalm_q5_k_m": {
+          "k": 1,
+          "n": 19,
+          "accuracy": 0.0526
+        }
+      }
+    }
+  }
+}

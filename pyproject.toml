@@ -19,6 +19,9 @@ dependencies = [
     "tqdm>=4.70.1",
 ]
 
+[project.scripts]
+formulalm = "formulalm.cli:main"
+
 [dependency-groups]
 dev = [
     "pytest>=9.2.0",

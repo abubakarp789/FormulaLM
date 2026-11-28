@@ -2,8 +2,12 @@
 
 **One-line pitch:** A QLoRA-tuned, `Q5_K_M`-quantized `Qwen3-1.7B` model that turns a spreadsheet schema and plain-English request into an executable Excel formula (`=...`), verified by running every formula against the sheet — locally on a CPU-only laptop.
 
-- **Fresh held-out set (`test_real_v2`, `N = 50`, 95% Wilson CIs):** Shipped **`Q5_K_M` GGUF** scores **45/50 (90.0%, `[78.6%, 95.7%]`)** on Colab `llama-server` and **43/50 (86.0%, `[73.8%, 93.0%]`)** on local Ollama, against base `Qwen3-1.7B` **23/50 (46.0%, `[33.0%, 59.6%]`)** zero-shot and **29/50 (58.0%, `[44.2%, 70.6%]`)** five-shot (16-bit `v2-ship` adapter: **44/50, 88.0%**, `[76.2%, 94.4%]`).
-- **Local CPU footprint (`results/local_benchmark/`):** **`Q5_K_M` GGUF** is **1,199.6 MB (~1.20 GB)** on disk, loads in **2.64 s**, uses **1,476.5 MB (~1.48 GB) peak RAM**, and generates at **11.3 tok/s** on an **Intel Core i5-8365U, 8 GB RAM, CPU-only** Windows 11 laptop (`Ollama 0.40.18`).
+- **Fresh held-out set (`test_real_v2`, `N = 50`, 95% Wilson CIs & exact McNemar tests):** Shipped **`Q5_K_M` GGUF (`1.20 GB`, `1.7B`)** scores **45/50 (90.0%, `[78.6%, 95.7%]`)** on Colab `llama-server` and **43/50 (86.0%, `[73.8%, 93.0%]`)** on local CPU Ollama — significantly beating base `Qwen3-1.7B` zero-shot **23/50 (46.0%, `[33.0%, 59.6%]`, `p = 1.10e-05`)**, base `Qwen3-1.7B` five-shot **29/50 (58.0%, `[44.2%, 70.6%]`, `p = 0.0013`)**, **and the 2.4× larger stock `Qwen3-4B-Instruct-2507` (`Q4_K_M`, `2.50 GB`, `3.04 GB` RAM)** at **28/50 (56.0%, `[42.3%, 68.8%]`, `+30.0 pp`, `p = 0.0007`)** at **half the RAM and 2.1× faster generation** ([`results/stats_summary.md`](results/stats_summary.md)).
+- **Why FormulaLM stands out:**
+  1. **True modest-hardware proof:** benchmarked on a real 2019 **Intel Core i5-8365U, 8 GB RAM, CPU-only (0 GPU)** Windows 11 laptop — **`Q5_K_M` (`1,199.6 MB`)** loads in **2.64 s**, peaks at **1,476.5 MB (~1.48 GB) RAM**, and runs at **11.3 tok/s** (`Ollama 0.40.18`).
+  2. **Statistically verified quantization engineering:** `Q4_K_M` drops significantly vs `Q5_K_M` (`val` `N=500`: `97.4%` vs `99.6%`, `11/0` wins, `p = 0.0010`; `test_synthetic` `N=500`: `95.4%` vs `98.4%`, `18/3` wins, `p = 0.0015`); shipping `Q5_K_M` recovers full accuracy for only `+143.5 MB`.
+  3. **Zero-LLM-judge execution verification across two suites:** every formula runs in Python `formulas 1.3.4` on real `.xlsx` workbooks (`tol=1e-6`) — both `test_real_v2` (`N=50`) and independent NeurIPS 2024 [`SpreadsheetBench Verified 400`](https://huggingface.co/datasets/KAKA22/SpreadsheetBench) (`N=56`: **2.0× accuracy** `21.4%` vs `10.7%`, syntax validity `89.3%` vs `67.9%`, `p = 0.0075`, unsupported functions cut **6×**).
+  4. **End-to-end local tool + dual hosting:** Gradio web UI with **safe `.xlsx` formula injection & download**, one-command **`formulalm` CLI**, and all 3 artifacts hosted on **both Hugging Face & ModelScope** (`abubakar56`, 6 repos verified).
 - **Links:** [GitHub Repo](https://github.com/abubakarp789/FormulaLM) · [Hugging Face GGUF](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-gguf) ([v2 LoRA](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora-v2) · [v1 LoRA fallback](https://huggingface.co/abubakar56/formulalm-qwen3-1.7b-lora)) · [ModelScope GGUF](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-gguf) ([v2 LoRA](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora-v2) · [v1 LoRA fallback](https://www.modelscope.ai/models/abubakar56/formulalm-qwen3-1.7b-lora)) · [Demo Video (X)](https://x.com/abubakarp56/status/2126392963379179557)
 - **Author:** Abu Bakar ([`abubakarp789`](https://github.com/abubakarp789); Hugging Face & ModelScope: `abubakar56`)
 - **Model weights:** Large files (GGUF weights and LoRA adapters) are hosted on Hugging Face and ModelScope and are not stored in this repository.
@@ -45,13 +49,26 @@ Exact workflow verified from a clean temporary folder by [`scripts/verify_publis
    ollama run --think=false formulalm $'Sheet: sales_retail_store (rows 2..115)\nColumns:\nA: Receipt Code (text)\nB: Sale Date (date)\nC: Store Branch (category)\nD: Item Name (text)\nE: Quantity (integer)\nF: Net Amount (decimal)\n\nRequest: Total Net Amount for the Mirehaven branch'
    # Expected output: =SUMIF(C2:C115,"Mirehaven",F2:F115)
    ```
-5. **Optional — launch the local Gradio demo (works without a pre-populated `models/` folder):**
+5. **Optional — one-command CLI (`formulalm`) or local Gradio web app:**
    ```powershell
    git clone https://github.com/abubakarp789/FormulaLM.git
    cd FormulaLM
    uv sync
+
+   # One-command CLI: generate + execution-verify + inject formula into a real .xlsx workbook
+   uv run formulalm "Total Net Amount for Brinport sales" `
+     --file data/sheets/sales_retail_store.xlsx --cell K2 --out sales_out.xlsx
+   # Output: =SUMIF(C2:C115,"Brinport",F2:F115)  (# verified value=11575.72, wrote K2 -> sales_out.xlsx)
+
+   # Or pull directly from Hugging Face via Ollama and pass --model to the CLI (skips manual curl/Modelfile):
+   ollama pull hf.co/abubakar56/formulalm-qwen3-1.7b-gguf:Q5_K_M
+   uv run formulalm "Total Net Amount for Brinport sales" `
+     --file data/sheets/sales_retail_store.xlsx --model hf.co/abubakar56/formulalm-qwen3-1.7b-gguf:Q5_K_M --json
+
+   # Or launch the 2-tab local Gradio web app (with .xlsx upload & download):
    .\scripts\run_demo.ps1   # uses existing 'formulalm' Ollama tag, or auto-downloads Q5_K_M into models\gguf_v2\
    ```
+   *(Note: bare `ollama run hf.co/...` without our `Modelfile` lacks the baked FormulaLM system prompt and falls back to prose; use `ollama create formulalm -f Modelfile` for bare `ollama run` and exact benchmark parity, or pass `--model hf.co/...` to `uv run formulalm`, which sends the system prompt and `think=False` automatically.)*
 
 ---
 
@@ -75,13 +92,16 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
 | **v2 `Q5_K_M` GGUF (Shipped)** | **1,199.6** | **90.0%** `[78.6%, 95.7%]` | **88.0%** | **93.8%** `[86.2%, 97.3%]`\* | **93.8%**\* | **98.4%** `[96.9%, 99.2%]`\* | **99.6%** `[98.6%, 99.9%]` |
 | v2 `Q4_K_M` GGUF | 1,056.1 | **90.0%** `[78.6%, 95.7%]` | 86.0% | **88.8%** `[80.0%, 94.0%]`\* | 88.8%\* | **95.4%** `[93.2%, 96.9%]`\* | **97.4%** `[95.6%, 98.5%]` |
 
-### 2. Local CPU Benchmark (Windows 11, Intel Core i5-8365U, 8 GB RAM, No GPU, Ollama `0.40.18`)
+### 2. Local CPU Benchmark & Larger-Model Comparison (Windows 11, Intel Core i5-8365U, 8 GB RAM, No GPU, Ollama `0.40.18`)
 
-| Quantization | File Size | Load Time | Peak RAM | Speed | Local `test_real_v2` (`N=50`) | Local `test_real` (`N=80`)\* | Combined 130-ex Exec Acc |
-|---|---:|---:|---:|---:|---|---|---|
-| `Q4_K_M` GGUF | 1,056.1 MB | 4.60 s | 1,333.0 MB | 12.7 tok/s | 88.0% (44/50, exact 84.0%) | 90.0% (72/80, exact 90.0%)\* | **89.2%** `[82.7%, 93.5%]` |
-| **`Q5_K_M` GGUF (Shipped)** | **1,199.6 MB** | **2.64 s** | **1,476.5 MB** | **11.3 tok/s** | **86.0%** (43/50, exact 84.0%) | **93.8%** (75/80, exact 93.8%)\* | **90.8%** `[84.6%, 94.6%]` |
-| `Q8_0` GGUF | 1,749.5 MB | 5.93 s | 2,026.4 MB | 7.8 tok/s | 88.0% (44/50, exact 86.0%) | 93.8% (75/80, exact 93.8%)\* | **91.5%** `[85.5%, 95.2%]` |
+| Model / Quantization | File Size | Peak / Loaded RAM | Speed | Local `test_real_v2` (`N=50`) | Local `test_real` (`N=80`)\* | Combined 130-ex Exec Acc |
+|---|---:|---:|---:|---|---|---|
+| Base `Qwen3-4B-Instruct-2507` (`Q4_K_M`, 0-shot) | 2,497.0 MB | 3,038.5 MB | 5.5 tok/s | **56.0%** (28/50, exact 22.0%, syn 66.0%) | — | — |
+| FormulaLM `Q4_K_M` GGUF (`1.7B`) | 1,056.1 MB | 1,333.0 MB | 12.7 tok/s | 88.0% (44/50, exact 84.0%) | 90.0% (72/80, exact 90.0%)\* | **89.2%** `[82.7%, 93.5%]` |
+| **FormulaLM `Q5_K_M` GGUF (`1.7B`, Shipped)** | **1,199.6 MB** | **1,476.5 MB** | **11.3 tok/s** | **86.0%** (43/50, exact 84.0%, syn 100.0%) | **93.8%** (75/80, exact 93.8%)\* | **90.8%** `[84.6%, 94.6%]` |
+| FormulaLM `Q8_0` GGUF (`1.7B`) | 1,749.5 MB | 2,026.4 MB | 7.8 tok/s | 88.0% (44/50, exact 86.0%) | 93.8% (75/80, exact 93.8%)\* | **91.5%** `[85.5%, 95.2%]` |
+
+*(Load times on CPU: `Q4_K_M` 4.60 s, **`Q5_K_M` 2.64 s**, `Q8_0` 5.93 s. Paired exact McNemar tests on `test_real_v2` [`results/stats_summary.md`](results/stats_summary.md): local CPU `Q5_K_M` vs Base `1.7B` 0-shot `+40.0 pp`, `21/1`, **`p = 1.10e-05`**; vs Base `1.7B` 5-shot `+28.0 pp`, `16/2`, **`p = 0.0013`**; vs Base `Qwen3-4B-Instruct-2507` 0-shot `+30.0 pp`, `17/2`, **`p = 0.0007`**; Colab `Q5_K_M` vs Base `4B` `+34.0 pp`, `17/0`, **`p = 1.53e-05`**.)*
 
 ### 3. External Real-Workbook Benchmark (`SpreadsheetBench Verified 400`, `N = 56`, Same-Size `1.7B`, Local CPU)
 
@@ -93,7 +113,20 @@ To test genuine out-of-distribution transfer beyond synthetic data, we determini
 | Base `Qwen3-1.7B` (5-shot, Q4_K_M) | 56 | 6/56 | **10.7%** `[5.0%, 21.5%]` | 64.3% | 1/11 (9.1%) | 5/45 (11.1%) | 11.65 s | 8.8 | 2,012 MB |
 | **FormulaLM `Q5_K_M` (Shipped, 0-shot)** | 56 | **12/56** | **21.4%** `[12.7%, 33.8%]` | **89.3%** | **3/11 (27.3%)** | **9/45 (20.0%)** | 12.16 s | 9.0 | **2,006 MB** |
 
-On unseen messy real-world forum sheets, **FormulaLM doubles Base `Qwen3-1.7B`** (`21.4%` vs `10.7%`, **2.0×**) and lifts syntax validity to **89.3%** (`+21.4 pp`), while clearly showing the gap between clean single-table synthetic sheets (`86–90%`) and multi-table forum essays (`21.4%`).
+On unseen messy real-world forum sheets, **FormulaLM doubles Base `Qwen3-1.7B`** (`21.4%` vs `10.7%`, **2.0×**, exact McNemar `9/3`, `p = 0.1460` — directional lift on `N=56`) and significantly lifts syntax validity to **89.3%** (`+21.4 pp` vs 0-shot, **`p = 0.0075`**; `+25.0 pp` vs 5-shot, **`p = 0.0013`**).
+
+#### Transparent Error & Structural-Pattern Taxonomy (`SpreadsheetBench`, all `56/56` tasks — [`results/external_bench/error_taxonomy.md`](results/external_bench/error_taxonomy.md))
+
+| Breakdown (All 56 Frozen Tasks — Zero Filtering) | Base `1.7B` (0-shot) | Base `1.7B` (5-shot) | **FormulaLM `Q5_K_M`** |
+|---|---:|---:|---:|
+| **Correct (exact execution match)** | 6 (10.7%) | 6 (10.7%) | **12 (21.4%)** |
+| Valid execution, wrong range / logic | 15 (26.8%) | 16 (28.6%) | 22 (39.3%) |
+| Circular self-reference to target cell | 15 (26.8%) | 13 (23.2%) | 13 (23.2%) |
+| Syntax / parse error | 6 (10.7%) | 7 (12.5%) | **4 (7.1%)** |
+| **Unsupported / hallucinated function** | 12 (21.4%) | 13 (23.2%) | **2 (3.6%) — 6× drop** |
+| Runtime Excel error (`#N/A`, `#VALUE!`) | 2 (3.6%) | 1 (1.8%) | 3 (5.4%) |
+| *Pattern split: Standard trained single-formula grammar (`N = 37`)* | *6/37 (16.2%)* | *5/37 (13.5%)* | ***11/37 (29.7%)*** |
+| *Pattern split: Untrained idioms (`N = 19`: 2D matrix, `$D$2:D2` running anchors, CSE arrays, wildcards, 3+ IFs)* | *0/19 (0.0%)* | *1/19 (5.3%)* | *1/19 (5.3%)* |
 
 **Key findings & honest caveats (not buried):**
 - **`v1` and `v2` are statistically tied:** on `val` (`99.6%`, 498/500) and the fresh held-out set `test_real_v2` (`88.0%`, 44/50), `v1` and `v2` tie exactly. `v2` ships (`SHIP_V2`, [`docs/DECISION.md`](docs/DECISION.md)) because it passed all pre-registered gates and achieved lower validation loss (`0.003975` vs `0.004240`). Frozen `v1` stays public as `v1-frozen`.
@@ -162,10 +195,12 @@ uv run python -m src.eval.test_real_v2 --mode annotated data/test_real_v2/test_r
 uv run python -m src.eval.run_eval --run-name repro_mock --backend mock --dataset data/test_real_v2/test_real_v2.csv --limit 10
 uv run python scripts/verify_published_download.py --source hf
 
-# 4. Regenerate comparison reports & summary charts from saved results/
+# 4. Regenerate comparison reports, statistical tests, error taxonomy & summary charts from saved results/
 uv run python -m src.eval.compare_v1_v2
 uv run python -m src.eval.compare_quant
 uv run python scripts/eval_external_bench.py --summarize
+uv run python scripts/analyze_external_errors.py
+uv run python scripts/compute_stats.py
 uv run --with matplotlib python scripts/plot_results.py
 ```
 

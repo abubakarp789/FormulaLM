@@ -1,0 +1,626 @@
+{
+  "bootstrap_resamples": 10000,
+  "seed": 42,
+  "splits": {
+    "test_real_v2": {
+      "n": 50,
+      "systems": {
+        "base_1_7b_0shot": {
+          "label": "Base Qwen3-1.7B (0-shot)",
+          "k": 23,
+          "n": 50,
+          "execution_accuracy": 0.46,
+          "wilson_95_ci": [
+            0.3297,
+            0.596
+          ],
+          "bootstrap_95_ci": [
+            0.32,
+            0.6
+          ]
+        },
+        "base_1_7b_5shot": {
+          "label": "Base Qwen3-1.7B (5-shot)",
+          "k": 29,
+          "n": 50,
+          "execution_accuracy": 0.58,
+          "wilson_95_ci": [
+            0.4423,
+            0.7062
+          ],
+          "bootstrap_95_ci": [
+            0.44,
+            0.72
+          ]
+        },
+        "base_4b_0shot": {
+          "label": "Base Qwen3-4B (0-shot, CPU)",
+          "k": 28,
+          "n": 50,
+          "execution_accuracy": 0.56,
+          "wilson_95_ci": [
+            0.4231,
+            0.6884
+          ],
+          "bootstrap_95_ci": [
+            0.42,
+            0.7
+          ]
+        },
+        "ft_v2_bf16": {
+          "label": "Fine-tuned v2-ship (LoRA, BF16)",
+          "k": 44,
+          "n": 50,
+          "execution_accuracy": 0.88,
+          "wilson_95_ci": [
+            0.762,
+            0.9438
+          ],
+          "bootstrap_95_ci": [
+            0.78,
+            0.96
+          ]
+        },
+        "local_q4_k_m": {
+          "label": "FormulaLM Q4_K_M (Local CPU)",
+          "k": 44,
+          "n": 50,
+          "execution_accuracy": 0.88,
+          "wilson_95_ci": [
+            0.762,
+            0.9438
+          ],
+          "bootstrap_95_ci": [
+            0.78,
+            0.96
+          ]
+        },
+        "local_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (Local CPU)",
+          "k": 43,
+          "n": 50,
+          "execution_accuracy": 0.86,
+          "wilson_95_ci": [
+            0.7381,
+            0.9305
+          ],
+          "bootstrap_95_ci": [
+            0.76,
+            0.94
+          ]
+        },
+        "local_q8_0": {
+          "label": "FormulaLM Q8_0 (Local CPU)",
+          "k": 44,
+          "n": 50,
+          "execution_accuracy": 0.88,
+          "wilson_95_ci": [
+            0.762,
+            0.9438
+          ],
+          "bootstrap_95_ci": [
+            0.78,
+            0.96
+          ]
+        },
+        "colab_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (Colab llama-server)",
+          "k": 45,
+          "n": 50,
+          "execution_accuracy": 0.9,
+          "wilson_95_ci": [
+            0.7864,
+            0.9565
+          ],
+          "bootstrap_95_ci": [
+            0.8,
+            0.98
+          ]
+        }
+      },
+      "paired_mcnemar": [
+        {
+          "n": 50,
+          "acc_a": 0.86,
+          "acc_b": 0.46,
+          "delta_pp": 40.0,
+          "both_correct": 22,
+          "both_wrong": 6,
+          "a_only": 21,
+          "b_only": 1,
+          "discordant": 22,
+          "p_value": 1.0967254638671875e-05,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "local_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Local CPU)",
+          "system_b": "base_1_7b_0shot",
+          "system_b_label": "Base Qwen3-1.7B (0-shot)"
+        },
+        {
+          "n": 50,
+          "acc_a": 0.86,
+          "acc_b": 0.58,
+          "delta_pp": 28.0,
+          "both_correct": 27,
+          "both_wrong": 5,
+          "a_only": 16,
+          "b_only": 2,
+          "discordant": 18,
+          "p_value": 0.001312255859375,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "local_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Local CPU)",
+          "system_b": "base_1_7b_5shot",
+          "system_b_label": "Base Qwen3-1.7B (5-shot)"
+        },
+        {
+          "n": 50,
+          "acc_a": 0.86,
+          "acc_b": 0.56,
+          "delta_pp": 30.0,
+          "both_correct": 26,
+          "both_wrong": 5,
+          "a_only": 17,
+          "b_only": 2,
+          "discordant": 19,
+          "p_value": 0.000728607177734375,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "local_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Local CPU)",
+          "system_b": "base_4b_0shot",
+          "system_b_label": "Base Qwen3-4B (0-shot, CPU)"
+        },
+        {
+          "n": 50,
+          "acc_a": 0.9,
+          "acc_b": 0.46,
+          "delta_pp": 44.0,
+          "both_correct": 23,
+          "both_wrong": 5,
+          "a_only": 22,
+          "b_only": 0,
+          "discordant": 22,
+          "p_value": 4.76837158203125e-07,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "colab_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Colab llama-server)",
+          "system_b": "base_1_7b_0shot",
+          "system_b_label": "Base Qwen3-1.7B (0-shot)"
+        },
+        {
+          "n": 50,
+          "acc_a": 0.9,
+          "acc_b": 0.58,
+          "delta_pp": 32.0,
+          "both_correct": 29,
+          "both_wrong": 5,
+          "a_only": 16,
+          "b_only": 0,
+          "discordant": 16,
+          "p_value": 3.0517578125e-05,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "colab_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Colab llama-server)",
+          "system_b": "base_1_7b_5shot",
+          "system_b_label": "Base Qwen3-1.7B (5-shot)"
+        },
+        {
+          "n": 50,
+          "acc_a": 0.9,
+          "acc_b": 0.56,
+          "delta_pp": 34.0,
+          "both_correct": 28,
+          "both_wrong": 5,
+          "a_only": 17,
+          "b_only": 0,
+          "discordant": 17,
+          "p_value": 1.52587890625e-05,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "colab_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Colab llama-server)",
+          "system_b": "base_4b_0shot",
+          "system_b_label": "Base Qwen3-4B (0-shot, CPU)"
+        },
+        {
+          "n": 50,
+          "acc_a": 0.86,
+          "acc_b": 0.88,
+          "delta_pp": -2.0,
+          "both_correct": 43,
+          "both_wrong": 6,
+          "a_only": 0,
+          "b_only": 1,
+          "discordant": 1,
+          "p_value": 1.0,
+          "significant_0_05": false,
+          "significant_0_01": false,
+          "system_a": "local_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Local CPU)",
+          "system_b": "local_q4_k_m",
+          "system_b_label": "FormulaLM Q4_K_M (Local CPU)"
+        }
+      ]
+    },
+    "test_real": {
+      "n": 80,
+      "systems": {
+        "local_q4_k_m": {
+          "label": "FormulaLM Q4_K_M (Local CPU)",
+          "k": 72,
+          "n": 80,
+          "execution_accuracy": 0.9,
+          "wilson_95_ci": [
+            0.8149,
+            0.9485
+          ],
+          "bootstrap_95_ci": [
+            0.825,
+            0.9625
+          ]
+        },
+        "local_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (Local CPU)",
+          "k": 75,
+          "n": 80,
+          "execution_accuracy": 0.9375,
+          "wilson_95_ci": [
+            0.8619,
+            0.973
+          ],
+          "bootstrap_95_ci": [
+            0.875,
+            0.9875
+          ]
+        },
+        "colab_q4_k_m": {
+          "label": "FormulaLM Q4_K_M (Colab)",
+          "k": 71,
+          "n": 80,
+          "execution_accuracy": 0.8875,
+          "wilson_95_ci": [
+            0.7998,
+            0.9397
+          ],
+          "bootstrap_95_ci": [
+            0.8125,
+            0.95
+          ]
+        },
+        "colab_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (Colab)",
+          "k": 75,
+          "n": 80,
+          "execution_accuracy": 0.9375,
+          "wilson_95_ci": [
+            0.8619,
+            0.973
+          ],
+          "bootstrap_95_ci": [
+            0.875,
+            0.9875
+          ]
+        }
+      },
+      "paired_mcnemar": [
+        {
+          "n": 80,
+          "acc_a": 0.9375,
+          "acc_b": 0.9,
+          "delta_pp": 3.75,
+          "both_correct": 71,
+          "both_wrong": 4,
+          "a_only": 4,
+          "b_only": 1,
+          "discordant": 5,
+          "p_value": 0.375,
+          "significant_0_05": false,
+          "significant_0_01": false,
+          "system_a": "local_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Local CPU)",
+          "system_b": "local_q4_k_m",
+          "system_b_label": "FormulaLM Q4_K_M (Local CPU)"
+        },
+        {
+          "n": 80,
+          "acc_a": 0.9375,
+          "acc_b": 0.8875,
+          "delta_pp": 5.0,
+          "both_correct": 70,
+          "both_wrong": 4,
+          "a_only": 5,
+          "b_only": 1,
+          "discordant": 6,
+          "p_value": 0.21875,
+          "significant_0_05": false,
+          "significant_0_01": false,
+          "system_a": "colab_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Colab)",
+          "system_b": "colab_q4_k_m",
+          "system_b_label": "FormulaLM Q4_K_M (Colab)"
+        }
+      ]
+    },
+    "external_spreadsheetbench": {
+      "n": 56,
+      "systems": {
+        "ext_base_1_7b_0shot": {
+          "label": "Base Qwen3-1.7B (0-shot, CPU)",
+          "k": 6,
+          "n": 56,
+          "execution_accuracy": 0.1071,
+          "wilson_95_ci": [
+            0.05,
+            0.2147
+          ],
+          "bootstrap_95_ci": [
+            0.0357,
+            0.1964
+          ]
+        },
+        "ext_base_1_7b_5shot": {
+          "label": "Base Qwen3-1.7B (5-shot, CPU)",
+          "k": 6,
+          "n": 56,
+          "execution_accuracy": 0.1071,
+          "wilson_95_ci": [
+            0.05,
+            0.2147
+          ],
+          "bootstrap_95_ci": [
+            0.0357,
+            0.1964
+          ]
+        },
+        "ext_formulalm_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (0-shot, CPU)",
+          "k": 12,
+          "n": 56,
+          "execution_accuracy": 0.2143,
+          "wilson_95_ci": [
+            0.1271,
+            0.3382
+          ],
+          "bootstrap_95_ci": [
+            0.1071,
+            0.3214
+          ]
+        }
+      },
+      "paired_mcnemar": [
+        {
+          "n": 56,
+          "acc_a": 0.2143,
+          "acc_b": 0.1071,
+          "delta_pp": 10.71,
+          "both_correct": 3,
+          "both_wrong": 41,
+          "a_only": 9,
+          "b_only": 3,
+          "discordant": 12,
+          "p_value": 0.14599609375,
+          "significant_0_05": false,
+          "significant_0_01": false,
+          "system_a": "ext_formulalm_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (0-shot, CPU)",
+          "system_b": "ext_base_1_7b_0shot",
+          "system_b_label": "Base Qwen3-1.7B (0-shot, CPU)"
+        },
+        {
+          "n": 56,
+          "acc_a": 0.2143,
+          "acc_b": 0.1071,
+          "delta_pp": 10.71,
+          "both_correct": 3,
+          "both_wrong": 41,
+          "a_only": 9,
+          "b_only": 3,
+          "discordant": 12,
+          "p_value": 0.14599609375,
+          "significant_0_05": false,
+          "significant_0_01": false,
+          "system_a": "ext_formulalm_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (0-shot, CPU)",
+          "system_b": "ext_base_1_7b_5shot",
+          "system_b_label": "Base Qwen3-1.7B (5-shot, CPU)"
+        }
+      ]
+    },
+    "external_spreadsheetbench_syntax": {
+      "n": 56,
+      "systems": {
+        "ext_base_1_7b_0shot": {
+          "label": "Base Qwen3-1.7B (0-shot, CPU)",
+          "k": 38,
+          "n": 56,
+          "execution_accuracy": 0.6786,
+          "wilson_95_ci": [
+            0.5482,
+            0.786
+          ],
+          "bootstrap_95_ci": [
+            0.5536,
+            0.8036
+          ]
+        },
+        "ext_base_1_7b_5shot": {
+          "label": "Base Qwen3-1.7B (5-shot, CPU)",
+          "k": 36,
+          "n": 56,
+          "execution_accuracy": 0.6429,
+          "wilson_95_ci": [
+            0.5119,
+            0.7554
+          ],
+          "bootstrap_95_ci": [
+            0.5179,
+            0.7679
+          ]
+        },
+        "ext_formulalm_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (0-shot, CPU)",
+          "k": 50,
+          "n": 56,
+          "execution_accuracy": 0.8929,
+          "wilson_95_ci": [
+            0.7853,
+            0.95
+          ],
+          "bootstrap_95_ci": [
+            0.8036,
+            0.9643
+          ]
+        }
+      },
+      "paired_mcnemar": [
+        {
+          "n": 56,
+          "acc_a": 0.8929,
+          "acc_b": 0.6786,
+          "delta_pp": 21.43,
+          "both_correct": 35,
+          "both_wrong": 3,
+          "a_only": 15,
+          "b_only": 3,
+          "discordant": 18,
+          "p_value": 0.007537841796875,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "ext_formulalm_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (0-shot, CPU)",
+          "system_b": "ext_base_1_7b_0shot",
+          "system_b_label": "Base Qwen3-1.7B (0-shot, CPU)"
+        },
+        {
+          "n": 56,
+          "acc_a": 0.8929,
+          "acc_b": 0.6429,
+          "delta_pp": 25.0,
+          "both_correct": 34,
+          "both_wrong": 4,
+          "a_only": 16,
+          "b_only": 2,
+          "discordant": 18,
+          "p_value": 0.001312255859375,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "ext_formulalm_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (0-shot, CPU)",
+          "system_b": "ext_base_1_7b_5shot",
+          "system_b_label": "Base Qwen3-1.7B (5-shot, CPU)"
+        }
+      ]
+    },
+    "quant_val_500": {
+      "n": 500,
+      "systems": {
+        "colab_q4_k_m": {
+          "label": "FormulaLM Q4_K_M (Colab)",
+          "k": 487,
+          "n": 500,
+          "execution_accuracy": 0.974,
+          "wilson_95_ci": [
+            0.956,
+            0.9847
+          ],
+          "bootstrap_95_ci": [
+            0.96,
+            0.986
+          ]
+        },
+        "colab_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (Colab)",
+          "k": 498,
+          "n": 500,
+          "execution_accuracy": 0.996,
+          "wilson_95_ci": [
+            0.9855,
+            0.9989
+          ],
+          "bootstrap_95_ci": [
+            0.99,
+            1.0
+          ]
+        }
+      },
+      "paired_mcnemar": [
+        {
+          "n": 500,
+          "acc_a": 0.996,
+          "acc_b": 0.974,
+          "delta_pp": 2.2,
+          "both_correct": 487,
+          "both_wrong": 2,
+          "a_only": 11,
+          "b_only": 0,
+          "discordant": 11,
+          "p_value": 0.0009765625,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "colab_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Colab)",
+          "system_b": "colab_q4_k_m",
+          "system_b_label": "FormulaLM Q4_K_M (Colab)"
+        }
+      ]
+    },
+    "quant_synthetic_500": {
+      "n": 500,
+      "systems": {
+        "colab_q4_k_m": {
+          "label": "FormulaLM Q4_K_M (Colab)",
+          "k": 477,
+          "n": 500,
+          "execution_accuracy": 0.954,
+          "wilson_95_ci": [
+            0.9319,
+            0.9692
+          ],
+          "bootstrap_95_ci": [
+            0.934,
+            0.972
+          ]
+        },
+        "colab_q5_k_m": {
+          "label": "FormulaLM Q5_K_M (Colab)",
+          "k": 492,
+          "n": 500,
+          "execution_accuracy": 0.984,
+          "wilson_95_ci": [
+            0.9687,
+            0.9919
+          ],
+          "bootstrap_95_ci": [
+            0.972,
+            0.994
+          ]
+        }
+      },
+      "paired_mcnemar": [
+        {
+          "n": 500,
+          "acc_a": 0.984,
+          "acc_b": 0.954,
+          "delta_pp": 3.0,
+          "both_correct": 474,
+          "both_wrong": 5,
+          "a_only": 18,
+          "b_only": 3,
+          "discordant": 21,
+          "p_value": 0.0014896392822265625,
+          "significant_0_05": true,
+          "significant_0_01": true,
+          "system_a": "colab_q5_k_m",
+          "system_a_label": "FormulaLM Q5_K_M (Colab)",
+          "system_b": "colab_q4_k_m",
+          "system_b_label": "FormulaLM Q4_K_M (Colab)"
+        }
+      ]
+    }
+  }
+}
