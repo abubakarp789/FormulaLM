@@ -57,7 +57,10 @@ Exact workflow verified from a clean temporary folder by [`scripts/verify_publis
 
 ## Headline Results (All Numbers from `results/`)
 
-Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and compared against an independent pandas ground truth (`tol=1e-6`). Brackets show **95% Wilson CIs** ([`results/final_headline.md`](results/final_headline.md), [`results/quant_comparison.md`](results/quant_comparison.md), [`results/local_benchmark/local_benchmark.md`](results/local_benchmark/local_benchmark.md)).
+Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and compared against an independent pandas ground truth (`tol=1e-6`). Brackets show **95% Wilson CIs** ([`results/final_headline.md`](results/final_headline.md), [`results/quant_comparison.md`](results/quant_comparison.md), [`results/local_benchmark/local_benchmark.md`](results/local_benchmark/local_benchmark.md), [`results/external_bench/comparison.md`](results/external_bench/comparison.md)).
+
+![Before vs after execution-verified accuracy](docs/charts/headline_accuracy.png)
+![Quantization accuracy and local CPU footprint](docs/charts/quant_pareto.png)
 
 ### 1. Base vs Fine-Tuned vs Quantized (Colab T4 Evaluation)
 
@@ -79,6 +82,18 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
 | `Q4_K_M` GGUF | 1,056.1 MB | 4.60 s | 1,333.0 MB | 12.7 tok/s | 88.0% (44/50, exact 84.0%) | 90.0% (72/80, exact 90.0%)\* | **89.2%** `[82.7%, 93.5%]` |
 | **`Q5_K_M` GGUF (Shipped)** | **1,199.6 MB** | **2.64 s** | **1,476.5 MB** | **11.3 tok/s** | **86.0%** (43/50, exact 84.0%) | **93.8%** (75/80, exact 93.8%)\* | **90.8%** `[84.6%, 94.6%]` |
 | `Q8_0` GGUF | 1,749.5 MB | 5.93 s | 2,026.4 MB | 7.8 tok/s | 88.0% (44/50, exact 86.0%) | 93.8% (75/80, exact 93.8%)\* | **91.5%** `[85.5%, 95.2%]` |
+
+### 3. External Real-Workbook Benchmark (`SpreadsheetBench Verified 400`, `N = 56`, Same-Size `1.7B`, Local CPU)
+
+To test genuine out-of-distribution transfer beyond synthetic data, we deterministically filtered [`KAKA22/SpreadsheetBench`](https://huggingface.co/datasets/KAKA22/SpreadsheetBench) (`spreadsheetbench_verified_400`, NeurIPS 2024, `CC-BY-SA-4.0`, pinned `ab0b742b` — real MrExcel/ExcelForum workbooks & human-authored questions) to **56** single-sheet `Cell-Level Manipulation` formulas inside our 36 allowed functions (`<= 20` cols, `56/56` verified gold execution, circular-reference guarded), SHA-256 frozen in [`data/external_bench/manifest.sha256`](data/external_bench/manifest.sha256) **before** inference ([`data/external_bench/README.md`](data/external_bench/README.md)):
+
+| System (`1.7B`, Local CPU `i5-8365U`, `Ollama 0.40.18`) | N | Correct | **Exec. Accuracy (95% CI)** | Syntax Valid | Single-Cell | Col-Fill | Avg Latency | Gen tok/s | Peak RAM |
+|---|---:|---:|---|---:|---:|---:|---:|---:|---:|
+| Base `Qwen3-1.7B` (0-shot, Q4_K_M) | 56 | 6/56 | **10.7%** `[5.0%, 21.5%]` | 67.9% | 2/11 (18.2%) | 4/45 (8.9%) | 10.89 s | 9.8 | 2,986 MB |
+| Base `Qwen3-1.7B` (5-shot, Q4_K_M) | 56 | 6/56 | **10.7%** `[5.0%, 21.5%]` | 64.3% | 1/11 (9.1%) | 5/45 (11.1%) | 11.65 s | 8.8 | 2,012 MB |
+| **FormulaLM `Q5_K_M` (Shipped, 0-shot)** | 56 | **12/56** | **21.4%** `[12.7%, 33.8%]` | **89.3%** | **3/11 (27.3%)** | **9/45 (20.0%)** | 12.16 s | 9.0 | **2,006 MB** |
+
+On unseen messy real-world forum sheets, **FormulaLM doubles Base `Qwen3-1.7B`** (`21.4%` vs `10.7%`, **2.0×**) and lifts syntax validity to **89.3%** (`+21.4 pp`), while clearly showing the gap between clean single-table synthetic sheets (`86–90%`) and multi-table forum essays (`21.4%`).
 
 **Key findings & honest caveats (not buried):**
 - **`v1` and `v2` are statistically tied:** on `val` (`99.6%`, 498/500) and the fresh held-out set `test_real_v2` (`88.0%`, 44/50), `v1` and `v2` tie exactly. `v2` ships (`SHIP_V2`, [`docs/DECISION.md`](docs/DECISION.md)) because it passed all pre-registered gates and achieved lower validation loss (`0.003975` vs `0.004240`). Frozen `v1` stays public as `v1-frozen`.
@@ -105,7 +120,7 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
   - **`qlora_v2` (`v2-ship`, `results/train_qlora_v2/run_summary.json`):** 1 epoch (563 steps), `lr=1e-4`, `weight_decay=0.05`, `warmup_ratio=0.08`, `eval_steps=50`, **19.0 min** (`1,138 s`) on Colab T4, peak **4.19 GB VRAM**, best `checkpoint-400` (`val_loss = 0.003975`).
 - **Merge & GGUF quantization (`notebooks/05_merge_quantize.ipynb`):** `v2-ship` adapter merged explicitly into fp16 `Qwen/Qwen3-1.7B@70d244cc` and quantized via `llama.cpp` `b12728`. Prompt-format parity check (`results/quant_parity/parity_report.md`) confirmed **20/20 (100.0%)** exact output agreement between HF FP16 and GGUF F16.
 - **Executable evaluation (`src/eval/executor.py`):** static safety/allow-list validator (rejects `eval`/`exec`, external refs, URLs, DDE, and out-of-scope functions) + cached `formulas` 1.3.4 AST execution + type-aware comparison (`tol=1e-6`). Syntax validity moved from **71.8%–81.2%** (base 0-shot) to **99.6%–100.0%** (`v2-ship` `Q5_K_M`).
-- **Error analysis (`results/ft_v1_comparison.md`, [`docs/v2_changelog.md`](docs/v2_changelog.md)):** `v1` made 19 total errors across 580 test examples (`wrong_function`: 8, `wrong_aggregation`: 4, `wrong_column`: 4, `wrong_argument_order`: 3, `syntax_error`: 0, `over_generation`: 0) and overfit during Epoch 2 (`train_loss -> 0.0000`, `val_loss -> 0.0095`). Cutting `v2` to 1 epoch at `lr=1e-4` plus 58 train-only phrasings and 2 `IFERROR(ROUND(A/B))` templates eliminated Epoch-2 overfitting.
+- **Error analysis (`results/ft_v1_comparison.md`, [`docs/v2_changelog.md`](docs/v2_changelog.md)):** `v1` made 19 total errors across 580 test examples (`wrong_function`: 8, `wrong_aggregation`: 4, `wrong_column`: 4, `wrong_argument_order`: 3, `syntax_error`: 0, `over_generation`: 0) and overfit past `checkpoint-200` through Epoch 2 (`train_loss -> 0.0000`, `val_loss` rebounding to `0.0095` at step 300 and `0.0086` at step 1000). Cutting `v2` to 1 epoch at `lr=1e-4` plus 58 train-only phrasings and 2 `IFERROR(ROUND(A/B))` templates eliminated Epoch-2 overfitting.
 
 ---
 
@@ -116,7 +131,7 @@ Every formula is executed in Python `formulas` 1.3.4 on the `.xlsx` sheet and co
 .\scripts\run_demo.ps1 -Backend mock   # offline UI smoke mode (no Ollama server needed)
 ```
 
-- **Features:** Compact 2-tab 1080p layout (**Held-out examples** + **Your own sheet** with CSV/XLSX upload `<= 1.0 MB` or pasted column headers synthesizing 5 sample rows); 8 short example buttons including 1 red-outlined honest failure (`real_v2_050`); formula copy button; live `formulas` verdict pill + ground truth; one-line latency/quantization meta with background startup warm-up (`keep_alive=30m`); and offline **saved Base `Qwen3-1.7B`** side-by-side cards (`results/baseline_*`, never loads a second model on 8 GB RAM).
+- **Features:** Compact 2-tab 1080p layout (**Held-out examples** + **Your own sheet** with CSV/XLSX upload `<= 1.0 MB` or pasted column headers synthesizing 5 sample rows, plus safe `.xlsx` formula injection & download via [`src/eval/xlsx_writer.py`](src/eval/xlsx_writer.py)); 8 short example buttons including 1 red-outlined honest failure (`real_v2_050`); formula copy button; live `formulas` verdict pill + ground truth; one-line latency/quantization meta with background startup warm-up (`keep_alive=30m`); and offline **saved Base `Qwen3-1.7B`** side-by-side cards (`results/baseline_*`, never loads a second model on 8 GB RAM).
 - **Local screenshots (`Q5_K_M` on local Ollama):**
   1. **Held-out win + saved Base `Qwen3-1.7B` failures (`docs/screenshots/demo_win.png`):** `real_v2_005` (`=COUNTIFS(...)` → `16`, `3.2 s`, `9.4 tok/s`)
      ![FormulaLM held-out win](docs/screenshots/demo_win.png)
@@ -147,9 +162,11 @@ uv run python -m src.eval.test_real_v2 --mode annotated data/test_real_v2/test_r
 uv run python -m src.eval.run_eval --run-name repro_mock --backend mock --dataset data/test_real_v2/test_real_v2.csv --limit 10
 uv run python scripts/verify_published_download.py --source hf
 
-# 4. Regenerate comparison reports from saved results/
+# 4. Regenerate comparison reports & summary charts from saved results/
 uv run python -m src.eval.compare_v1_v2
 uv run python -m src.eval.compare_quant
+uv run python scripts/eval_external_bench.py --summarize
+uv run --with matplotlib python scripts/plot_results.py
 ```
 
 **GPU stages (run on free Google Colab Tesla T4, 14.56 GB VRAM):** `notebooks/01_baseline_eval.ipynb` (~12 min), `notebooks/train_qlora.ipynb` (`v1`: 34.6 min; `v2`: 19.0 min), `notebooks/02_eval_ft_v1.ipynb` (~12 min), `notebooks/03_eval_ft_v2.ipynb` (~15 min), `notebooks/04_eval_base_real_v2.ipynb` (~5 min), and `notebooks/05_merge_quantize.ipynb` (merge + `llama.cpp` GGUF export + 16-run quantization eval, ~25 min).
