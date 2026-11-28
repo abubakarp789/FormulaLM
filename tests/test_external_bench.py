@@ -76,10 +76,10 @@ def test_external_bench_saved_results_consistency() -> None:
     for run_name in (
         "ext_base_1_7b_0shot",
         "ext_base_1_7b_5shot",
-        "ext_base_4b_0shot",
         "ext_formulalm_q5_k_m",
     ):
         m = json.loads((res_root / run_name / "metrics.json").read_text(encoding="utf-8"))
         assert m["overall"]["n"] == 56
         assert comp_json["systems"][run_name]["overall"]["k"] == m["overall"]["k"]
         assert f"{m['overall']['k']}/56" in comp_md
+    assert "ext_base_4b_0shot" not in comp_json["systems"]

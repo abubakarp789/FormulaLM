@@ -345,7 +345,6 @@ def summarize_results(results_root: Path) -> str:
     order = [
         ("ext_base_1_7b_0shot", "Base `Qwen3-1.7B` (0-shot, Ollama Q4_K_M)"),
         ("ext_base_1_7b_5shot", "Base `Qwen3-1.7B` (5-shot, Ollama Q4_K_M)"),
-        ("ext_base_4b_0shot", "Base `Qwen3-4B-Instruct-2507` (0-shot, Ollama Q4_K_M)"),
         ("ext_formulalm_q5_k_m", "**FormulaLM `Q5_K_M` (Shipped 1.7B, 0-shot)**"),
     ]
     loaded: list[tuple[str, str, dict[str, Any]]] = []

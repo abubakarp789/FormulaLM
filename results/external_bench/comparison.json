@@ -120,66 +120,6 @@
         }
       }
     },
-    "ext_base_4b_0shot": {
-      "run_name": "ext_base_4b_0shot",
-      "model": "qwen3:4b-instruct-2507-q4_K_M",
-      "few_shot": 0,
-      "dataset": "data/external_bench/external_bench.csv",
-      "seed": 42,
-      "max_tokens": 96,
-      "num_ctx": 4096,
-      "peak_ram_mb": 3074.4,
-      "overall": {
-        "n": 56,
-        "k": 24,
-        "execution_accuracy": 0.4286,
-        "wilson_95_ci": [
-          0.3077,
-          0.5586
-        ],
-        "syntax_valid_rate": 0.8393,
-        "exec_ok_rate": 0.7143,
-        "exact_match_rate": 0.0536,
-        "raw_format_ok_rate": 1.0,
-        "avg_latency_ms": 30196.49,
-        "median_latency_ms": 25486.55,
-        "avg_gen_tok_s": 3.65
-      },
-      "by_task_kind": {
-        "col_fill_first_cell": {
-          "n": 45,
-          "k": 20,
-          "execution_accuracy": 0.4444,
-          "wilson_95_ci": [
-            0.3094,
-            0.5882
-          ],
-          "syntax_valid_rate": 0.8444,
-          "exec_ok_rate": 0.7111,
-          "exact_match_rate": 0.0444,
-          "raw_format_ok_rate": 1.0,
-          "avg_latency_ms": 30195.31,
-          "median_latency_ms": 25630.14,
-          "avg_gen_tok_s": 3.77
-        },
-        "single_cell": {
-          "n": 11,
-          "k": 4,
-          "execution_accuracy": 0.3636,
-          "wilson_95_ci": [
-            0.1517,
-            0.6462
-          ],
-          "syntax_valid_rate": 0.8182,
-          "exec_ok_rate": 0.7273,
-          "exact_match_rate": 0.0909,
-          "raw_format_ok_rate": 1.0,
-          "avg_latency_ms": 30201.31,
-          "median_latency_ms": 25447.38,
-          "avg_gen_tok_s": 3.19
-        }
-      }
-    },
     "ext_formulalm_q5_k_m": {
       "run_name": "ext_formulalm_q5_k_m",
       "model": "formulalm:latest",
